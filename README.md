@@ -1,3 +1,5 @@
+<img src="icon.svg" width="64" alt="">
+
 # hostplan
 
 A central place for coding agents to put plans, and a local site to read them.

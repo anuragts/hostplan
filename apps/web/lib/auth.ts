@@ -17,6 +17,24 @@ export function authEnabled(): boolean {
 	return ownerToken() !== undefined;
 }
 
+/**
+ * Locally there is no token and everyone is the owner — that's what makes
+ * `hsp serve` on localhost frictionless. Against a real bucket that same
+ * fallback would hand the whole store, writes included, to anyone who found
+ * the URL. Setting SUPABASE_URL without HSP_TOKEN is never intentional, so it
+ * fails loudly on every request instead of silently serving.
+ *
+ * Read from the environment directly rather than through lib/store to keep
+ * this free of an import cycle.
+ */
+function assertAuthConfigured(): void {
+	if (!authEnabled() && process.env.SUPABASE_URL !== undefined) {
+		throw new Error(
+			"HSP_TOKEN is required when SUPABASE_URL is set: refusing to serve a remote store with auth disabled",
+		);
+	}
+}
+
 function equals(a: string, b: string): boolean {
 	const left = Buffer.from(a);
 	const right = Buffer.from(b);
@@ -49,6 +67,7 @@ export function hasOwnerBearer(request: Request): boolean {
 
 /** Owner check for route handlers: bearer header or session cookie. */
 export async function isOwnerRequest(request: Request): Promise<boolean> {
+	assertAuthConfigured();
 	if (!authEnabled()) return true;
 	if (hasOwnerBearer(request)) return true;
 	return isValidSession((await cookies()).get(SESSION_COOKIE)?.value);
@@ -56,6 +75,7 @@ export async function isOwnerRequest(request: Request): Promise<boolean> {
 
 /** Owner check for server components, which have no Request in scope. */
 export async function isOwnerSession(): Promise<boolean> {
+	assertAuthConfigured();
 	if (!authEnabled()) return true;
 	return isValidSession((await cookies()).get(SESSION_COOKIE)?.value);
 }

@@ -1,6 +1,6 @@
 import { canRead, isId, normalizeCode } from "@hostplan/core";
 import { isOwnerRequest } from "@/lib/auth";
-import { clientKey, consumeAttempt } from "@/lib/rate-limit";
+import { clientKey, codeAttemptKey, consumeAttempt } from "@/lib/rate-limit";
 import { planStore } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
@@ -20,7 +20,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 
 	if (!canRead(plan.meta, { isOwner, code })) {
 		if (!isOwner) {
-			const limit = consumeAttempt(`raw:${clientKey(request)}`);
+			const limit = consumeAttempt(codeAttemptKey(clientKey(request)));
 			if (!limit.allowed) {
 				return new Response("too many attempts", {
 					status: 429,

@@ -51,3 +51,12 @@ export function clientKey(request: { headers: Headers }): string {
 	const forwarded = request.headers.get("x-forwarded-for");
 	return forwarded?.split(",")[0]?.trim() ?? "unknown";
 }
+
+/**
+ * One bucket for code guessing across the page, the raw route and the API.
+ * Keying them separately would quietly triple the allowance for anyone willing
+ * to rotate between the three.
+ */
+export function codeAttemptKey(client: string): string {
+	return `code:${client}`;
+}

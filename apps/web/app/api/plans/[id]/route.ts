@@ -1,6 +1,6 @@
 import { canRead, isId, normalizeCode, shareUrls } from "@hostplan/core";
 import { isOwnerRequest, unauthorized } from "@/lib/auth";
-import { clientKey, consumeAttempt } from "@/lib/rate-limit";
+import { clientKey, codeAttemptKey, consumeAttempt } from "@/lib/rate-limit";
 import { planStore } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
@@ -24,7 +24,7 @@ export async function GET(request: Request, { params }: Params) {
 	// Same gate as the page and the raw route — one implementation, no gaps.
 	if (!canRead(plan.meta, { isOwner, code })) {
 		if (!isOwner) {
-			const limit = consumeAttempt(`api:${clientKey(request)}`);
+			const limit = consumeAttempt(codeAttemptKey(clientKey(request)));
 			if (!limit.allowed) {
 				return Response.json(
 					{ error: "too many attempts" },
@@ -35,9 +35,11 @@ export async function GET(request: Request, { params }: Params) {
 		return unauthorized();
 	}
 
-	// The code is the owner's to hand out; a code holder gets the plan, not it.
-	const { code: planCode, ...safeMeta } = plan.meta;
-	const meta = isOwner ? plan.meta : safeMeta;
+	// A reader gets the plan, not the owner's machine: the code is theirs to hand
+	// out, and source/cwd are absolute paths that would leak a home directory
+	// and username to anyone holding a share link.
+	const { code: _code, source: _source, cwd: _cwd, ...shareable } = plan.meta;
+	const meta = isOwner ? plan.meta : shareable;
 	const origin = new URL(request.url).origin;
 
 	return Response.json({

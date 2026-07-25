@@ -8,7 +8,6 @@ import {
 	displayPath,
 	formatFromPath,
 	type PlanFormat,
-	planUrl,
 	projectDirName,
 	readSourceFrontmatter,
 	resolvePort,
@@ -106,7 +105,6 @@ export async function addCommand(file: string | undefined, options: AddOptions):
 	const plan = await addPlan(input);
 
 	const port = options.serve ? (await ensureServer()).port : await resolvePort();
-	const url = planUrl(port, plan.meta.id);
 
 	const links = shareUrls(`http://localhost:${port}`, plan.meta);
 

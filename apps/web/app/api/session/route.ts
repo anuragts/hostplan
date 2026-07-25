@@ -34,7 +34,11 @@ export async function POST(request: Request) {
 	jar.set(SESSION_COOKIE, sessionValue(token), {
 		httpOnly: true,
 		sameSite: "lax",
-		secure: new URL(request.url).protocol === "https:",
+		// Behind Vercel's proxy the internal request URL is http, so the scheme
+		// the browser actually used is the forwarded one.
+		secure:
+			(request.headers.get("x-forwarded-proto") ?? new URL(request.url).protocol.slice(0, -1)) ===
+			"https",
 		path: "/",
 		maxAge: SESSION_MAX_AGE,
 	});

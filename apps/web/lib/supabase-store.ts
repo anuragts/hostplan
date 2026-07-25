@@ -46,8 +46,12 @@ const KEY_PATTERN = /^([0-9a-z]{6})--(.+)\.(md|html)$/;
 
 async function listDir(supabase: SupabaseClient, prefix: string): Promise<string[]> {
 	const { data, error } = await supabase.storage.from(BUCKET).list(prefix, { limit: 1000 });
-	if (error !== null || data === null) return [];
-	return data.map((entry) => entry.name);
+	// A missing prefix comes back as an empty list, not an error — so a real
+	// error means the bucket is unreachable. Swallowing it would render an
+	// outage as "you have no plans", and worse, would let `add` believe every
+	// id is free.
+	if (error !== null) throw new Error(`supabase list failed: ${error.message}`);
+	return (data ?? []).map((entry) => entry.name);
 }
 
 /** Walks the two-level prefix tree — the same shape as the local fs walk. */
@@ -67,6 +71,8 @@ async function listObjects(supabase: SupabaseClient): Promise<ObjectRef[]> {
 
 async function download(supabase: SupabaseClient, ref: ObjectRef): Promise<StoredPlan | undefined> {
 	const { data, error } = await supabase.storage.from(BUCKET).download(ref.key);
+	// A single unreadable object shouldn't take down a whole listing, so this
+	// one stays soft — the key was in the listing a moment ago.
 	if (error !== null || data === null) return undefined;
 	const raw = await data.text();
 	const { meta, body } = parsePlan(raw, formatFromPath(ref.key));

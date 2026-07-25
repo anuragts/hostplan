@@ -1,7 +1,8 @@
-import { listPlans } from "@hostplan/core";
 import { notFound } from "next/navigation";
 import { PageTitle, Row, Shell } from "@/components/shell";
 import { plural, relativeTime } from "@/lib/format";
+import { requireOwner } from "@/lib/require-owner";
+import { planStore } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
 
@@ -14,7 +15,8 @@ export default async function BranchPage({
 	const projectDir = decodeURIComponent(raw.project);
 	const branchDir = decodeURIComponent(raw.branch);
 
-	const plans = (await listPlans()).filter(
+	await requireOwner();
+	const plans = (await planStore().list()).filter(
 		(plan) => plan.projectDir === projectDir && plan.branchDir === branchDir,
 	);
 	if (plans.length === 0) notFound();

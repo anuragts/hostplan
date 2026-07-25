@@ -1,0 +1,59 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme {
+	--color-surface: oklch(0.17 0.006 285);
+	--color-surface-raised: oklch(0.21 0.007 285);
+	--color-line: oklch(0.29 0.008 285);
+	--color-ink: oklch(0.93 0.004 285);
+	--color-ink-muted: oklch(0.68 0.008 285);
+	--color-ink-faint: oklch(0.54 0.009 285);
+	--color-accent: oklch(0.78 0.13 195);
+
+	--font-sans:
+		ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+	--font-mono:
+		ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
+}
+
+html {
+	color-scheme: dark;
+}
+
+body {
+	background: var(--color-surface);
+	color: var(--color-ink);
+}
+
+/* Shiki emits inline styles for tokens; the surrounding block is ours. */
+.prose pre.shiki {
+	/* biome-ignore lint/complexity/noImportantStyles: shiki sets the background as an
+	   inline style on the <pre>, which no amount of selector specificity can override. */
+	background: var(--color-surface-raised) !important;
+	border: 1px solid var(--color-line);
+	border-radius: 0.5rem;
+	padding: 1rem;
+	overflow-x: auto;
+	font-size: 0.8125rem;
+	line-height: 1.6;
+}
+
+.prose :where(code):not(:where(pre code)) {
+	background: var(--color-surface-raised);
+	border: 1px solid var(--color-line);
+	border-radius: 0.3rem;
+	padding: 0.1em 0.35em;
+	font-weight: 400;
+	font-size: 0.85em;
+}
+
+.prose :where(code):not(:where(pre code))::before,
+.prose :where(code):not(:where(pre code))::after {
+	content: none;
+}
+
+.prose :where(table) {
+	display: block;
+	overflow-x: auto;
+	white-space: nowrap;
+}

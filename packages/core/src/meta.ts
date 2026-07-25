@@ -2,6 +2,8 @@ import { randomUUID } from "node:crypto";
 import { readFile, rename, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import matter from "gray-matter";
+import type { Visibility } from "./access";
+import { normalizeCode } from "./code";
 
 export type PlanFormat = "md" | "html";
 
@@ -15,6 +17,10 @@ export interface PlanMeta {
 	format: PlanFormat;
 	created: string;
 	updated: string;
+	/** Who may read this once it's hosted. Private is the default everywhere. */
+	visibility: Visibility;
+	/** 4-letter share code. Only present on private plans. */
+	code?: string;
 	/** Absolute path of the file this plan was added from, when there was one. */
 	source?: string;
 	/** Project root the plan was written for. Deep links open the app here. */
@@ -39,6 +45,8 @@ const OWNED_KEYS = [
 	"updated",
 	"source",
 	"cwd",
+	"visibility",
+	"code",
 ] as const;
 
 const HTML_META_PATTERN = /^<!--hostplan\s+([\s\S]*?)-->\n?/;
@@ -52,6 +60,10 @@ function metaToRecord(meta: PlanMeta): Record<string, unknown> {
 		format: meta.format,
 		created: meta.created,
 		updated: meta.updated,
+		// Never emit undefined: the YAML dumper throws on it, and a plan that
+		// can't be written is worse than one that defaults to private.
+		visibility: meta.visibility ?? "private",
+		...(meta.code === undefined ? {} : { code: meta.code }),
 		...(meta.source === undefined ? {} : { source: meta.source }),
 		...(meta.cwd === undefined ? {} : { cwd: meta.cwd }),
 	};
@@ -65,6 +77,10 @@ function recordToMeta(record: Record<string, unknown>, fallbackFormat: PlanForma
 	const format = str("format");
 	const source = str("source");
 	const cwd = str("cwd");
+	// Plans written before visibility existed are treated as private — the safe
+	// direction to be wrong in.
+	const visibility = str("visibility") === "public" ? "public" : "private";
+	const code = normalizeCode(str("code"));
 	return {
 		id: str("hostplan_id") ?? "",
 		title: str("title") ?? "Untitled Plan",
@@ -73,6 +89,8 @@ function recordToMeta(record: Record<string, unknown>, fallbackFormat: PlanForma
 		format: format === "html" || format === "md" ? format : fallbackFormat,
 		created: str("created") ?? new Date(0).toISOString(),
 		updated: str("updated") ?? str("created") ?? new Date(0).toISOString(),
+		visibility,
+		...(code === undefined ? {} : { code }),
 		...(source === undefined ? {} : { source }),
 		...(cwd === undefined ? {} : { cwd }),
 	};

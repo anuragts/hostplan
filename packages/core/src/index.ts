@@ -1,3 +1,5 @@
+export { canRead, type ReadContext, shareUrls, type Visibility } from "./access";
+export { CODE_LENGTH, codesMatch, isCode, newCode, normalizeCode } from "./code";
 export {
 	DEFAULT_PORT,
 	type HostplanConfig,
@@ -29,6 +31,7 @@ export {
 	runRoot,
 	storeRoot,
 } from "./paths";
+export { fsPlanStore, type PlanStore } from "./plan-store";
 export { deslugify, slugify, titleFromHtml, titleFromMarkdown } from "./slug";
 export {
 	type AddPlanInput,
@@ -46,4 +49,6 @@ export {
 	type StoredPlan,
 	summarizeBranches,
 	summarizeProjects,
+	type UpdatePlanPatch,
+	updatePlan,
 } from "./store";

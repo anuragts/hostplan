@@ -29,9 +29,13 @@ export function middleware(request: NextRequest) {
 export const config = {
 	matcher: [
 		/*
-		 * Everything except: the plan page (self-gating), API routes (gated per
-		 * handler), login, and static assets.
+		 * Everything except: the home page (serves a public landing page to
+		 * visitors and the index to the owner, so it gates itself), the plan page
+		 * (self-gating), API routes (gated per handler), login, and static assets.
+		 *
+		 * `login$` rather than `login` so a project named `login-flow` doesn't
+		 * slip past the guard on the strength of its prefix.
 		 */
-		"/((?!p/|api/|login|_next/|favicon.ico|icon.svg|apple-icon.png).*)",
+		"/((?!$|p/|api/|login$|_next/|preview.png|favicon.ico|icon.svg|apple-icon.png).*)",
 	],
 };

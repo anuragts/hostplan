@@ -26,10 +26,13 @@ export async function generateMetadata({
 	params: Promise<{ id: string }>;
 }): Promise<Metadata> {
 	const plan = await load((await params).id);
+	// Plans are shared by link, not found by search — a public one landing in
+	// an index would defeat the point of choosing who gets the URL.
+	const robots = { index: false, follow: false };
 	// A locked plan gives nothing away in the tab title or link previews.
-	if (plan === undefined) return { title: "Plan not found · hostplan" };
-	if (plan.meta.visibility !== "public") return { title: "Private plan · hostplan" };
-	return { title: `${plan.meta.title} · hostplan` };
+	if (plan === undefined) return { title: "Plan not found · hostplan", robots };
+	if (plan.meta.visibility !== "public") return { title: "Private plan · hostplan", robots };
+	return { title: `${plan.meta.title} · hostplan`, robots };
 }
 
 export default async function PlanPage({

@@ -1,14 +1,20 @@
 import { displayPath, storeRoot, summarizeProjects } from "@hostplan/core";
+import { Landing } from "@/components/landing";
 import { Empty, PageTitle, Row, Shell } from "@/components/shell";
+import { isOwnerSession } from "@/lib/auth";
 import { plural, relativeTime } from "@/lib/format";
-import { requireOwner } from "@/lib/require-owner";
 import { isRemoteStore, planStore } from "@/lib/store";
 
 // The store changes underneath us constantly; a cached page is a wrong page.
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-	await requireOwner();
+	// `/` is the one route that serves two audiences: the owner's index, and the
+	// pitch for everyone else. Splitting on who is asking rather than on NODE_ENV
+	// keeps both halves reachable in development — unset HSP_TOKEN and you are
+	// the owner, set it and sign out to see what a visitor sees.
+	if (!(await isOwnerSession())) return <Landing />;
+
 	const plans = await planStore().list();
 	const projects = summarizeProjects(plans);
 

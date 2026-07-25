@@ -12,6 +12,7 @@ import {
 	projectDirName,
 	readSourceFrontmatter,
 	resolvePort,
+	shareUrls,
 	slugify,
 	titleFromHtml,
 	titleFromMarkdown,
@@ -30,6 +31,9 @@ export interface AddOptions {
 	quiet?: boolean;
 	json?: boolean;
 	serve: boolean;
+	/** commander sets this false for --private, true for --public */
+	public?: boolean;
+	private?: boolean;
 }
 
 function parseFormat(value: string | undefined, fallback: PlanFormat): PlanFormat {
@@ -92,6 +96,8 @@ export async function addCommand(file: string | undefined, options: AddOptions):
 		project,
 		branch,
 		format: source.format,
+		// Private unless publishing is asked for explicitly.
+		visibility: options.public === true ? "public" : "private",
 		cwd: scope.root,
 		...(source.path === undefined ? {} : { source: source.path }),
 		...(Object.keys(parsed.data).length === 0 ? {} : { extraFrontmatter: parsed.data }),
@@ -102,13 +108,16 @@ export async function addCommand(file: string | undefined, options: AddOptions):
 	const port = options.serve ? (await ensureServer()).port : await resolvePort();
 	const url = planUrl(port, plan.meta.id);
 
+	const links = shareUrls(`http://localhost:${port}`, plan.meta);
+
 	if (options.json === true) {
-		printJson({ ...plan.meta, url, path: plan.path });
+		printJson({ ...plan.meta, ...links, path: plan.path });
 		return;
 	}
 
 	if (options.quiet === true) {
-		process.stdout.write(`${url}\n`);
+		// The link that actually opens, so `$(hsp add -q ...)` is usable as-is.
+		process.stdout.write(`${links.codedUrl ?? links.url}\n`);
 	} else {
 		if (projectDirName(project) !== slugify(project)) {
 			warn(
@@ -116,12 +125,17 @@ export async function addCommand(file: string | undefined, options: AddOptions):
 			);
 		}
 		const lines = [
-			`${style.green("✓")} stored  ${style.bold(title)}  ${style.dim("·")}  ${project} / ${branch}  ${style.dim("·")}  ${style.cyan(plan.meta.id)}`,
-			`${style.dim("→")} ${style.blue(url)}`,
+			`${style.green("✓")} stored  ${style.bold(title)}  ${style.dim("·")}  ${project} / ${branch}  ${style.dim("·")}  ${style.cyan(plan.meta.id)}  ${style.dim("·")}  ${plan.meta.visibility}`,
+			links.codedUrl === undefined
+				? `${style.dim("→")} ${style.blue(links.url)}`
+				: `${style.dim("→")} ${style.blue(links.url)}  ${style.dim("asks for the code")}`,
+			...(links.codedUrl === undefined
+				? []
+				: [`${style.dim("→")} ${style.blue(links.codedUrl)}  ${style.dim("opens directly")}`]),
 			`  ${style.dim(displayPath(plan.path))}`,
 		];
 		process.stdout.write(`${lines.join("\n")}\n`);
 	}
 
-	if (options.open === true) openInBrowser(url);
+	if (options.open === true) openInBrowser(links.codedUrl ?? links.url);
 }

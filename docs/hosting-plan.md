@@ -22,7 +22,7 @@ backend the serverless functions can reach.
 | App hosting | Vercel (existing account) | Zero-config Next.js; free Hobby tier is plenty |
 | DNS | Stays on Cloudflare, `plans` CNAME → Vercel, **DNS-only (grey cloud)** | Proxying through Cloudflare in front of Vercel breaks cert issuance and buys nothing here |
 | Storage | Supabase Storage | Plans are just files; keeps the "each plan describes itself" model. Free tier 1 GB ≫ years of plans. Brings Postgres and auth in the same project for free — the obvious growth path if listing ever needs an index or a second user ever appears — and being S3-compatible it isn't welded to Vercel |
-| Auth | Single owner secret (`HSP_TOKEN`) | One user. Bearer header for the CLI, cookie session for the browser. No user table, no OAuth dependency |
+| Auth | Owner secret + per-plan visibility | `HSP_TOKEN` for writes and browsing everything; each plan is `public` (bare link) or `private` (4-letter code). No user table, no OAuth dependency |
 | Sync model | Local-first, push-through | `hsp add` keeps writing locally, then pushes when a remote is configured. Local store doubles as offline cache |
 
 **Deliberately not doing:** multi-user accounts, OAuth, plan sharing/permissions,
@@ -84,25 +84,74 @@ All gated on `Authorization: Bearer <HSP_TOKEN>` compared with
 `crypto.timingSafeEqual`. These routes also work locally against `FsStore`,
 which is how they get tested without deploying.
 
-### 3. Auth
+### 3. Auth — three tiers
 
-- Generate once: `openssl rand -hex 32` → Vercel env `HSP_TOKEN`.
-- **CLI**: `hsp login` prompts for token + remote URL, saves to
-  `~/.hostplan/config.json` (chmod 600). Sent as the bearer header.
-- **Browser**: `/login` page posts the token; on match, sets an httpOnly
-  `hsp_session` cookie (HMAC of the token, 30-day expiry). `middleware.ts`
-  redirects everything except `/login`, `/api/*`, and icons to `/login` when
-  the cookie is absent/invalid.
-- Rotation = change the env var; every session and CLI dies at once. Correct
-  behaviour for a leaked single-owner secret.
+Writing and reading are different problems with different audiences:
+
+| Tier | Who | Credential | Can |
+| --- | --- | --- | --- |
+| Owner | you + your agents | `HSP_TOKEN` (bearer / login cookie) | everything: write, delete, browse all plans, see codes |
+| Code holder | someone you shared a private plan with | that plan's 4-letter code | read that one plan |
+| Everyone | anyone with the link | — | read public plans |
+
+**Owner** stays as designed: `openssl rand -hex 32` → Vercel env `HSP_TOKEN`;
+CLI sends it as a bearer header, the browser gets it via `/login` → httpOnly
+cookie. All writes require it. Rotation = change the env var.
+
+**Per-plan visibility.** Every plan carries `visibility: public | private` in
+its frontmatter. Private plans also carry a `code` — 4 letters, generated at
+add time from `A–Z` minus lookalikes (`I O Q L`), stored plaintext in the
+frontmatter (the store is owner-only; the code is not a secret *from the
+owner*). Default visibility is **private**, set in config as
+`default_visibility` — publishing should be the deliberate act, not the
+accident.
+
+**Read rules, enforced in one place** (a `canRead(plan, request)` helper used
+by the page, the raw route, and the API):
+
+1. `visibility: public` → serve.
+2. Owner session cookie → serve, always.
+3. `?code=` matches the plan's code (case-insensitive) → serve.
+4. Otherwise → the plan page renders a 4-letter code form instead of the body.
+   On a correct entry it redirects to `/p/<id>?code=XXXX` — so after entering
+   the code once, **the address bar holds the shareable coded URL**. That's the
+   deliberate trick of the scheme: the two share formats are
+   `…/p/<id>` (asks for the code) and `…/p/<id>?code=XXXX` (walks right in),
+   and either one can be pasted onward.
+
+Index pages (`/`, `/<project>`, `/<branch>`) stay **owner-only**. Sharing is
+per-plan by link; the directory of everything you're planning is not the
+shareable surface.
+
+**Honesty about 4 letters:** 22⁴ ≈ 234k combinations. That is casual privacy —
+"randoms and crawlers can't read this" — not cryptography. Two mitigations make
+it fine for what it is: code checks are rate-limited (10 tries/min per IP, 429
+after), and a code only ever unlocks its one plan. Anything genuinely sensitive
+shouldn't be in a hosted plan at all. `hsp code rotate <id>` reissues a code if
+one leaks.
+
+Local (`localhost:7433`) skips all of this — no login, no codes. The
+frontmatter fields simply ride along until a plan is pushed.
 
 ### 4. CLI remote mode
 
 - `hsp login` / `hsp logout` — manage `remote` + `token` in config.
-- `hsp add`: after the local write, push to the remote; print the
-  **plans.host-plan.com** URL as primary and the local path under it.
-  `--local` skips the push; failure to push warns but doesn't fail the add
-  (the plan exists locally — degrade, don't lose work).
+- `hsp add --public` / `--private` — the agent states the intent per plan;
+  omitted → `default_visibility` from config (initially `private`). After the
+  local write, push to the remote and print what's shareable:
+
+  ```
+  ✓ stored  Worktree GC  ·  nest / feat/delivery  ·  a3f9c2  ·  private
+  → https://plans.host-plan.com/p/a3f9c2            asks for code
+  → https://plans.host-plan.com/p/a3f9c2?code=KRWT  opens directly
+  ```
+
+  Public plans print the one bare URL. `--local` skips the push; a failed push
+  warns but doesn't fail the add (the plan exists locally — degrade, don't
+  lose work).
+- `hsp share <id>` — reprint both link forms for a plan without re-adding.
+- `hsp publish <id>` / `hsp unpublish <id>` — flip visibility later;
+  `hsp code rotate <id>` — reissue a leaked code.
 - `hsp get/list`: local first, remote fallback (`--remote` to force).
 - Keep `ensureServer()` only for when no remote is configured.
 
@@ -130,11 +179,13 @@ which is how they get tested without deploying.
 ### 7. Ship order
 
 1. Storage adapter + API routes (works fully locally — test with curl)
-2. Auth middleware + `/login`
-3. `hsp login` + push-through `add`, remote `get`/`list`
-4. Vercel project + Blob + envs → verify on `*.vercel.app`
-5. DNS + domain → verify on plans.host-plan.com
-6. README: "Hosting your own" section
+2. Visibility + codes in core (`visibility`, `code` in frontmatter; `canRead`)
+3. Owner auth middleware + `/login`; code form + redirect on `/p/[id]`
+4. `hsp login`, `--public/--private`, push-through `add`, `share`,
+   `publish/unpublish`, `code rotate`, remote `get`/`list`
+5. Vercel project + Supabase bucket + envs → verify on `*.vercel.app`
+6. DNS + domain → verify on plans.host-plan.com
+7. README: "Hosting your own" section
 
 ## Verification
 
@@ -143,14 +194,22 @@ which is how they get tested without deploying.
 # Then once more with SUPABASE_URL set, against a scratch bucket, before DNS.
 HSP_TOKEN=test bun run dev
 curl -s -H "Authorization: Bearer test" -d @plan.json localhost:7433/api/plans
-curl -s localhost:7433/p/<id>            # -> 307 to /login without cookie
 
 # after deploy
-hsp login                                 # paste token + https://plans.host-plan.com
-cd some-repo && hsp add PLAN.md           # prints the public URL
-open https://plans.host-plan.com/p/<id>   # login once, renders
-curl -s https://plans.host-plan.com/api/plans/<id>          # 401
-curl -s -H "Authorization: Bearer <token>" ...              # 200
+hsp login                                   # paste token + https://plans.host-plan.com
+hsp add PLAN.md --public                    # one bare URL, opens for anyone
+hsp add PLAN.md --private                   # two URLs, 4-letter code
+
+# the read matrix — every row checked against the page AND /api/raw/<id>
+#   public plan, no cookie, no code      -> 200
+#   private, bare URL, logged out        -> code form (page) / 401 (raw)
+#   private, ?code=RIGHT                 -> 200, address bar keeps the code
+#   private, ?code=wrong                 -> form again; 11th try in a minute -> 429
+#   private, owner cookie, no code       -> 200
+#   /, /<project> logged out             -> redirect to /login even if plans are public
+open https://plans.host-plan.com/p/<id>     # enter code -> lands on ?code=XXXX
+hsp share <id>                              # reprints both link forms
+hsp code rotate <id>                        # old coded URL stops working
 ```
 
 Also worth checking by hand: push from a second machine with the same token,

@@ -1,22 +1,41 @@
+import { redirect } from "next/navigation";
+import { LoginForm } from "@/components/login-form";
 import { Shell } from "@/components/shell";
 import { authEnabled } from "@/lib/auth";
+import { currentViewer } from "@/lib/current-viewer";
+import { accountsEnabled } from "@/lib/supabase-clients";
 
 export const dynamic = "force-dynamic";
 
 export default async function LoginPage({
 	searchParams,
 }: {
-	searchParams: Promise<{ next?: string; error?: string }>;
+	searchParams: Promise<{ next?: string; error?: string; sent?: string }>;
 }) {
-	const { next = "/", error } = await searchParams;
+	const { next = "/", error, sent } = await searchParams;
+
+	// Already signed in — nothing here to do.
+	if ((await currentViewer()).kind !== "anonymous") redirect(next);
+
+	// Accounts take precedence when configured; the token form is what a
+	// single-owner deployment still gets.
+	if (accountsEnabled()) {
+		return (
+			<Shell crumbs={[{ label: "sign in" }]}>
+				<div className="mx-auto max-w-sm pt-10">
+					<LoginForm next={next} {...(error === undefined ? {} : { error })} sent={sent === "1"} />
+				</div>
+			</Shell>
+		);
+	}
 
 	if (!authEnabled()) {
 		return (
 			<Shell crumbs={[{ label: "login" }]}>
-				<h1 className="font-semibold text-2xl text-ink tracking-tight">No token configured</h1>
+				<h1 className="font-semibold text-2xl text-ink tracking-tight">No sign-in configured</h1>
 				<p className="mt-3 text-ink-muted text-sm">
-					This instance is running without <code className="font-mono text-ink">HSP_TOKEN</code>, so
-					there is nothing to sign in to.
+					This instance runs without accounts or an{" "}
+					<code className="font-mono text-ink">HSP_TOKEN</code>, so there is nothing to sign in to.
 				</p>
 			</Shell>
 		);

@@ -132,7 +132,9 @@ export function buildProgram(): Command {
 		.command("login")
 		.description("sign in to a hostplan deployment so `add` pushes to it")
 		.option("--url <url>", "deployment base url")
-		.option("--token <token>", "owner token; prompted for if omitted")
+		.option("--token <token>", "access token — the unattended path, for agents and CI")
+		.option("--no-browser", "paste a token instead of approving in a browser")
+		.option("--no-open", "print the approval link instead of opening it")
 		.option("--json", "print as JSON")
 		.action(loginCommand);
 

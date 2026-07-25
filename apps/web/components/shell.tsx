@@ -6,7 +6,16 @@ export interface Crumb {
 	href?: string;
 }
 
-export function Shell({ crumbs, children }: { crumbs: Crumb[]; children: ReactNode }) {
+export function Shell({
+	crumbs,
+	children,
+	action,
+}: {
+	crumbs: Crumb[];
+	children: ReactNode;
+	/** Right-aligned slot in the header, e.g. sign out. */
+	action?: ReactNode;
+}) {
 	return (
 		<div className="mx-auto min-h-dvh w-full max-w-4xl px-6 py-10">
 			<header className="mb-10 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
@@ -28,6 +37,7 @@ export function Shell({ crumbs, children }: { crumbs: Crumb[]; children: ReactNo
 						)}
 					</span>
 				))}
+				{action !== undefined && <div className="ml-auto">{action}</div>}
 			</header>
 			{children}
 		</div>

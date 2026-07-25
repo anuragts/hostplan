@@ -1,6 +1,6 @@
 import { describe } from "bun:test";
 import { runPlanStoreContract } from "@hostplan/core/test/plan-store-contract";
-import { supabasePlanStore } from "../lib/supabase-store";
+import { secretKey, supabasePlanStore } from "../lib/supabase-store";
 
 /**
  * Runs the same contract as the filesystem store, against a real bucket.
@@ -13,8 +13,7 @@ import { supabasePlanStore } from "../lib/supabase-store";
  * Point it at a scratch project, not the one holding real plans — the contract
  * creates and deletes plans as it goes.
  */
-const configured =
-	process.env.SUPABASE_URL !== undefined && process.env.SUPABASE_SERVICE_ROLE_KEY !== undefined;
+const configured = process.env.SUPABASE_URL !== undefined && secretKey() !== undefined;
 
 describe.skipIf(!configured)("supabasePlanStore", () => {
 	runPlanStoreContract(supabasePlanStore);

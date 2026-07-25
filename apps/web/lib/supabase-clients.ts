@@ -14,7 +14,16 @@ export function secretKey(): string | undefined {
 	return process.env.SUPABASE_SECRET_KEY ?? process.env.SUPABASE_SERVICE_ROLE_KEY;
 }
 
+/**
+ * Accounts require an explicit opt-in, not just the presence of a key.
+ *
+ * Inferring it from the publishable key alone turned the Postgres store on for
+ * a deployment that had one set for other reasons — before its tables existed —
+ * and every owner request 500'd. A key says "I can talk to Supabase"; it does
+ * not say "the migration has run". Only HOSTPLAN_ACCOUNTS says that.
+ */
 export function accountsEnabled(): boolean {
+	if (process.env.HOSTPLAN_ACCOUNTS !== "1") return false;
 	return supabaseUrl() !== undefined && publishableKey() !== undefined;
 }
 

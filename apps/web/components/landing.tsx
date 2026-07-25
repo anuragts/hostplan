@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import type { ReactNode } from "react";
 import { CopyCommand } from "@/components/copy-command";
 
@@ -51,14 +52,22 @@ export function Landing() {
 		<div className="min-h-dvh">
 			<Section className="flex items-center justify-between py-6">
 				<span className="font-mono font-semibold text-accent">hostplan</span>
-				<a
-					href={REPO}
-					className="text-ink-muted text-sm transition-colors hover:text-ink"
-					target="_blank"
-					rel="noreferrer"
-				>
-					GitHub
-				</a>
+				<nav className="flex items-center gap-5 text-sm">
+					<a
+						href={REPO}
+						className="text-ink-muted transition-colors hover:text-ink"
+						target="_blank"
+						rel="noreferrer"
+					>
+						GitHub
+					</a>
+					<Link
+						href="/login"
+						className="rounded-lg border border-line bg-surface-raised px-3.5 py-1.5 font-medium text-ink transition-colors hover:border-ink-faint"
+					>
+						Sign in
+					</Link>
+				</nav>
 			</Section>
 
 			<Section className="pt-16 pb-20 sm:pt-24">
@@ -73,14 +82,9 @@ export function Landing() {
 
 				<div className="mt-10 flex flex-col items-start gap-4 sm:flex-row sm:items-center">
 					<CopyCommand command="npx hostplan add PLAN.md" />
-					<a
-						href={REPO}
-						className="text-ink-muted text-sm transition-colors hover:text-ink"
-						target="_blank"
-						rel="noreferrer"
-					>
-						or install from source →
-					</a>
+					<Link href="/login" className="text-ink-muted text-sm transition-colors hover:text-ink">
+						or sign in to see your plans →
+					</Link>
 				</div>
 				<p className="mt-3 font-mono text-ink-faint text-xs">
 					npm package coming soon — until then, clone the repo and `bun link`.

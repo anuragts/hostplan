@@ -24,6 +24,15 @@ Keep it. It is the credential for the CLI and for browsing every plan.
 
 ## 3. Vercel
 
+The repo ships `apps/web/vercel.json` pinning functions to `sin1` (Singapore) so
+they sit next to the Supabase project — a US region would put the Pacific
+between every plan read and its storage. Move one, move both.
+
+Vercel deploys **production from the default branch**. Until this work is on
+`main`, either merge it first or set Settings -> Git -> Production Branch to the
+feature branch; otherwise you get a preview URL and the custom domain won't
+attach to it.
+
 Import the GitHub repo, then:
 
 | Setting | Value |

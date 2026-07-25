@@ -63,12 +63,39 @@ hsp get latest               # the most recent plan here
 hsp list                     # plans for this repo and branch
 hsp open <id>                # open it in a browser
 hsp rm <id>                  # delete it
+hsp share <id>               # print its shareable links
+hsp publish|unpublish <id>   # change who can read it
+hsp rotate <id>              # issue a new share code
 hsp serve status|stop        # manage the viewer
 ```
 
 Project and branch come from git automatically. `--project` / `--branch`
 override them, `--all` ignores them, and `--json` on any of these gives an agent
 something parseable.
+
+### Public and private plans
+
+Every plan is **private** unless you say otherwise — publishing should be
+deliberate. A private plan gets a 4-letter code, and `hsp add` prints both forms
+of its link:
+
+```
+$ hsp add PLAN.md --private
+✓ stored  Worktree GC  ·  nest / main  ·  a3f9c2  ·  private
+→ http://localhost:7433/p/a3f9c2            asks for the code
+→ http://localhost:7433/p/a3f9c2?code=KRWT  opens directly
+```
+
+Send the bare link plus the code separately, or send the coded link and skip a
+step. Entering the code on the page redirects to `?code=…`, so the address bar
+becomes the link you can pass on. `hsp add --public` gives one bare URL that
+opens for anyone.
+
+Codes are casual privacy, not cryptography: 4 letters is ~234,000 combinations,
+throttled but guessable given time. Don't host anything genuinely sensitive.
+
+None of this applies locally — there's no login and no code prompt until the
+viewer is deployed. See [docs/deploying.md](docs/deploying.md).
 
 ### Open in
 

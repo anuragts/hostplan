@@ -7,7 +7,8 @@ description: >-
   agent will pick up; whenever you are asked to "save this plan", "share this
   plan", "give me a link to the plan"; and whenever the user refers to a plan
   you did not write — "the plan from earlier", "what did the other agent plan",
-  a plan id, or a http://localhost:7433/p/<id> URL. Also use it before starting
+  a plan id, or a hostplan URL (http://localhost:7433/p/<id> or
+  https://plans.host-plan.com/p/<id>). Also use it before starting
   implementation work on a branch, to check whether a plan already exists.
 ---
 
@@ -39,8 +40,9 @@ EOF
 It prints the id, the URL, and the store path:
 
 ```
-✓ stored  Worktree GC  ·  nest / feat/delivery  ·  a3f9c2
-→ http://localhost:7433/p/a3f9c2
+✓ stored  Worktree GC  ·  nest / feat/delivery  ·  a3f9c2  ·  private
+→ http://localhost:7433/p/a3f9c2            asks for the code
+→ http://localhost:7433/p/a3f9c2?code=KRWT  opens directly
 ```
 
 Give the user that URL — the page renders the plan and has an **Open in**
@@ -50,6 +52,27 @@ want the URL, `--json` if you need to parse the result.
 The viewer starts itself on first use; the very first `hsp add` on a machine
 may take ~30s while it builds. Pass `--no-serve` to skip that if you only need
 the plan on disk.
+
+## Private and public
+
+Plans are **private by default** and get a 4-letter share code. `hsp add`
+prints both link forms: the bare one asks for the code, the `?code=` one opens
+directly. Pass on whichever suits — for a link the user will forward, the coded
+one saves them a step.
+
+Add `--public` only when the user asks for something anyone can open, or when
+the plan is obviously meant to travel. Publishing is deliberate; don't do it
+because it seems more convenient.
+
+```bash
+hsp add PLAN.md --public     # one bare URL, no code
+hsp share <id>               # reprint both link forms
+hsp publish|unpublish <id>   # change it later
+hsp rotate <id>              # new code, old link stops working
+```
+
+Codes are casual privacy, not cryptography. If a plan contains anything
+genuinely sensitive, say so rather than hosting it.
 
 ## Reading a plan back
 
@@ -80,8 +103,19 @@ prior session may have already planned it.
 hsp open <id>         # open in a browser
 hsp url <id>          # just the URL
 hsp rm <id>           # delete
-hsp serve status|stop # manage the viewer
+hsp serve status|stop # manage the local viewer
+hsp whoami            # which deployment plans are pushed to, if any
 ```
+
+## Local versus hosted
+
+By default everything is local: one folder, a localhost site, nothing uploaded.
+
+If the user has run `hsp login`, `hsp add` also pushes to their deployment and
+prints that URL instead — the same plan, one id, readable from anywhere. You do
+not need to do anything differently; `hsp whoami` says whether a deployment is
+configured. If a push fails, `hsp add` warns but still stores the plan locally,
+so nothing is lost.
 
 ## Notes
 
@@ -89,7 +123,7 @@ hsp serve status|stop # manage the viewer
   them. Outside a git repo the bucket is the directory name.
 - Every command takes `--json` — prefer it when you need to act on the output.
 - `HOSTPLAN_HOME` moves the store, `HOSTPLAN_PORT` changes the port (7433).
-- Everything is local: one machine, one folder, a localhost site. Nothing is
-  uploaded, so this is safe for private plans.
+- Nothing is uploaded unless `hsp login` has been run. Check `hsp whoami`
+  before assuming a plan will leave the machine.
 - If `hsp` is not on PATH, hostplan is not installed on this machine — say so
   rather than trying to install it.

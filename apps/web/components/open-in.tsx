@@ -6,12 +6,13 @@ import type { OpenTarget, ProviderId } from "@/lib/providers";
 
 const STORAGE_KEY = "hostplan:open-in";
 
-function ChevronUp({ flipped }: { flipped: boolean }) {
+/** Points down while closed, and flips up to mirror the menu once it's open. */
+function Chevron({ pointUp }: { pointUp: boolean }) {
 	return (
 		<svg
 			viewBox="0 0 16 16"
 			aria-hidden="true"
-			className={`h-3.5 w-3.5 transition-transform duration-150 ${flipped ? "rotate-180" : ""}`}
+			className={`h-3.5 w-3.5 transition-transform duration-150 ${pointUp ? "" : "rotate-180"}`}
 		>
 			<path
 				d="M4 10l4-4 4 4"
@@ -130,7 +131,7 @@ export function OpenIn({ targets }: { targets: OpenTarget[] }) {
 					aria-label="Choose a different app"
 					className="flex items-center border-neutral-200 border-l px-2.5 text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-900"
 				>
-					<ChevronUp flipped={menuOpen} />
+					<Chevron pointUp={menuOpen} />
 				</button>
 			</div>
 		</div>

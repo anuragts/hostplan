@@ -9,9 +9,9 @@ steps that need your credentials.
 2. Storage → **New bucket** → name it `plans`, leave **Public** off.
    The bucket must stay private: the app reads it server-side and does its own
    access checks, so a public bucket would bypass every share code.
-3. Settings → API → copy the **Project URL** and the **`service_role` key**.
+3. Settings → API → copy the **Project URL** and the **secret key** (`sb_secret_…`; older projects call this `service_role`).
 
-The `service_role` key bypasses row-level security. It only ever belongs in a
+The secret key bypasses row-level security. It only ever belongs in a
 server environment variable — never `NEXT_PUBLIC_*`, never client code.
 
 ## 2. Owner token
@@ -38,7 +38,7 @@ Environment variables:
 ```
 HSP_TOKEN=<the token from step 2>
 SUPABASE_URL=<project url>
-SUPABASE_SERVICE_ROLE_KEY=<service_role key>
+SUPABASE_SECRET_KEY=<sb_secret_... from Settings → API>
 ```
 
 `SUPABASE_URL` is what flips the app from the local filesystem to the bucket,

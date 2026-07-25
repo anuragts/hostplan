@@ -24,14 +24,24 @@ const BUCKET = "plans";
  * filesystem and the bucket by copying files. As locally, there is no index:
  * the key listing is the index and each object carries its own metadata.
  */
+/**
+ * Supabase's newer `sb_secret_…` key and the legacy `service_role` JWT are both
+ * accepted — new projects only offer the former, older ones only the latter.
+ */
+export function secretKey(): string | undefined {
+	return process.env.SUPABASE_SECRET_KEY ?? process.env.SUPABASE_SERVICE_ROLE_KEY;
+}
+
 function client(): SupabaseClient {
 	const url = process.env.SUPABASE_URL;
-	const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+	const key = secretKey();
 	if (url === undefined || key === undefined) {
-		throw new Error("SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required");
+		throw new Error(
+			"SUPABASE_URL and SUPABASE_SECRET_KEY (or SUPABASE_SERVICE_ROLE_KEY) are required",
+		);
 	}
-	// Service role only, and only ever server-side: the bucket is private and
-	// this key bypasses RLS entirely.
+	// A secret key, and only ever server-side: the bucket is private and this
+	// key bypasses row-level security entirely.
 	return createClient(url, key, { auth: { persistSession: false } });
 }
 

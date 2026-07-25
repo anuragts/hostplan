@@ -28,6 +28,12 @@ export interface StoredPlan extends Plan {
 	/** Directory name under `plans/` — this is what appears in web URLs. */
 	projectDir: string;
 	branchDir: string;
+	/**
+	 * Account this plan belongs to, where there are accounts at all. Ownership
+	 * has to be read from the plan, never inferred from "is signed in" — that
+	 * would make every user the owner of every plan.
+	 */
+	ownerId?: string;
 }
 
 export interface PlanFilter {

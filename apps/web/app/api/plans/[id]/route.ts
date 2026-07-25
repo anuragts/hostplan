@@ -1,7 +1,9 @@
 import { canRead, isId, normalizeCode, shareUrls } from "@hostplan/core";
-import { isOwnerRequest, unauthorized } from "@/lib/auth";
+import { currentViewer, unauthorized } from "@/lib/current-viewer";
+import { origin as siteOrigin } from "@/lib/origin";
 import { clientKey, codeAttemptKey, consumeAttempt } from "@/lib/rate-limit";
-import { planStore } from "@/lib/store";
+import { adminPlanStore, planStoreFor } from "@/lib/store";
+import { canBrowse } from "@/lib/viewer";
 
 export const dynamic = "force-dynamic";
 
@@ -15,11 +17,14 @@ export async function GET(request: Request, { params }: Params) {
 	const { id } = await params;
 	if (!isId(id)) return notFound();
 
-	const plan = await planStore().get(id);
+	// Read unscoped first: a code holder has no session for RLS to filter on.
+	// canRead() below is what decides whether they see any of it.
+	const plan = await adminPlanStore().get(id);
 	if (plan === undefined) return notFound();
 
 	const code = normalizeCode(new URL(request.url).searchParams.get("code"));
-	const isOwner = await isOwnerRequest(request);
+	const viewer = await currentViewer(request);
+	const isOwner = canBrowse(viewer);
 
 	// Same gate as the page and the raw route — one implementation, no gaps.
 	if (!canRead(plan.meta, { isOwner, code })) {
@@ -40,7 +45,7 @@ export async function GET(request: Request, { params }: Params) {
 	// and username to anyone holding a share link.
 	const { code: _code, source: _source, cwd: _cwd, ...shareable } = plan.meta;
 	const meta = isOwner ? plan.meta : shareable;
-	const origin = new URL(request.url).origin;
+	const origin = siteOrigin(request);
 
 	return Response.json({
 		...meta,
@@ -50,7 +55,8 @@ export async function GET(request: Request, { params }: Params) {
 }
 
 export async function PATCH(request: Request, { params }: Params) {
-	if (!(await isOwnerRequest(request))) return unauthorized();
+	const viewer = await currentViewer(request);
+	if (!canBrowse(viewer)) return unauthorized();
 	const { id } = await params;
 	if (!isId(id)) return notFound();
 
@@ -61,7 +67,7 @@ export async function PATCH(request: Request, { params }: Params) {
 		return Response.json({ error: "body must be JSON" }, { status: 400 });
 	}
 
-	const plan = await planStore().update(id, {
+	const plan = await planStoreFor(viewer).update(id, {
 		...(body.visibility === "public" || body.visibility === "private"
 			? { visibility: body.visibility }
 			: {}),
@@ -70,16 +76,17 @@ export async function PATCH(request: Request, { params }: Params) {
 	});
 	if (plan === undefined) return notFound();
 
-	const origin = new URL(request.url).origin;
+	const origin = siteOrigin(request);
 	return Response.json({ ...plan.meta, ...shareUrls(origin, plan.meta) });
 }
 
 export async function DELETE(request: Request, { params }: Params) {
-	if (!(await isOwnerRequest(request))) return unauthorized();
+	const viewer = await currentViewer(request);
+	if (!canBrowse(viewer)) return unauthorized();
 	const { id } = await params;
 	if (!isId(id)) return notFound();
 
-	const plan = await planStore().remove(id);
+	const plan = await planStoreFor(viewer).remove(id);
 	if (plan === undefined) return notFound();
 	return Response.json({ removed: plan.meta.id, title: plan.meta.title });
 }

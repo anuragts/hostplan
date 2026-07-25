@@ -55,6 +55,7 @@ function planFromRow(row: PlanRow, body: string): StoredPlan {
 		path: row.storage_path,
 		projectDir: projectDirName(row.project),
 		branchDir: branchDirName(row.branch),
+		...(row.user_id === null ? {} : { ownerId: row.user_id }),
 	};
 }
 

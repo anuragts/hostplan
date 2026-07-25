@@ -1,7 +1,8 @@
 import { canRead, isId, normalizeCode } from "@hostplan/core";
-import { isOwnerRequest } from "@/lib/auth";
+import { currentViewer } from "@/lib/current-viewer";
 import { clientKey, codeAttemptKey, consumeAttempt } from "@/lib/rate-limit";
-import { planStore } from "@/lib/store";
+import { adminPlanStore } from "@/lib/store";
+import { canBrowse } from "@/lib/viewer";
 
 export const dynamic = "force-dynamic";
 
@@ -12,11 +13,11 @@ export const dynamic = "force-dynamic";
  */
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
 	const { id } = await params;
-	const plan = isId(id) ? await planStore().get(id) : undefined;
+	const plan = isId(id) ? await adminPlanStore().get(id) : undefined;
 	if (plan === undefined) return new Response("not found", { status: 404 });
 
 	const code = normalizeCode(new URL(request.url).searchParams.get("code"));
-	const isOwner = await isOwnerRequest(request);
+	const isOwner = canBrowse(await currentViewer(request));
 
 	if (!canRead(plan.meta, { isOwner, code })) {
 		if (!isOwner) {

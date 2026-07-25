@@ -7,7 +7,7 @@ import { CopyId } from "@/components/copy-id";
 import { OpenIn } from "@/components/open-in";
 import { Shell } from "@/components/shell";
 import { VisibilityBadge } from "@/components/visibility-badge";
-import { isOwnerSession } from "@/lib/auth";
+import { currentViewer } from "@/lib/current-viewer";
 import { absoluteTime, relativeTime } from "@/lib/format";
 import { buildOpenTargets } from "@/lib/providers";
 import { clientKey, codeAttemptKey, consumeAttempt } from "@/lib/rate-limit";
@@ -51,7 +51,13 @@ export default async function PlanPage({
 	const { meta } = plan;
 	const supplied = (await searchParams).code;
 	const code = normalizeCode(supplied);
-	const isOwner = await isOwnerSession();
+	const viewer = await currentViewer();
+	// Ownership is a property of the plan, not of being signed in. Treating any
+	// authenticated visitor as the owner would hand them every private plan in
+	// the store without a code.
+	const isOwner =
+		viewer.kind === "local" ||
+		(viewer.kind === "user" && plan.ownerId !== undefined && plan.ownerId === viewer.userId);
 	const headerList = await headers();
 
 	if (!canRead(meta, { isOwner, code })) {

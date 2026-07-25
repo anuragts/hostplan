@@ -1,23 +1,30 @@
 import { canRead, isCode, isId, normalizeCode, shareUrls } from "@hostplan/core";
-import { isOwnerRequest, unauthorized } from "@/lib/auth";
-import { planStore } from "@/lib/store";
+import { currentViewer, unauthorized } from "@/lib/current-viewer";
+import { origin as siteOrigin } from "@/lib/origin";
+import { planStoreFor } from "@/lib/store";
+import { canBrowse } from "@/lib/viewer";
 
 export const dynamic = "force-dynamic";
 
-/** Listing exposes every plan, so it is owner-only regardless of visibility. */
+/**
+ * A listing is scoped to whoever is asking: an account sees its own plans, the
+ * legacy owner sees the whole store. Either way it is never anonymous, since a
+ * listing exposes plans regardless of their visibility.
+ */
 export async function GET(request: Request) {
-	if (!(await isOwnerRequest(request))) return unauthorized();
+	const viewer = await currentViewer(request);
+	if (!canBrowse(viewer)) return unauthorized();
 
 	const params = new URL(request.url).searchParams;
 	const project = params.get("project") ?? undefined;
 	const branch = params.get("branch") ?? undefined;
 
-	const plans = await planStore().list({
+	const plans = await planStoreFor(viewer).list({
 		...(project === undefined ? {} : { project }),
 		...(branch === undefined ? {} : { branch }),
 	});
 
-	const origin = new URL(request.url).origin;
+	const origin = siteOrigin(request);
 	return Response.json({
 		plans: plans.map((plan) => ({ ...plan.meta, ...shareUrls(origin, plan.meta) })),
 	});
@@ -37,7 +44,8 @@ interface CreateBody {
 }
 
 export async function POST(request: Request) {
-	if (!(await isOwnerRequest(request))) return unauthorized();
+	const viewer = await currentViewer(request);
+	if (!canBrowse(viewer)) return unauthorized();
 
 	let body: CreateBody;
 	try {
@@ -55,7 +63,7 @@ export async function POST(request: Request) {
 	}
 
 	// A push carries the plan's identity so both sides hold one plan, not two.
-	const plan = await planStore().add({
+	const plan = await planStoreFor(viewer).add({
 		...(typeof id === "string" && isId(id) ? { id } : {}),
 		...(typeof code === "string" && isCode(code) ? { code } : {}),
 		content,
@@ -68,6 +76,6 @@ export async function POST(request: Request) {
 		...(body.cwd === undefined ? {} : { cwd: body.cwd }),
 	});
 
-	const origin = new URL(request.url).origin;
+	const origin = siteOrigin(request);
 	return Response.json({ ...plan.meta, ...shareUrls(origin, plan.meta) }, { status: 201 });
 }

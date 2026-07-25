@@ -1,14 +1,10 @@
 import { redirect } from "next/navigation";
-import { isOwnerSession } from "./auth";
+import { currentViewer } from "@/lib/current-viewer";
+import { canBrowse, type Viewer } from "@/lib/viewer";
 
-/**
- * Gate for the index pages, which list every plan regardless of visibility.
- *
- * Middleware already bounces requests with no cookie, but it only checks that
- * one is *present* — it can't verify the HMAC without the owner token. This is
- * where a forged cookie is actually rejected.
- */
-export async function requireOwner(): Promise<void> {
-	if (await isOwnerSession()) return;
-	redirect("/login");
+/** Guards a page that lists plans. Returns the viewer so callers can scope to it. */
+export async function requireOwner(next = "/"): Promise<Viewer> {
+	const viewer = await currentViewer();
+	if (!canBrowse(viewer)) redirect(`/login?next=${encodeURIComponent(next)}`);
+	return viewer;
 }

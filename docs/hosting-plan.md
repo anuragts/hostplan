@@ -21,12 +21,15 @@ backend the serverless functions can reach.
 | --- | --- | --- |
 | App hosting | Vercel (existing account) | Zero-config Next.js; free Hobby tier is plenty |
 | DNS | Stays on Cloudflare, `plans` CNAME → Vercel, **DNS-only (grey cloud)** | Proxying through Cloudflare in front of Vercel breaks cert issuance and buys nothing here |
-| Storage | Vercel Blob | Plans are just files; keeps the "each plan describes itself" model and one vendor. Free tier ~1 GB ≫ years of plans |
+| Storage | Supabase Storage | Plans are just files; keeps the "each plan describes itself" model. Free tier 1 GB ≫ years of plans. Brings Postgres and auth in the same project for free — the obvious growth path if listing ever needs an index or a second user ever appears — and being S3-compatible it isn't welded to Vercel |
 | Auth | Single owner secret (`HSP_TOKEN`) | One user. Bearer header for the CLI, cookie session for the browser. No user table, no OAuth dependency |
 | Sync model | Local-first, push-through | `hsp add` keeps writing locally, then pushes when a remote is configured. Local store doubles as offline cache |
 
 **Deliberately not doing:** multi-user accounts, OAuth, plan sharing/permissions,
-Cloudflare Workers port. All possible later; all premature now.
+Cloudflare Workers port. All possible later; all premature now. Notably we are
+*not* using Supabase Auth yet even though it's sitting right there — the token
+scheme is less machinery for one user, and Supabase Auth is the drop-in upgrade
+when a second user materialises.
 
 ## Architecture
 
@@ -34,16 +37,20 @@ Cloudflare Workers port. All possible later; all premature now.
 hsp add PLAN.md
   ├─ writes ~/.hostplan/plans/...        (unchanged, still works offline)
   └─ POST https://plans.host-plan.com/api/plans   Authorization: Bearer <token>
-        └─ Vercel fn → Blob put plans/<project>/<branch>/<id>--<slug>.md
+        └─ Vercel fn → Supabase Storage upload
+             bucket `plans`, key <project>/<branch>/<id>--<slug>.md
 
 browser → plans.host-plan.com/p/<id>
-  └─ middleware checks session cookie → page reads Blob instead of fs
+  └─ middleware checks session cookie → page reads Supabase instead of fs
 ```
 
-Blob keys mirror today's directory layout exactly (`plans/<project>/<branch>/
-<id>--<slug>.md`), and metadata stays in each file's frontmatter. Listing uses
-Blob's prefix list + a read per plan — fine at hundreds of plans, and if it ever
-isn't, the fix is a cache, not a schema.
+Object keys mirror today's directory layout exactly, and metadata stays in each
+file's frontmatter. The bucket is **private**; only the server (service-role
+key) touches it, so the existing auth story is unchanged. Listing walks the
+two-level prefix tree (`list()` per project, then per branch) plus a download
+per plan — same shape as the fs walk today, fine at hundreds of plans. If it
+ever isn't, the free Postgres sitting next to the bucket is the index; still a
+cache, not a second source of truth.
 
 ## Build steps
 
@@ -60,9 +67,12 @@ interface PlanStore {
 }
 ```
 
-`FsStore` is the existing code moved, `BlobStore` is `@vercel/blob` put/list/get
-with the same keys. The web app picks by env: `BLOB_READ_WRITE_TOKEN` present →
-blob, else fs. Nothing else in web or cli changes semantics.
+`FsStore` is the existing code moved. `SupabaseStore` is
+`@supabase/supabase-js` storage calls (`upload`/`download`/`list`/`remove`)
+against a private `plans` bucket, created server-side with the service-role
+key — never the anon key, since the bucket bypasses RLS entirely through it.
+The web app picks by env: `SUPABASE_URL` present → supabase, else fs. Nothing
+else in web or cli changes semantics.
 
 ### 2. API routes in `apps/web`
 
@@ -100,8 +110,9 @@ which is how they get tested without deploying.
 
 - Import the GitHub repo; **root directory `apps/web`** (monorepo — Vercel
   needs to be told). Build with bun per repo convention.
-- Env: `HSP_TOKEN`, `BLOB_READ_WRITE_TOKEN` (auto-added when the Blob store is
-  attached in the dashboard).
+- Supabase side, once: create the project, create a **private** bucket named
+  `plans`, copy the URL + service-role key.
+- Vercel env: `HSP_TOKEN`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`.
 - The `Open in` deep links keep working as-is — they encode the *store path* of
   the plan, which now differs per machine. v1: hide the button when the plan's
   `cwd` isn't on this machine's store… not knowable server-side, so simpler:
@@ -128,7 +139,8 @@ which is how they get tested without deploying.
 ## Verification
 
 ```bash
-# local, before deploying (FsStore + auth on localhost)
+# local, before deploying — FsStore + auth on localhost, no Supabase needed.
+# Then once more with SUPABASE_URL set, against a scratch bucket, before DNS.
 HSP_TOKEN=test bun run dev
 curl -s -H "Authorization: Bearer test" -d @plan.json localhost:7433/api/plans
 curl -s localhost:7433/p/<id>            # -> 307 to /login without cookie
@@ -146,4 +158,6 @@ and `hsp add` while offline (must still store locally and warn, not fail).
 
 ## Costs
 
-Vercel Hobby $0 · Blob free tier $0 · Cloudflare DNS $0. Total: the domain.
+Vercel Hobby $0 · Supabase free tier $0 (1 GB storage; project pauses after a
+week idle on free — a plan viewer waking on first request is acceptable) ·
+Cloudflare DNS $0. Total: the domain.

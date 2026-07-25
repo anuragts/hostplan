@@ -4,8 +4,10 @@ export {
 	DEFAULT_PORT,
 	type HostplanConfig,
 	planUrl,
+	type Remote,
 	readConfig,
 	resolvePort,
+	resolveRemote,
 	writeConfig,
 } from "./config";
 export { detectScope, NO_BRANCH, type Scope } from "./git";

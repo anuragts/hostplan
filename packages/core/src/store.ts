@@ -43,6 +43,13 @@ export interface AddPlanInput {
 	format: PlanFormat;
 	/** Defaults to private — publishing should be deliberate, not accidental. */
 	visibility?: Visibility;
+	/**
+	 * Reuse an existing identity instead of minting one. This is what makes a
+	 * pushed plan the *same* plan on both sides rather than a copy that happens
+	 * to have the same text under a different id and code.
+	 */
+	id?: string;
+	code?: string;
 	source?: string;
 	cwd?: string;
 	extraFrontmatter?: Record<string, unknown>;
@@ -172,7 +179,7 @@ async function allocateId(): Promise<string> {
 }
 
 export async function addPlan(input: AddPlanInput): Promise<StoredPlan> {
-	const id = await allocateId();
+	const id = input.id ?? (await allocateId());
 	const now = new Date().toISOString();
 	const visibility = input.visibility ?? "private";
 	const meta: PlanMeta = {
@@ -185,7 +192,7 @@ export async function addPlan(input: AddPlanInput): Promise<StoredPlan> {
 		updated: now,
 		visibility,
 		// Public plans carry no code — there would be nothing for it to gate.
-		...(visibility === "private" ? { code: newCode() } : {}),
+		...(visibility === "private" ? { code: input.code ?? newCode() } : {}),
 		...(input.source === undefined ? {} : { source: input.source }),
 		...(input.cwd === undefined ? {} : { cwd: input.cwd }),
 	};

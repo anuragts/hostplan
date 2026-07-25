@@ -1,4 +1,4 @@
-import { shareUrls } from "@hostplan/core";
+import { canRead, isCode, isId, normalizeCode, shareUrls } from "@hostplan/core";
 import { isOwnerRequest, unauthorized } from "@/lib/auth";
 import { planStore } from "@/lib/store";
 
@@ -30,6 +30,8 @@ interface CreateBody {
 	branch?: string;
 	format?: string;
 	visibility?: string;
+	id?: string;
+	code?: string;
 	source?: string;
 	cwd?: string;
 }
@@ -44,7 +46,7 @@ export async function POST(request: Request) {
 		return Response.json({ error: "body must be JSON" }, { status: 400 });
 	}
 
-	const { content, title, project, branch } = body;
+	const { content, title, project, branch, id, code } = body;
 	if (!content || !title || !project || !branch) {
 		return Response.json(
 			{ error: "content, title, project and branch are required" },
@@ -52,7 +54,10 @@ export async function POST(request: Request) {
 		);
 	}
 
+	// A push carries the plan's identity so both sides hold one plan, not two.
 	const plan = await planStore().add({
+		...(typeof id === "string" && isId(id) ? { id } : {}),
+		...(typeof code === "string" && isCode(code) ? { code } : {}),
 		content,
 		title,
 		project,

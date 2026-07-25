@@ -1,5 +1,6 @@
 import { Command } from "commander";
 import { addCommand } from "./commands/add";
+import { loginCommand, logoutCommand, whoamiCommand } from "./commands/auth";
 import { getCommand } from "./commands/get";
 import { listCommand } from "./commands/list";
 import { rmCommand } from "./commands/rm";
@@ -32,6 +33,7 @@ export function buildProgram(): Command {
 		.option("--open", "open the plan in a browser")
 		.option("-q, --quiet", "print only the URL")
 		.option("--json", "print the stored plan as JSON")
+		.option("--local", "store locally without pushing to the deployment")
 		.option("--no-serve", "do not start the viewer")
 		.action(addCommand);
 
@@ -125,6 +127,26 @@ export function buildProgram(): Command {
 		.option("-a, --all", "resolve `latest` across every project")
 		.option("--json", "print as JSON")
 		.action(rotateCodeCommand);
+
+	program
+		.command("login")
+		.description("sign in to a hostplan deployment so `add` pushes to it")
+		.option("--url <url>", "deployment base url")
+		.option("--token <token>", "owner token; prompted for if omitted")
+		.option("--json", "print as JSON")
+		.action(loginCommand);
+
+	program
+		.command("logout")
+		.description("forget the saved deployment and token")
+		.option("--json", "print as JSON")
+		.action(logoutCommand);
+
+	program
+		.command("whoami")
+		.description("print the deployment plans are pushed to")
+		.option("--json", "print as JSON")
+		.action(whoamiCommand);
 
 	const serve = program
 		.command("serve")

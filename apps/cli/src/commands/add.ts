@@ -18,6 +18,7 @@ import {
 } from "@hostplan/core";
 import { ensureServer } from "../daemon";
 import { die, printJson, style, warn } from "../output";
+import { currentRemote, push, type RemotePlan } from "../remote";
 import { openInBrowser } from "./shared";
 
 export interface AddOptions {
@@ -30,6 +31,7 @@ export interface AddOptions {
 	quiet?: boolean;
 	json?: boolean;
 	serve: boolean;
+	local?: boolean;
 	/** commander sets this false for --private, true for --public */
 	public?: boolean;
 	private?: boolean;
@@ -104,12 +106,43 @@ export async function addCommand(file: string | undefined, options: AddOptions):
 
 	const plan = await addPlan(input);
 
-	const port = options.serve ? (await ensureServer()).port : await resolvePort();
+	// Local first, then push. A plan that exists on disk but failed to upload is
+	// a warning; losing the plan because the network blipped is not acceptable.
+	const remote = options.local === true ? undefined : await currentRemote();
+	let pushed: RemotePlan | undefined;
+	if (remote !== undefined) {
+		try {
+			pushed = await push(remote, {
+				content: input.content,
+				title,
+				project,
+				branch,
+				format: source.format,
+				visibility: plan.meta.visibility,
+				id: plan.meta.id,
+				...(plan.meta.code === undefined ? {} : { code: plan.meta.code }),
+			});
+		} catch (error) {
+			warn(`stored locally but not pushed — ${(error as Error).message}`);
+		}
+	}
 
-	const links = shareUrls(`http://localhost:${port}`, plan.meta);
+	// Only bother starting the local viewer when there is no deployment to link to.
+	const port =
+		pushed === undefined && options.serve ? (await ensureServer()).port : await resolvePort();
+
+	// The deployment builds its own links; locally we build them from the port.
+	const links =
+		pushed === undefined
+			? shareUrls(`http://localhost:${port}`, plan.meta)
+			: {
+					url: pushed.url,
+					...(pushed.codedUrl === undefined ? {} : { codedUrl: pushed.codedUrl }),
+				};
+	const meta = pushed ?? plan.meta;
 
 	if (options.json === true) {
-		printJson({ ...plan.meta, ...links, path: plan.path });
+		printJson({ ...meta, ...links, path: plan.path, remote: remote?.url ?? null });
 		return;
 	}
 
@@ -123,7 +156,7 @@ export async function addCommand(file: string | undefined, options: AddOptions):
 			);
 		}
 		const lines = [
-			`${style.green("✓")} stored  ${style.bold(title)}  ${style.dim("·")}  ${project} / ${branch}  ${style.dim("·")}  ${style.cyan(plan.meta.id)}  ${style.dim("·")}  ${plan.meta.visibility}`,
+			`${style.green("✓")} stored  ${style.bold(title)}  ${style.dim("·")}  ${project} / ${branch}  ${style.dim("·")}  ${style.cyan(meta.id)}  ${style.dim("·")}  ${meta.visibility}`,
 			links.codedUrl === undefined
 				? `${style.dim("→")} ${style.blue(links.url)}`
 				: `${style.dim("→")} ${style.blue(links.url)}  ${style.dim("asks for the code")}`,

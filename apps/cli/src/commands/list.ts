@@ -37,6 +37,9 @@ export async function listCommand(options: ListOptions): Promise<void> {
 		style.cyan(plan.meta.id),
 		plan.meta.title,
 		style.dim(`${plan.meta.project} / ${plan.meta.branch}`),
+		plan.meta.visibility === "public"
+			? style.yellow("public")
+			: style.dim(`private ${plan.meta.code ?? "—"}`),
 		style.dim(relativeTime(plan.meta.updated)),
 	]);
 	process.stdout.write(`${table(rows)}\n`);

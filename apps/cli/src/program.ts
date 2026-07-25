@@ -5,6 +5,7 @@ import { listCommand } from "./commands/list";
 import { rmCommand } from "./commands/rm";
 import { serveCommand, serveStatusCommand, serveStopCommand } from "./commands/serve";
 import { openCommand, urlCommand } from "./commands/url";
+import { publishCommand, rotateCodeCommand, shareCommand } from "./commands/visibility";
 
 const SCOPE_HELP = "defaults to the git repo and branch of the current directory";
 
@@ -26,6 +27,8 @@ export function buildProgram(): Command {
 		.option("-p, --project <name>", `project bucket (${SCOPE_HELP})`)
 		.option("-b, --branch <name>", `branch bucket (${SCOPE_HELP})`)
 		.option("-f, --format <format>", "md or html; inferred from the file extension")
+		.option("--public", "anyone with the link can read it")
+		.option("--private", "readable only with the 4-letter code (default)")
 		.option("--open", "open the plan in a browser")
 		.option("-q, --quiet", "print only the URL")
 		.option("--json", "print the stored plan as JSON")
@@ -82,6 +85,46 @@ export function buildProgram(): Command {
 		.option("-a, --all", "resolve `latest` across every project")
 		.option("--json", "print as JSON")
 		.action(rmCommand);
+
+	program
+		.command("share")
+		.argument("<ref>", "plan id, plan URL, or `latest`")
+		.description("print the shareable links for a plan")
+		.option("-p, --project <name>", "scope for `latest`")
+		.option("-b, --branch <name>", "scope for `latest`")
+		.option("-a, --all", "resolve `latest` across every project")
+		.option("--json", "print as JSON")
+		.action(shareCommand);
+
+	program
+		.command("publish")
+		.argument("<ref>", "plan id, plan URL, or `latest`")
+		.description("make a plan readable by anyone with the link")
+		.option("-p, --project <name>", "scope for `latest`")
+		.option("-b, --branch <name>", "scope for `latest`")
+		.option("-a, --all", "resolve `latest` across every project")
+		.option("--json", "print as JSON")
+		.action(publishCommand(true));
+
+	program
+		.command("unpublish")
+		.argument("<ref>", "plan id, plan URL, or `latest`")
+		.description("make a plan private again, with a fresh code")
+		.option("-p, --project <name>", "scope for `latest`")
+		.option("-b, --branch <name>", "scope for `latest`")
+		.option("-a, --all", "resolve `latest` across every project")
+		.option("--json", "print as JSON")
+		.action(publishCommand(false));
+
+	program
+		.command("rotate")
+		.argument("<ref>", "plan id, plan URL, or `latest`")
+		.description("issue a new share code, invalidating the old link")
+		.option("-p, --project <name>", "scope for `latest`")
+		.option("-b, --branch <name>", "scope for `latest`")
+		.option("-a, --all", "resolve `latest` across every project")
+		.option("--json", "print as JSON")
+		.action(rotateCodeCommand);
 
 	const serve = program
 		.command("serve")

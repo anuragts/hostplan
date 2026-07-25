@@ -68,6 +68,8 @@ describe("serialization round-trip", () => {
 		format: "md",
 		created: "2026-07-25T18:04:11.220Z",
 		updated: "2026-07-25T18:04:11.220Z",
+		visibility: "private",
+		code: "KRWT",
 		source: "/Users/anurag/kafka/nest/PLAN.md",
 		cwd: "/Users/anurag/kafka/nest",
 	};

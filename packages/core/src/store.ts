@@ -1,5 +1,7 @@
 import { readdir, rm } from "node:fs/promises";
 import { join } from "node:path";
+import type { Visibility } from "./access";
+import { newCode } from "./code";
 import { ID_LENGTH, newId } from "./id";
 import {
 	formatFromPath,
@@ -39,6 +41,8 @@ export interface AddPlanInput {
 	project: string;
 	branch: string;
 	format: PlanFormat;
+	/** Defaults to private — publishing should be deliberate, not accidental. */
+	visibility?: Visibility;
 	source?: string;
 	cwd?: string;
 	extraFrontmatter?: Record<string, unknown>;
@@ -170,6 +174,7 @@ async function allocateId(): Promise<string> {
 export async function addPlan(input: AddPlanInput): Promise<StoredPlan> {
 	const id = await allocateId();
 	const now = new Date().toISOString();
+	const visibility = input.visibility ?? "private";
 	const meta: PlanMeta = {
 		id,
 		title: input.title,
@@ -178,6 +183,9 @@ export async function addPlan(input: AddPlanInput): Promise<StoredPlan> {
 		format: input.format,
 		created: now,
 		updated: now,
+		visibility,
+		// Public plans carry no code — there would be nothing for it to gate.
+		...(visibility === "private" ? { code: newCode() } : {}),
 		...(input.source === undefined ? {} : { source: input.source }),
 		...(input.cwd === undefined ? {} : { cwd: input.cwd }),
 	};
@@ -194,6 +202,49 @@ export async function addPlan(input: AddPlanInput): Promise<StoredPlan> {
 		projectDir: projectDirName(input.project),
 		branchDir: branchDirName(input.branch),
 	};
+}
+
+export interface UpdatePlanPatch {
+	visibility?: Visibility;
+	/** Issue a fresh share code, invalidating any link already handed out. */
+	rotateCode?: boolean;
+	title?: string;
+}
+
+/**
+ * Rewrites a plan's metadata in place, keeping the body byte-identical. The
+ * filename is left alone even when the title changes — the id is what the
+ * filename is for, and renaming would break links already shared.
+ */
+export async function updatePlan(
+	id: string,
+	patch: UpdatePlanPatch,
+): Promise<StoredPlan | undefined> {
+	const plan = await getPlan(id);
+	if (plan === undefined) return undefined;
+
+	const visibility = patch.visibility ?? plan.meta.visibility;
+	// A private plan always ends up with a code: either the one it had, a
+	// rotated one, or a fresh one if it is arriving from public (or predates
+	// codes entirely).
+	const code =
+		visibility === "public"
+			? undefined
+			: patch.rotateCode === true || plan.meta.code === undefined
+				? newCode()
+				: plan.meta.code;
+
+	const meta: PlanMeta = {
+		...plan.meta,
+		...(patch.title === undefined ? {} : { title: patch.title }),
+		visibility,
+		updated: new Date().toISOString(),
+	};
+	if (code === undefined) delete meta.code;
+	else meta.code = code;
+
+	await writeFileAtomic(plan.path, serializePlan(meta, plan.body));
+	return { ...plan, meta };
 }
 
 export interface ProjectSummary {

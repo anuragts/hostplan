@@ -1,21 +1,28 @@
 import { displayPath, storeRoot, summarizeProjects } from "@hostplan/core";
+import { Dashboard } from "@/components/dashboard";
 import { Landing } from "@/components/landing";
 import { Empty, PageTitle, Row, Shell } from "@/components/shell";
-import { isOwnerSession } from "@/lib/auth";
+import { currentViewer } from "@/lib/current-viewer";
 import { plural, relativeTime } from "@/lib/format";
-import { isRemoteStore, planStore } from "@/lib/store";
+import { isRemoteStore, planStoreFor } from "@/lib/store";
 
 // The store changes underneath us constantly; a cached page is a wrong page.
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-	// `/` is the one route that serves two audiences: the owner's index, and the
-	// pitch for everyone else. Splitting on who is asking rather than on NODE_ENV
-	// keeps both halves reachable in development — unset HSP_TOKEN and you are
-	// the owner, set it and sign out to see what a visitor sees.
-	if (!(await isOwnerSession())) return <Landing />;
+	// One route, three audiences: a signed-in account gets their own plans, the
+	// legacy single-owner gets the whole store, everyone else gets the pitch.
+	// Splitting on who is asking rather than on NODE_ENV keeps every branch
+	// reachable in development.
+	const viewer = await currentViewer();
+	if (viewer.kind === "anonymous") return <Landing />;
 
-	const plans = await planStore().list();
+	const store = planStoreFor(viewer);
+	if (viewer.kind === "user") {
+		return <Dashboard email={viewer.email} plans={await store.list()} />;
+	}
+
+	const plans = await store.list();
 	const projects = summarizeProjects(plans);
 
 	return (

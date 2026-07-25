@@ -15,6 +15,23 @@ export interface DeviceGrant {
 
 const POLL_TIMEOUT_MS = 20_000;
 
+const NO_ACCOUNTS =
+	"this deployment doesn't support account sign-in — use `hsp login --token <token>`";
+
+/**
+ * A deployment that predates accounts has no `/api/cli/auth`, so it answers
+ * with an HTML error page. Parsing that as JSON throws a SyntaxError that says
+ * nothing useful, so read the body as text and decide from there.
+ */
+async function readJson<T>(response: Response): Promise<T | undefined> {
+	const text = await response.text();
+	try {
+		return JSON.parse(text) as T;
+	} catch {
+		return undefined;
+	}
+}
+
 /** Asks the deployment for a pending request the human can approve. */
 export async function startDeviceAuth(url: string): Promise<DeviceRequest> {
 	let response: Response;
@@ -27,13 +44,16 @@ export async function startDeviceAuth(url: string): Promise<DeviceRequest> {
 	} catch (error) {
 		throw new CliError(`cannot reach ${url}: ${(error as Error).message}`);
 	}
-	if (response.status === 400) {
-		throw new CliError(
-			"this deployment has no accounts — sign in with `hsp login --token <owner token>`",
-		);
-	}
-	if (!response.ok) throw new CliError(`could not start sign-in: ${response.status}`);
-	return (await response.json()) as DeviceRequest;
+
+	const body = await readJson<DeviceRequest & { error?: string }>(response);
+
+	// Not JSON at all: an older build, a proxy error page, anything but us.
+	if (body === undefined) throw new CliError(NO_ACCOUNTS);
+	if (response.status === 400) throw new CliError(body.error ?? NO_ACCOUNTS);
+	if (!response.ok) throw new CliError(body.error ?? `could not start sign-in: ${response.status}`);
+	if (typeof body.device_code !== "string") throw new CliError(NO_ACCOUNTS);
+
+	return body;
 }
 
 function sleep(ms: number): Promise<void> {
@@ -66,13 +86,10 @@ export async function awaitApproval(
 		if (response === undefined) continue; // transient; keep waiting
 		if (response.status === 202) continue;
 
-		if (response.ok) return (await response.json()) as DeviceGrant;
+		const body = await readJson<DeviceGrant & { error?: string }>(response);
+		if (response.ok && typeof body?.token === "string") return body;
 
-		const detail = await response
-			.json()
-			.then((body) => (body as { error?: string }).error)
-			.catch(() => undefined);
-		throw new CliError(detail ?? `sign-in failed: ${response.status}`);
+		throw new CliError(body?.error ?? `sign-in failed: ${response.status}`);
 	}
 	throw new CliError("sign-in timed out — run `hsp login` again");
 }

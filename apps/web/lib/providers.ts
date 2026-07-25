@@ -12,8 +12,14 @@ export interface OpenTarget {
 }
 
 export interface OpenTargetInput {
-	planPath: string;
+	/** Absolute URL of this plan. Always safe to hand out. */
 	planUrl: string;
+	/**
+	 * Where the plan lives on the *owner's* machine. Omitted for anyone else:
+	 * those paths would leak the owner's home directory and username, and are
+	 * meaningless on a visitor's machine anyway.
+	 */
+	planPath?: string;
 	cwd?: string;
 	source?: string;
 }
@@ -35,11 +41,19 @@ function encodePath(path: string): string {
 }
 
 export function buildOpenTargets(input: OpenTargetInput): OpenTarget[] {
-	// Plans stored before `cwd` was recorded still know the file they came from.
-	const cwd = input.cwd ?? (input.source === undefined ? undefined : dirname(input.source));
-	const prompt = `Read the plan at ${input.planPath} and implement it.`;
+	const local = input.planPath !== undefined;
 
-	return [
+	// Plans stored before `cwd` was recorded still know the file they came from.
+	const cwd = local ? (input.cwd ?? (input.source && dirname(input.source))) : undefined;
+
+	// Agents can fetch a URL perfectly well, so a visitor still gets a working
+	// handoff — just one that points at the page instead of a path they'd have
+	// no way to open.
+	const prompt = local
+		? `Read the plan at ${input.planPath} and implement it.`
+		: `Read the plan at ${input.planUrl} and implement it.`;
+
+	const targets: OpenTarget[] = [
 		{
 			id: "codex",
 			label: "Codex",
@@ -50,16 +64,20 @@ export function buildOpenTargets(input: OpenTargetInput): OpenTarget[] {
 			id: "claude-code",
 			label: "Claude Code",
 			hint: "New session with the plan",
-			// The desktop app's own handler. `claude-cli://open` also works but spawns
-			// a terminal window instead of a Code tab.
 			url: `claude://code/new?${query({ q: prompt, folder: cwd })}`,
 		},
-		{
+	];
+
+	// Cursor's deep link opens a local file, so it only means anything to
+	// whoever has that file.
+	if (input.planPath !== undefined) {
+		targets.push({
 			id: "cursor",
-			// Cursor has no agent deep link, so this opens the plan file itself.
 			label: "Cursor",
 			hint: "Open the plan file",
 			url: `cursor://file${encodePath(input.planPath)}`,
-		},
-	];
+		});
+	}
+
+	return targets;
 }

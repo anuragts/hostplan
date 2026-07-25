@@ -10,7 +10,7 @@ import { VisibilityBadge } from "@/components/visibility-badge";
 import { isOwnerSession } from "@/lib/auth";
 import { absoluteTime, relativeTime } from "@/lib/format";
 import { buildOpenTargets } from "@/lib/providers";
-import { clientKey, consumeAttempt } from "@/lib/rate-limit";
+import { clientKey, codeAttemptKey, consumeAttempt } from "@/lib/rate-limit";
 import { renderMarkdown, stripLeadingTitle } from "@/lib/render";
 import { isRemoteStore, planStore } from "@/lib/store";
 
@@ -49,6 +49,7 @@ export default async function PlanPage({
 	const supplied = (await searchParams).code;
 	const code = normalizeCode(supplied);
 	const isOwner = await isOwnerSession();
+	const headerList = await headers();
 
 	if (!canRead(meta, { isOwner, code })) {
 		// Only a real attempt burns rate-limit budget; arriving with no code at
@@ -56,7 +57,7 @@ export default async function PlanPage({
 		let throttled = false;
 		let retryAfter = 0;
 		if (supplied !== undefined && supplied.length > 0) {
-			const limit = consumeAttempt(`page:${clientKey({ headers: await headers() })}`);
+			const limit = consumeAttempt(codeAttemptKey(clientKey({ headers: headerList })));
 			throttled = !limit.allowed;
 			retryAfter = limit.retryAfterSeconds;
 		}
@@ -74,7 +75,11 @@ export default async function PlanPage({
 		);
 	}
 
-	const url = isRemoteStore() ? `/p/${meta.id}` : planUrl(await resolvePort(), meta.id);
+	// Absolute, because it goes into deep-link prompts that leave the browser.
+	const host = headerList.get("host");
+	const proto = headerList.get("x-forwarded-proto") ?? "http";
+	const url =
+		host === null ? planUrl(await resolvePort(), meta.id) : `${proto}://${host}/p/${meta.id}`;
 
 	// Index pages are owner-only, so for a code holder the crumbs are labels
 	// rather than links into a sign-in wall.
@@ -134,10 +139,16 @@ export default async function PlanPage({
 
 			<OpenIn
 				targets={buildOpenTargets({
-					planPath: plan.path,
 					planUrl: url,
-					...(meta.cwd === undefined ? {} : { cwd: meta.cwd }),
-					...(meta.source === undefined ? {} : { source: meta.source }),
+					// Local paths are the owner's alone — for anyone else the prompts
+					// point at this page instead.
+					...(isOwner && !isRemoteStore()
+						? {
+								planPath: plan.path,
+								...(meta.cwd === undefined ? {} : { cwd: meta.cwd }),
+								...(meta.source === undefined ? {} : { source: meta.source }),
+							}
+						: {}),
 				})}
 			/>
 		</Shell>

@@ -1,0 +1,95 @@
+---
+name: hostplan
+description: >-
+  Store implementation plans in hostplan (`hsp`) instead of leaving them in a
+  scratch file, and read back plans another agent wrote. Use this whenever you
+  finish writing a plan, design doc, or proposal the user will read or another
+  agent will pick up; whenever you are asked to "save this plan", "share this
+  plan", "give me a link to the plan"; and whenever the user refers to a plan
+  you did not write — "the plan from earlier", "what did the other agent plan",
+  a plan id, or a http://localhost:7433/p/<id> URL. Also use it before starting
+  implementation work on a branch, to check whether a plan already exists.
+---
+
+# hostplan
+
+`hsp` is a global CLI backed by a store at `~/.hostplan`. It works from any
+directory. Plans are bucketed by **project → branch**, both read from git
+automatically — so `hsp list` in a repo shows the plans for that repo and
+branch with no arguments.
+
+## Storing a plan
+
+After you write a plan to a file:
+
+```bash
+hsp add PLAN.md
+```
+
+Without a file, pass the body directly:
+
+```bash
+hsp add -c "$(cat <<'EOF'
+# Worktree GC
+...
+EOF
+)" -t "Worktree GC"
+```
+
+It prints the id, the URL, and the store path:
+
+```
+✓ stored  Worktree GC  ·  nest / feat/delivery  ·  a3f9c2
+→ http://localhost:7433/p/a3f9c2
+```
+
+Give the user that URL — the page renders the plan and has an **Open in**
+button that hands it to Codex, Claude Code, or Cursor. Use `-q` if you only
+want the URL, `--json` if you need to parse the result.
+
+The viewer starts itself on first use; the very first `hsp add` on a machine
+may take ~30s while it builds. Pass `--no-serve` to skip that if you only need
+the plan on disk.
+
+## Reading a plan back
+
+```bash
+hsp get <id>          # print the body to stdout
+hsp get latest        # the most recent plan for this repo and branch
+hsp get <id> --json   # body plus metadata
+```
+
+`<id>` also accepts a full `http://localhost:7433/p/<id>` URL, so you can paste
+what the user gave you verbatim.
+
+## Finding plans
+
+```bash
+hsp list              # this repo, this branch
+hsp list -a           # everything in the store
+hsp list -p nest      # one project, all branches
+hsp list --json
+```
+
+Before starting substantial work on a branch, `hsp list` is worth a look — a
+prior session may have already planned it.
+
+## Other commands
+
+```bash
+hsp open <id>         # open in a browser
+hsp url <id>          # just the URL
+hsp rm <id>           # delete
+hsp serve status|stop # manage the viewer
+```
+
+## Notes
+
+- `--project` / `--branch` override the git-derived buckets; `--all` ignores
+  them. Outside a git repo the bucket is the directory name.
+- Every command takes `--json` — prefer it when you need to act on the output.
+- `HOSTPLAN_HOME` moves the store, `HOSTPLAN_PORT` changes the port (7433).
+- Everything is local: one machine, one folder, a localhost site. Nothing is
+  uploaded, so this is safe for private plans.
+- If `hsp` is not on PATH, hostplan is not installed on this machine — say so
+  rather than trying to install it.

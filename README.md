@@ -37,6 +37,21 @@ bun link          # puts `hsp` on your PATH
 ```
 
 That's it. `hsp add` starts the viewer on its own the first time you need it.
+`hsp` is global — the store lives at `~/.hostplan` and every command works from
+any directory, so you run it the same way in every project.
+
+### Teaching your agents about it
+
+`skills/hostplan` is a skill that tells a coding agent when to reach for `hsp`.
+Symlink it into whichever agents you use:
+
+```bash
+ln -sfn "$PWD/skills/hostplan" ~/.claude/skills/hostplan
+ln -sfn "$PWD/skills/hostplan" ~/.codex/skills/hostplan
+ln -sfn "$PWD/skills/hostplan" ~/.cursor/skills-cursor/hostplan
+```
+
+Symlinks rather than copies, so a `git pull` updates all three at once.
 
 ## Using it
 

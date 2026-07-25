@@ -14,8 +14,14 @@ export default async function LoginPage({
 }) {
 	const { next = "/", error, sent } = await searchParams;
 
-	// Already signed in — nothing here to do.
-	if ((await currentViewer()).kind !== "anonymous") redirect(next);
+	const viewer = await currentViewer();
+
+	// Only bounce away when the visitor can actually use where they're going.
+	// With accounts on, holding the legacy owner token is *not* being signed in
+	// as a user — sending them onward anyway looped them against any page that
+	// requires an account.
+	const signedIn = accountsEnabled() ? viewer.kind === "user" : viewer.kind !== "anonymous";
+	if (signedIn) redirect(next);
 
 	// Accounts take precedence when configured; the token form is what a
 	// single-owner deployment still gets.

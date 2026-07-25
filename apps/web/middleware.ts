@@ -13,13 +13,29 @@ import { SESSION_COOKIE } from "@/lib/session-cookie";
  * in the page, since middleware runs on the edge without the owner token's
  * crypto. A forged cookie gets past this and is rejected there.
  */
-export function middleware(request: NextRequest) {
-	// No owner token means running locally: the viewer stays exactly as open as
-	// it has always been.
-	const token = process.env.HSP_TOKEN;
-	if (token === undefined || token.length === 0) return NextResponse.next();
+/**
+ * Supabase stores its session in `sb-<ref>-auth-token`, sometimes split across
+ * `.0`/`.1` chunks. Presence is all we check here — the value is verified in
+ * the page, same as the legacy cookie.
+ */
+function hasSupabaseSession(request: NextRequest): boolean {
+	return request.cookies
+		.getAll()
+		.some((cookie) => cookie.name.startsWith("sb-") && cookie.name.includes("auth-token"));
+}
 
+export function middleware(request: NextRequest) {
+	const accounts = process.env.HOSTPLAN_ACCOUNTS === "1";
+	const token = process.env.HSP_TOKEN;
+
+	// Nothing configured means running locally: as open as it has always been.
+	if (!accounts && (token === undefined || token.length === 0)) return NextResponse.next();
+
+	// Either credential counts. Checking only the legacy cookie sent anyone who
+	// signed in with a magic link into a loop: middleware bounced them to
+	// /login, which saw a valid session and bounced them straight back.
 	if (request.cookies.get(SESSION_COOKIE) !== undefined) return NextResponse.next();
+	if (accounts && hasSupabaseSession(request)) return NextResponse.next();
 
 	const login = new URL("/login", request.url);
 	login.searchParams.set("next", request.nextUrl.pathname);

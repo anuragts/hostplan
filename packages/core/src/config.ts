@@ -59,11 +59,15 @@ export interface Remote {
 	token: string;
 }
 
-/** The configured deployment, if `hsp login` has been run. Env wins, for CI. */
+/**
+ * The configured deployment, if `hsp login` has been run. Environment wins so
+ * CI can supply a token without a config file: HOSTPLAN_REMOTE and
+ * HOSTPLAN_TOKEN.
+ */
 export async function resolveRemote(): Promise<Remote | undefined> {
 	const config = await readConfig();
 	const url = str(process.env.HOSTPLAN_REMOTE) ?? config.remote;
-	const token = str(process.env.HSP_TOKEN) ?? config.token;
+	const token = str(process.env.HOSTPLAN_TOKEN) ?? config.token;
 	if (url === undefined || token === undefined) return undefined;
 	return { url: url.replace(/\/$/, ""), token };
 }

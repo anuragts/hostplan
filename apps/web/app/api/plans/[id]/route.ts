@@ -1,4 +1,4 @@
-import { canRead, isId, normalizeCode, shareUrls } from "@hostplan/core";
+import { canRead, isId, isStatus, normalizeCode, shareUrls } from "@hostplan/core";
 import { currentViewer, unauthorized } from "@/lib/current-viewer";
 import { origin as siteOrigin } from "@/lib/origin";
 import { clientKey, codeAttemptKey, consumeAttempt } from "@/lib/rate-limit";
@@ -60,11 +60,21 @@ export async function PATCH(request: Request, { params }: Params) {
 	const { id } = await params;
 	if (!isId(id)) return notFound();
 
-	let body: { visibility?: string; rotateCode?: boolean; title?: string };
+	let body: {
+		visibility?: string;
+		rotateCode?: boolean;
+		title?: string;
+		status?: string;
+		content?: string;
+		dependsOn?: string | null;
+	};
 	try {
 		body = (await request.json()) as typeof body;
 	} catch {
 		return Response.json({ error: "body must be JSON" }, { status: 400 });
+	}
+	if (body.status !== undefined && !isStatus(body.status)) {
+		return Response.json({ error: `\`${body.status}\` is not a status` }, { status: 400 });
 	}
 
 	const plan = await planStoreFor(viewer).update(id, {
@@ -73,6 +83,14 @@ export async function PATCH(request: Request, { params }: Params) {
 			: {}),
 		...(body.rotateCode === true ? { rotateCode: true } : {}),
 		...(body.title === undefined ? {} : { title: body.title }),
+		...(isStatus(body.status) ? { status: body.status } : {}),
+		...(typeof body.content === "string" ? { content: body.content } : {}),
+		// `null` detaches a plan from its stack; a string re-chains it.
+		...(body.dependsOn === null
+			? { dependsOn: null }
+			: typeof body.dependsOn === "string" && isId(body.dependsOn)
+				? { dependsOn: body.dependsOn }
+				: {}),
 	});
 	if (plan === undefined) return notFound();
 

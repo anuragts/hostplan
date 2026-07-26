@@ -1,4 +1,4 @@
-import { canRead, isCode, isId, normalizeCode, shareUrls } from "@hostplan/core";
+import { isCode, isId, isStatus, shareUrls } from "@hostplan/core";
 import { currentViewer, unauthorized } from "@/lib/current-viewer";
 import { origin as siteOrigin } from "@/lib/origin";
 import { planStoreFor } from "@/lib/store";
@@ -39,6 +39,8 @@ interface CreateBody {
 	visibility?: string;
 	id?: string;
 	code?: string;
+	status?: string;
+	dependsOn?: string;
 	source?: string;
 	cwd?: string;
 }
@@ -72,6 +74,10 @@ export async function POST(request: Request) {
 		branch,
 		format: body.format === "html" ? "html" : "md",
 		visibility: body.visibility === "public" ? "public" : "private",
+		...(isStatus(body.status) ? { status: body.status } : {}),
+		...(typeof body.dependsOn === "string" && isId(body.dependsOn)
+			? { dependsOn: body.dependsOn }
+			: {}),
 		...(body.source === undefined ? {} : { source: body.source }),
 		...(body.cwd === undefined ? {} : { cwd: body.cwd }),
 	});

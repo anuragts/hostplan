@@ -5,6 +5,9 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { Empty, PageTitle, Row, Shell } from "@/components/shell";
 import { StatusBadge } from "@/components/status-badge";
+import { Button } from "@/components/ui/button";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Input } from "@/components/ui/input";
 import { plural, relativeTime } from "@/lib/format";
 
 const SETTLED_PAGE = 10;
@@ -24,11 +27,12 @@ function matchesQuery(plan: StoredPlan, query: string): boolean {
 		.every((term) => haystack.includes(term));
 }
 
-function PlanRow({ plan }: { plan: StoredPlan }) {
+function PlanRow({ plan, stagger }: { plan: StoredPlan; stagger?: number | undefined }) {
 	return (
 		<Row
 			href={`/p/${plan.meta.id}`}
 			title={plan.meta.title}
+			{...(stagger === undefined ? {} : { stagger })}
 			meta={
 				<span className="flex items-center gap-2">
 					<StatusBadge status={plan.meta.status} />
@@ -42,6 +46,25 @@ function PlanRow({ plan }: { plan: StoredPlan }) {
 			}
 			trailing={relativeTime(plan.meta.updated)}
 		/>
+	);
+}
+
+/**
+ * Settled plans are over, so their rows carry only what identifies them: the
+ * title and how they ended. Branch, visibility and timestamps are for work in
+ * flight — for the archive they're noise, and the plan page has them anyway.
+ */
+function SettledRow({ plan }: { plan: StoredPlan }) {
+	return (
+		<Link
+			href={`/p/${plan.meta.id}`}
+			className="group flex items-center justify-between gap-4 rounded-lg border border-line/60 px-4 py-2.5 transition-[border-color,background-color,transform] duration-200 hover:border-ink-faint hover:bg-surface-raised/60 active:scale-[0.995]"
+		>
+			<span className="truncate text-ink-muted text-sm transition-colors group-hover:text-ink">
+				{plan.meta.title}
+			</span>
+			<StatusBadge status={plan.meta.status} />
+		</Link>
 	);
 }
 
@@ -74,34 +97,43 @@ export function Dashboard({ email, plans }: { email: string; plans: StoredPlan[]
 		else bucket.push(plan);
 	}
 
+	// Rows cascade in on first paint; while typing, keys keep rows mounted so
+	// nothing re-animates under the cursor.
+	let entrance = 0;
+	const nextStagger = () => (searching ? undefined : Math.min(entrance++ * 30, 300));
+
 	return (
 		<Shell
 			crumbs={[]}
 			action={
 				<form action="/api/auth/signout" method="post">
-					<button type="submit" className="text-ink-faint transition-colors hover:text-ink">
+					<Button type="submit" variant="ghost" size="sm" className="text-ink-faint">
 						Sign out
-					</button>
+					</Button>
 				</form>
 			}
 		>
-			<PageTitle
-				title="Your plans"
-				subtitle={`${email} · ${plural(plans.length, "plan")}, ${plural(active.length, "active plan")}`}
-			/>
+			<div className="animate-fade-in">
+				<PageTitle
+					title="Your plans"
+					subtitle={`${email} · ${plural(plans.length, "plan")}, ${plural(active.length, "active plan")}`}
+				/>
 
-			<input
-				type="search"
-				value={query}
-				onChange={(event) => setQuery(event.target.value)}
-				placeholder="Search all plans — title, project, branch, id…"
-				className="mb-8 w-full rounded-lg border border-line bg-surface-raised/40 px-4 py-2.5 text-sm text-ink placeholder:text-ink-faint focus:border-ink-faint focus:outline-none"
-			/>
+				<Input
+					type="search"
+					value={query}
+					onChange={(event) => setQuery(event.target.value)}
+					placeholder="Search all plans — title, project, branch, id…"
+					className="mb-8 h-10 bg-surface-raised/40 px-4 text-sm focus-visible:ring-brand/20"
+				/>
+			</div>
 
 			{plans.length === 0 ? (
 				<Empty message="Nothing here yet." hint="hsp login && hsp add PLAN.md" />
 			) : visible.length === 0 ? (
-				<Empty message={`Nothing matches “${query.trim()}”.`} />
+				<div className="animate-fade-in">
+					<Empty message={`Nothing matches “${query.trim()}”.`} />
+				</div>
 			) : (
 				<>
 					<div className="space-y-8">
@@ -110,7 +142,7 @@ export function Dashboard({ email, plans }: { email: string; plans: StoredPlan[]
 								<h2 className="mb-3 font-mono text-ink-muted text-sm">{project}</h2>
 								<div className="flex flex-col gap-2">
 									{group.map((plan) => (
-										<PlanRow key={plan.meta.id} plan={plan} />
+										<PlanRow key={plan.meta.id} plan={plan} stagger={nextStagger()} />
 									))}
 								</div>
 							</div>
@@ -118,33 +150,33 @@ export function Dashboard({ email, plans }: { email: string; plans: StoredPlan[]
 					</div>
 
 					{settled.length > 0 && (
-						<div className="mt-12">
-							<button
-								type="button"
-								onClick={() => setSettledOpen(!settledOpen)}
-								className="mb-3 flex w-full items-center gap-3 text-left"
-							>
-								<span className="font-mono text-ink-faint text-sm">Settled · {settled.length}</span>
-								<span className="h-px flex-1 bg-line" />
-								<span className="font-mono text-ink-faint text-xs">{settledOpen ? "▾" : "▸"}</span>
-							</button>
-							{settledOpen && (
-								<div className="flex flex-col gap-2 opacity-70">
+						<Collapsible open={settledOpen} onOpenChange={setSettledOpen} className="mt-12">
+							<CollapsibleTrigger className="group mb-3 flex w-full items-center gap-3 text-left">
+								<span className="font-mono text-ink-faint text-sm transition-colors group-hover:text-ink-muted">
+									Settled · {settled.length}
+								</span>
+								<span className="h-px flex-1 bg-line transition-colors group-hover:bg-ink-faint/40" />
+								<span className="font-mono text-ink-faint text-xs transition-transform duration-200 group-data-[state=closed]:-rotate-90">
+									▾
+								</span>
+							</CollapsibleTrigger>
+							<CollapsibleContent className="collapsible-content">
+								<div className="flex flex-col gap-1.5 pb-1">
 									{settledVisible.map((plan) => (
-										<PlanRow key={plan.meta.id} plan={plan} />
+										<SettledRow key={plan.meta.id} plan={plan} />
 									))}
 									{settledHidden > 0 && (
-										<button
-											type="button"
+										<Button
+											variant="outline"
 											onClick={() => setSettledShown(settledShown + 25)}
-											className="rounded-lg border border-dashed border-line px-4 py-2.5 font-mono text-ink-faint text-xs transition-colors hover:border-ink-faint hover:text-ink-muted"
+											className="h-auto border-dashed bg-transparent px-4 py-2.5 font-mono text-ink-faint text-xs hover:text-ink-muted"
 										>
 											Show {Math.min(25, settledHidden)} more ({settledHidden} settled hidden)
-										</button>
+										</Button>
 									)}
 								</div>
-							)}
-						</div>
+							</CollapsibleContent>
+						</Collapsible>
 					)}
 				</>
 			)}

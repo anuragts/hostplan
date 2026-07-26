@@ -143,11 +143,13 @@ Every plan page has an **Open in** button that deep-links into an app:
 | --- | --- | --- |
 | Codex | `codex://threads/new?prompt=…&path=…` | New thread in the project, prompt pre-filled |
 | Claude Code | `claude://code/new?q=…&folder=…` | New desktop session in the project |
-| Cursor | `cursor://file/…` | Opens the plan file |
+| Cursor | `cursor://anysphere.cursor-deeplink/prompt?text=…` | Prompt pre-filled in the current window |
 
-Neither Codex nor Claude Code sends the prompt for you — you read it and press
-Enter. For a plan you're reading but don't own, the prompts point at the plan's
-URL instead of a local path, since that path wouldn't exist on your machine.
+None of the three send the prompt for you — you read it and press Enter. Cursor's
+deeplink carries no folder, so it drops the prompt into whichever window is
+already open. For a plan you're reading but don't own, the prompts point at the
+plan's URL instead of a local path, since that path wouldn't exist on your
+machine.
 
 ## Where things live
 

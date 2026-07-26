@@ -35,11 +35,6 @@ function query(params: Record<string, string | undefined>): string {
 		.join("&");
 }
 
-/** Encodes each segment but keeps the separators, for `scheme://file/a/b c.md`. */
-function encodePath(path: string): string {
-	return path.split("/").map(encodeURIComponent).join("/");
-}
-
 export function buildOpenTargets(input: OpenTargetInput): OpenTarget[] {
 	const local = input.planPath !== undefined;
 
@@ -53,7 +48,7 @@ export function buildOpenTargets(input: OpenTargetInput): OpenTarget[] {
 		? `Read the plan at ${input.planPath} and implement it.`
 		: `Read the plan at ${input.planUrl} and implement it.`;
 
-	const targets: OpenTarget[] = [
+	return [
 		{
 			id: "codex",
 			label: "Codex",
@@ -66,18 +61,15 @@ export function buildOpenTargets(input: OpenTargetInput): OpenTarget[] {
 			hint: "New session with the plan",
 			url: `claude://code/new?${query({ q: prompt, folder: cwd })}`,
 		},
-	];
-
-	// Cursor's deep link opens a local file, so it only means anything to
-	// whoever has that file.
-	if (input.planPath !== undefined) {
-		targets.push({
+		{
 			id: "cursor",
 			label: "Cursor",
-			hint: "Open the plan file",
-			url: `cursor://file${encodePath(input.planPath)}`,
-		});
-	}
-
-	return targets;
+			// A prompt deeplink is all Cursor takes — no folder, so it lands in
+			// whichever window is already open, with the prompt waiting to be sent.
+			// It replaces the old `cursor://file` link, which meant nothing to
+			// anyone but the owner and so never appeared on a hosted plan.
+			hint: "Agent prompt with the plan",
+			url: `cursor://anysphere.cursor-deeplink/prompt?${query({ text: prompt })}`,
+		},
+	];
 }

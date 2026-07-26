@@ -4,7 +4,12 @@ import { loginCommand, logoutCommand, whoamiCommand } from "./commands/auth";
 import { getCommand } from "./commands/get";
 import { listCommand } from "./commands/list";
 import { rmCommand } from "./commands/rm";
+import { searchCommand } from "./commands/search";
 import { serveCommand, serveStatusCommand, serveStopCommand } from "./commands/serve";
+import { stackCommand } from "./commands/stack";
+import { nextCommand, statusCommand } from "./commands/status";
+import { checkCommand, tasksCommand } from "./commands/tasks";
+import { updateCommand } from "./commands/update";
 import { openCommand, urlCommand } from "./commands/url";
 import { publishCommand, rotateCodeCommand, shareCommand } from "./commands/visibility";
 
@@ -30,6 +35,11 @@ export function buildProgram(): Command {
 		.option("-f, --format <format>", "md or html; inferred from the file extension")
 		.option("--public", "anyone with the link can read it")
 		.option("--private", "readable only with the 4-letter code (default)")
+		.option(
+			"--after <ref>",
+			"chain this plan after another — it stays blocked until that one is done",
+		)
+		.option("--status <status>", "starting status (draft, approved, in-progress, done, superseded)")
 		.option("--open", "open the plan in a browser")
 		.option("-q, --quiet", "print only the URL")
 		.option("--json", "print the stored plan as JSON")
@@ -58,6 +68,85 @@ export function buildProgram(): Command {
 		.option("-n, --limit <count>", "show at most this many")
 		.option("--json", "print as JSON")
 		.action(listCommand);
+
+	program
+		.command("status")
+		.argument("<ref>", "plan id, plan URL, or `latest`")
+		.argument("[status]", "draft, approved, in-progress, done, or superseded")
+		.description("show or change where a plan is in its life")
+		.option("-p, --project <name>", "scope for `latest`")
+		.option("-b, --branch <name>", "scope for `latest`")
+		.option("-a, --all", "resolve `latest` across every project")
+		.option("--json", "print as JSON")
+		.action(statusCommand);
+
+	program
+		.command("next")
+		.description(`print the next actionable plan — not done, not blocked (${SCOPE_HELP})`)
+		.option("-p, --project <name>", "only this project")
+		.option("-b, --branch <name>", "only this branch")
+		.option("-a, --all", "across every project")
+		.option("--json", "print as JSON")
+		.action(nextCommand);
+
+	program
+		.command("stack")
+		.argument("[items...]", "plan files to chain in order, or one plan id to display")
+		.description("split work into a chain of plans, each waiting on the one before")
+		.option("--after <ref>", "hook the new chain onto an existing plan")
+		.option("-p, --project <name>", `project bucket (${SCOPE_HELP})`)
+		.option("-b, --branch <name>", `branch bucket (${SCOPE_HELP})`)
+		.option("-a, --all", "when listing, every stack in the store")
+		.option("--public", "anyone with the links can read them")
+		.option("--local", "store locally without pushing to the deployment")
+		.option("--no-serve", "do not start the viewer")
+		.option("--json", "print as JSON")
+		.action(stackCommand);
+
+	program
+		.command("update")
+		.argument("<ref>", "plan id, plan URL, or `latest`")
+		.argument("[file]", "file with the revised plan")
+		.description("revise a plan's body — same id and link, previous revision kept")
+		.option("-c, --content <text>", "revised body, instead of a file")
+		.option("-t, --title <title>", "also change the title")
+		.option("-p, --project <name>", "scope for `latest`")
+		.option("-b, --branch <name>", "scope for `latest`")
+		.option("-a, --all", "resolve `latest` across every project")
+		.option("--json", "print as JSON")
+		.action(updateCommand);
+
+	program
+		.command("search")
+		.argument("<query...>", "terms to look for")
+		.description("full-text search across every stored plan")
+		.option("-p, --project <name>", "only this project")
+		.option("-b, --branch <name>", "only this branch")
+		.option("-n, --limit <count>", "show at most this many (default 20)")
+		.option("--json", "print as JSON")
+		.action(searchCommand);
+
+	program
+		.command("tasks")
+		.argument("<ref>", "plan id, plan URL, or `latest`")
+		.description("list a plan's checkboxes as numbered tasks")
+		.option("-p, --project <name>", "scope for `latest`")
+		.option("-b, --branch <name>", "scope for `latest`")
+		.option("-a, --all", "resolve `latest` across every project")
+		.option("--json", "print as JSON")
+		.action(tasksCommand);
+
+	program
+		.command("check")
+		.argument("<ref>", "plan id, plan URL, or `latest`")
+		.argument("<tasks...>", "task numbers from `hsp tasks`")
+		.description("tick tasks off in the stored plan")
+		.option("--undo", "untick instead")
+		.option("-p, --project <name>", "scope for `latest`")
+		.option("-b, --branch <name>", "scope for `latest`")
+		.option("-a, --all", "resolve `latest` across every project")
+		.option("--json", "print as JSON")
+		.action(checkCommand);
 
 	program
 		.command("url")

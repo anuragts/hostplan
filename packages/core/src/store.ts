@@ -123,6 +123,34 @@ async function listPlanFiles(): Promise<PlanFileRef[]> {
 	return refs;
 }
 
+/**
+ * The same walk as `listPlanFiles`, stopping at the first match. Reading one
+ * plan should not cost a full traversal of every project and branch in the
+ * store, and the id is in the filename, so no file has to be opened to look.
+ */
+async function findPlanFile(id: string): Promise<PlanFileRef | undefined> {
+	const root = plansRoot();
+	for (const projectDir of await readdirSafe(root)) {
+		for (const branchDir of await readdirSafe(join(root, projectDir))) {
+			const dir = join(root, projectDir, branchDir);
+			let entries: string[];
+			try {
+				entries = (await readdir(dir, { withFileTypes: true }))
+					.filter((e) => e.isFile())
+					.map((e) => e.name);
+			} catch {
+				continue;
+			}
+			for (const name of entries) {
+				if (name.match(PLAN_FILE_PATTERN)?.[1] === id) {
+					return { path: join(dir, name), id, projectDir, branchDir };
+				}
+			}
+		}
+	}
+	return undefined;
+}
+
 async function hydrate(ref: PlanFileRef): Promise<StoredPlan | undefined> {
 	try {
 		const plan = await readPlanFile(ref.path);
@@ -156,7 +184,7 @@ function matches(plan: StoredPlan, filter: PlanFilter): boolean {
 }
 
 export async function getPlan(id: string): Promise<StoredPlan | undefined> {
-	const ref = (await listPlanFiles()).find((candidate) => candidate.id === id);
+	const ref = await findPlanFile(id);
 	return ref === undefined ? undefined : hydrate(ref);
 }
 

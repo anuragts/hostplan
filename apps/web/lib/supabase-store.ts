@@ -65,16 +65,36 @@ async function listDir(supabase: SupabaseClient, prefix: string): Promise<string
 	return (data ?? []).map((entry) => entry.name);
 }
 
-/** Walks the two-level prefix tree — the same shape as the local fs walk. */
+/**
+ * Walks the two-level prefix tree — the same shape as the local fs walk, but
+ * every level is a network round trip, so siblings are listed concurrently.
+ * Walking them in sequence made the cost of reading one plan grow with the
+ * number of branches in the bucket.
+ */
 async function listObjects(supabase: SupabaseClient): Promise<ObjectRef[]> {
+	const projectDirs = await listDir(supabase, "");
+	const branches = await Promise.all(
+		projectDirs.map(async (projectDir) => ({
+			projectDir,
+			branchDirs: await listDir(supabase, projectDir),
+		})),
+	);
+	const listings = await Promise.all(
+		branches.flatMap(({ projectDir, branchDirs }) =>
+			branchDirs.map(async (branchDir) => ({
+				projectDir,
+				branchDir,
+				names: await listDir(supabase, `${projectDir}/${branchDir}`),
+			})),
+		),
+	);
+
 	const refs: ObjectRef[] = [];
-	for (const projectDir of await listDir(supabase, "")) {
-		for (const branchDir of await listDir(supabase, projectDir)) {
-			for (const name of await listDir(supabase, `${projectDir}/${branchDir}`)) {
-				const id = name.match(KEY_PATTERN)?.[1];
-				if (id === undefined) continue;
-				refs.push({ key: `${projectDir}/${branchDir}/${name}`, id, projectDir, branchDir });
-			}
+	for (const { projectDir, branchDir, names } of listings) {
+		for (const name of names) {
+			const id = name.match(KEY_PATTERN)?.[1];
+			if (id === undefined) continue;
+			refs.push({ key: `${projectDir}/${branchDir}/${name}`, id, projectDir, branchDir });
 		}
 	}
 	return refs;

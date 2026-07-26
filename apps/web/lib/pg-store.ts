@@ -1,7 +1,9 @@
 import {
 	type AddPlanInput,
 	branchDirName,
+	DEFAULT_STATUS,
 	isCode,
+	isStatus,
 	newCode,
 	newId,
 	type PlanFilter,
@@ -24,6 +26,8 @@ interface PlanRow {
 	branch: string;
 	format: string;
 	visibility: string;
+	status: string;
+	depends_on: string | null;
 	code: string | null;
 	storage_path: string;
 	source: string | null;
@@ -40,8 +44,10 @@ function metaFromRow(row: PlanRow): PlanMeta {
 		branch: row.branch,
 		format: row.format === "html" ? "html" : "md",
 		visibility: row.visibility === "public" ? "public" : "private",
+		status: isStatus(row.status) ? row.status : DEFAULT_STATUS,
 		created: row.created_at,
 		updated: row.updated_at,
+		...(row.depends_on === null ? {} : { dependsOn: row.depends_on }),
 		...(row.code === null ? {} : { code: row.code }),
 		...(row.source === null ? {} : { source: row.source }),
 		...(row.cwd === null ? {} : { cwd: row.cwd }),
@@ -121,6 +127,8 @@ export function pgPlanStore(db: SupabaseClient, userId?: string): PlanStore {
 					branch: input.branch,
 					format: input.format,
 					visibility,
+					status: input.status ?? DEFAULT_STATUS,
+					depends_on: input.dependsOn ?? null,
 					code: code ?? null,
 					storage_path: path,
 					source: input.source ?? null,
@@ -167,14 +175,30 @@ export function pgPlanStore(db: SupabaseClient, userId?: string): PlanStore {
 			// the previous link was public, so it should not silently keep working.
 			else if (row.visibility === "public") code = newCode();
 
+			// A revised body goes to the same storage key: same plan, new content.
+			if (patch.content !== undefined) {
+				const upload = await db.storage.from(BUCKET).upload(row.storage_path, patch.content, {
+					contentType: "text/markdown; charset=utf-8",
+					upsert: true,
+				});
+				if (upload.error !== null) throw new Error(`upload failed: ${upload.error.message}`);
+			}
+
 			const { data, error } = await db
 				.from("plans")
-				.update({ visibility, code })
+				.update({
+					visibility,
+					code,
+					...(patch.title === undefined ? {} : { title: patch.title }),
+					...(patch.status === undefined ? {} : { status: patch.status }),
+					...(patch.dependsOn === undefined ? {} : { depends_on: patch.dependsOn }),
+				})
 				.eq("id", id)
 				.select()
 				.single();
 			if (error !== null) throw new Error(`update failed: ${error.message}`);
-			return planFromRow(data as PlanRow, await download(data as PlanRow));
+			const updated = data as PlanRow;
+			return planFromRow(updated, patch.content ?? (await download(updated)));
 		},
 
 		async remove(id: string): Promise<StoredPlan | undefined> {

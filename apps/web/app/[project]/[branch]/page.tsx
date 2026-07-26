@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { PageTitle, Row, Shell } from "@/components/shell";
+import { StatusBadge } from "@/components/status-badge";
 import { plural, relativeTime } from "@/lib/format";
 import { requireOwner } from "@/lib/require-owner";
 import { planStore } from "@/lib/store";
@@ -39,7 +40,14 @@ export default async function BranchPage({
 						key={plan.meta.id}
 						href={`/p/${plan.meta.id}`}
 						title={plan.meta.title}
-						meta={`${plan.meta.id} · ${plan.meta.format}`}
+						meta={
+							<span className="flex items-center gap-2">
+								<StatusBadge status={plan.meta.status} />
+								<span>
+									{plan.meta.id} · {plan.meta.format}
+								</span>
+							</span>
+						}
 						trailing={relativeTime(plan.meta.updated)}
 					/>
 				))}

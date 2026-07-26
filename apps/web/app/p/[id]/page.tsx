@@ -15,6 +15,7 @@ import { CopyId } from "@/components/copy-id";
 import { OpenIn } from "@/components/open-in";
 import { Shell } from "@/components/shell";
 import { StatusBadge } from "@/components/status-badge";
+import { StatusControl } from "@/components/status-control";
 import { VisibilityBadge } from "@/components/visibility-badge";
 import { currentViewer } from "@/lib/current-viewer";
 import { absoluteTime, relativeTime } from "@/lib/format";
@@ -134,7 +135,13 @@ export default async function PlanPage({
 				<h1 className="text-2xl font-semibold tracking-tight text-ink">{meta.title}</h1>
 				<div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2 text-xs text-ink-faint">
 					<CopyId id={meta.id} />
-					<StatusBadge status={meta.status} />
+					{/* The owner can move the plan through its lifecycle from here;
+					    everyone else sees where it got to. */}
+					{isOwner ? (
+						<StatusControl id={meta.id} status={meta.status} />
+					) : (
+						<StatusBadge status={meta.status} />
+					)}
 					<VisibilityBadge meta={meta} isOwner={isOwner} />
 					{meta.dependsOn !== undefined && (
 						<span

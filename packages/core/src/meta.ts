@@ -4,6 +4,8 @@ import { dirname, join } from "node:path";
 import matter from "gray-matter";
 import type { Visibility } from "./access";
 import { normalizeCode } from "./code";
+import { isId } from "./id";
+import { DEFAULT_STATUS, isStatus, type PlanStatus } from "./status";
 
 export type PlanFormat = "md" | "html";
 
@@ -19,6 +21,13 @@ export interface PlanMeta {
 	updated: string;
 	/** Who may read this once it's hosted. Private is the default everywhere. */
 	visibility: Visibility;
+	/** Where the plan is in its life. New plans start as drafts. */
+	status: PlanStatus;
+	/**
+	 * Id of the plan this one waits on. A plan is blocked until its dependency
+	 * is `done` — this is what chains a stack of plans together.
+	 */
+	dependsOn?: string;
 	/** 4-letter share code. Only present on private plans. */
 	code?: string;
 	/** Absolute path of the file this plan was added from, when there was one. */
@@ -47,6 +56,8 @@ const OWNED_KEYS = [
 	"cwd",
 	"visibility",
 	"code",
+	"status",
+	"depends_on",
 ] as const;
 
 const HTML_META_PATTERN = /^<!--hostplan\s+([\s\S]*?)-->\n?/;
@@ -63,6 +74,8 @@ function metaToRecord(meta: PlanMeta): Record<string, unknown> {
 		// Never emit undefined: the YAML dumper throws on it, and a plan that
 		// can't be written is worse than one that defaults to private.
 		visibility: meta.visibility ?? "private",
+		status: meta.status ?? DEFAULT_STATUS,
+		...(meta.dependsOn === undefined ? {} : { depends_on: meta.dependsOn }),
 		...(meta.code === undefined ? {} : { code: meta.code }),
 		...(meta.source === undefined ? {} : { source: meta.source }),
 		...(meta.cwd === undefined ? {} : { cwd: meta.cwd }),
@@ -81,6 +94,12 @@ function recordToMeta(record: Record<string, unknown>, fallbackFormat: PlanForma
 	// direction to be wrong in.
 	const visibility = str("visibility") === "public" ? "public" : "private";
 	const code = normalizeCode(str("code"));
+	// Plans written before status existed are drafts; a hand-edited value that
+	// isn't a real status falls back the same way rather than failing the parse.
+	const rawStatus = record.status;
+	const status = isStatus(rawStatus) ? rawStatus : DEFAULT_STATUS;
+	const dependsOnRaw = str("depends_on");
+	const dependsOn = dependsOnRaw !== undefined && isId(dependsOnRaw) ? dependsOnRaw : undefined;
 	return {
 		id: str("hostplan_id") ?? "",
 		title: str("title") ?? "Untitled Plan",
@@ -90,6 +109,8 @@ function recordToMeta(record: Record<string, unknown>, fallbackFormat: PlanForma
 		created: str("created") ?? new Date(0).toISOString(),
 		updated: str("updated") ?? str("created") ?? new Date(0).toISOString(),
 		visibility,
+		status,
+		...(dependsOn === undefined ? {} : { dependsOn }),
 		...(code === undefined ? {} : { code }),
 		...(source === undefined ? {} : { source }),
 		...(cwd === undefined ? {} : { cwd }),

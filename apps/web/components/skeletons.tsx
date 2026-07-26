@@ -53,9 +53,28 @@ export function ListPageSkeleton({
 	);
 }
 
-/** The plan page: header block, then prose lines that thin out. */
-export function PlanPageSkeleton() {
+/**
+ * Prose lines that thin out. Stands in for a plan body twice: for the whole
+ * page during navigation, and under the header while the markdown streams in.
+ */
+export function ProseSkeleton() {
 	const widths = ["w-full", "w-11/12", "w-4/5", "w-full", "w-3/5", "w-5/6", "w-2/3"];
+	return (
+		<div className="space-y-3">
+			{widths.map((width, i) => (
+				<Skeleton
+					// biome-ignore lint/suspicious/noArrayIndexKey: placeholder lines never reorder
+					key={i}
+					className={`h-4 ${width}`}
+					style={{ animationDelay: `${i * 60}ms` }}
+				/>
+			))}
+		</div>
+	);
+}
+
+/** The plan page: header block, then the prose placeholder. */
+export function PlanPageSkeleton() {
 	return (
 		<Shell crumbs={[]}>
 			<div className="mb-8 border-b border-line pb-6">
@@ -66,16 +85,7 @@ export function PlanPageSkeleton() {
 					<Skeleton className="h-5 w-24" />
 				</div>
 			</div>
-			<div className="space-y-3">
-				{widths.map((width, i) => (
-					<Skeleton
-						// biome-ignore lint/suspicious/noArrayIndexKey: placeholder lines never reorder
-						key={i}
-						className={`h-4 ${width}`}
-						style={{ animationDelay: `${i * 60}ms` }}
-					/>
-				))}
-			</div>
+			<ProseSkeleton />
 		</Shell>
 	);
 }

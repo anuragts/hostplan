@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { cache } from "react";
 import { accountsEnabled, adminClient, userClient } from "@/lib/supabase-clients";
 import type { Viewer } from "@/lib/viewer";
 
@@ -48,8 +49,14 @@ async function viewerFromToken(token: string): Promise<Viewer | undefined> {
  *
  * With no accounts configured this is the local viewer, which is how `hsp serve`
  * stays frictionless on localhost.
+ *
+ * Memoised per request by `cache()`: a page and its `generateMetadata` both need
+ * the viewer, and resolving one costs a round trip to the auth server. Keyed on
+ * the argument, so a route handler passing its own `Request` is unaffected.
  */
-export async function currentViewer(request?: Request): Promise<Viewer> {
+export const currentViewer = cache(async function currentViewer(
+	request?: Request,
+): Promise<Viewer> {
 	if (!accountsEnabled()) return { kind: "local" };
 
 	const token = request === undefined ? undefined : bearer(request);
@@ -66,7 +73,7 @@ export async function currentViewer(request?: Request): Promise<Viewer> {
 	}
 
 	return { kind: "anonymous" };
-}
+});
 
 export function unauthorized(): Response {
 	return Response.json({ error: "unauthorized" }, { status: 401 });

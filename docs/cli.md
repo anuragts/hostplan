@@ -42,6 +42,71 @@ hsp list -p nest        # one project, all branches
 hsp list -n 10          # cap the output
 ```
 
+## The plan lifecycle
+
+Every plan has a status: `draft` → `approved` → `in-progress` → `done`, or
+`superseded` when a newer plan replaces it. New plans are drafts.
+
+```bash
+hsp status <id>              # where the plan is, and whether it's blocked
+hsp status <id> approved     # move it
+hsp status <id> done         # finishing a step unblocks its dependents
+hsp add PLAN.md --status approved
+```
+
+Done and superseded plans are *settled* — listings and the dashboard push
+them out of the way.
+
+## Stacks
+
+Big work splits into a chain of plans, each waiting on the one before:
+
+```bash
+hsp stack step1.md step2.md step3.md   # store as a chain, in order
+hsp add PLAN.md --after <id>           # chain one plan after another
+hsp stack <id>                         # show the chain a plan belongs to
+hsp stack                              # the stacks in this scope
+hsp next                               # first plan that's not done and not blocked
+```
+
+A plan is **blocked** while the plan it depends on isn't `done`. `hsp status
+<id> done` prints what it unblocks; `hsp next` is what an implementing agent
+should ask before starting work.
+
+## Revising
+
+```bash
+hsp update <id> PLAN.md      # new body, same id, same link, same code
+hsp update <id> -c "..."     # inline
+```
+
+The previous revision is kept under `~/.hostplan/revisions/<id>/`, so an
+update can always be walked back.
+
+## Tasks
+
+A plan's markdown checkboxes are addressable state:
+
+```bash
+hsp tasks <id>               # numbered checklist with progress
+hsp check <id> 2 3           # tick steps off in the stored plan
+hsp check <id> 2 --undo
+```
+
+Checking a task rewrites the `- [ ]` line in the body, so the rendered plan
+and the task state can never disagree.
+
+## Searching
+
+```bash
+hsp search rate limiting     # full-text, across every project
+hsp search auth -p nest      # scoped
+```
+
+Search is global on purpose — its job is finding the decision a session made
+months ago in another repo. The dashboard has the same search across your
+hosted plans.
+
 ## Sharing
 
 ```bash

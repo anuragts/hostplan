@@ -104,6 +104,45 @@ export function runPlanStoreContract(store: PlanStore): void {
 		await Promise.all(added.map((p) => store.remove(p.meta.id)));
 	});
 
+	test("plans start as drafts and status changes stick", async () => {
+		const added = await store.add(input);
+		expect(added.meta.status).toBe("draft");
+
+		await store.update(added.meta.id, { status: "approved" });
+		const fetched = await store.get(added.meta.id);
+		expect(fetched?.meta.status).toBe("approved");
+		// Changing status must not disturb anything else.
+		expect(fetched?.body.trim()).toBe(input.content.trim());
+		expect(fetched?.meta.code).toBe(added.meta.code);
+
+		await store.remove(added.meta.id);
+	});
+
+	test("a dependency link survives the round trip", async () => {
+		const first = await store.add(input);
+		const second = await store.add({ ...input, title: "Step Two", dependsOn: first.meta.id });
+
+		expect((await store.get(second.meta.id))?.meta.dependsOn).toBe(first.meta.id);
+
+		await store.update(second.meta.id, { dependsOn: null });
+		expect((await store.get(second.meta.id))?.meta.dependsOn).toBeUndefined();
+
+		await store.remove(first.meta.id);
+		await store.remove(second.meta.id);
+	});
+
+	test("updating content revises the plan under the same id", async () => {
+		const added = await store.add(input);
+		const revised = await store.update(added.meta.id, { content: "# Contract\n\nrevised\n" });
+		expect(revised?.meta.id).toBe(added.meta.id);
+
+		const fetched = await store.get(added.meta.id);
+		expect(fetched?.body).toContain("revised");
+		expect(fetched?.body).not.toContain("body line");
+
+		await store.remove(added.meta.id);
+	});
+
 	test("missing plans are reported, not thrown", async () => {
 		expect(await store.get("zzzzzz")).toBeUndefined();
 		expect(await store.update("zzzzzz", { visibility: "public" })).toBeUndefined();

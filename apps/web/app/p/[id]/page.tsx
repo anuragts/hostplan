@@ -3,6 +3,7 @@ import {
 	displayPath,
 	isId,
 	normalizeCode,
+	type PlanMeta,
 	planUrl,
 	resolvePort,
 	type StoredPlan,
@@ -10,10 +11,12 @@ import {
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
+import { cache, Suspense } from "react";
 import { CodeGate } from "@/components/code-gate";
 import { CopyId } from "@/components/copy-id";
 import { OpenIn } from "@/components/open-in";
 import { Shell } from "@/components/shell";
+import { ProseSkeleton } from "@/components/skeletons";
 import { StatusBadge } from "@/components/status-badge";
 import { StatusControl } from "@/components/status-control";
 import { VisibilityBadge } from "@/components/visibility-badge";
@@ -21,14 +24,26 @@ import { currentViewer } from "@/lib/current-viewer";
 import { absoluteTime, relativeTime } from "@/lib/format";
 import { buildOpenTargets } from "@/lib/providers";
 import { clientKey, codeAttemptKey, consumeAttempt } from "@/lib/rate-limit";
-import { renderMarkdown, stripLeadingTitle } from "@/lib/render";
+import { renderPlanBody, stripLeadingTitle } from "@/lib/render";
 import { isRemoteStore, planStore } from "@/lib/store";
 import type { Viewer } from "@/lib/viewer";
 
 export const dynamic = "force-dynamic";
 
-async function load(id: string) {
+/**
+ * Memoised for the request: `generateMetadata` and the page both need the plan,
+ * and on a bucket-backed store each call is a row query plus a body download.
+ * Next dedupes `fetch`, not this.
+ */
+const load = cache(async function load(id: string): Promise<StoredPlan | undefined> {
 	return isId(id) ? planStore().get(id) : undefined;
+});
+
+/** The dependency badge needs a status, not a body — don't pay for one. */
+async function loadMeta(id: string): Promise<PlanMeta | undefined> {
+	if (!isId(id)) return undefined;
+	const store = planStore();
+	return store.getMeta === undefined ? (await load(id))?.meta : store.getMeta(id);
 }
 
 /**
@@ -48,7 +63,8 @@ export async function generateMetadata({
 	params: Promise<{ id: string }>;
 	searchParams: Promise<{ code?: string }>;
 }): Promise<Metadata> {
-	const plan = await load((await params).id);
+	// Independent lookups, and on a remote store each is a round trip.
+	const [plan, viewer] = await Promise.all([load((await params).id), currentViewer()]);
 	// Plans are shared by link, not found by search — a public one landing in
 	// an index would defeat the point of choosing who gets the URL.
 	const robots = { index: false, follow: false };
@@ -56,10 +72,31 @@ export async function generateMetadata({
 	if (plan === undefined) return { title: "Plan not found · hostplan", robots };
 	// Whoever is about to read the plan is already reading its title, so the tab
 	// may as well say which one it is. Same check the page itself runs.
-	const isOwner = ownedBy(plan, await currentViewer());
+	const isOwner = ownedBy(plan, viewer);
 	const code = normalizeCode((await searchParams).code);
 	if (!canRead(plan.meta, { isOwner, code })) return { title: "Private plan · hostplan", robots };
 	return { title: `${plan.meta.title} · hostplan`, robots };
+}
+
+/**
+ * `updated` moves whenever the body does, so it is both the cache key and the
+ * invalidation — a revision renders once and is then served from memory.
+ */
+async function PlanBody({ plan }: { plan: StoredPlan }) {
+	const { meta } = plan;
+	const html = await renderPlanBody(
+		`${meta.id}:${meta.updated}`,
+		stripLeadingTitle(plan.body, meta.title),
+	);
+	return (
+		<article
+			className="prose prose-invert max-w-none prose-headings:tracking-tight prose-a:text-brand prose-pre:bg-transparent prose-pre:p-0"
+			// The pipeline runs server-side and drops raw HTML, so nothing from a plan
+			// reaches the DOM as markup. HTML plans use the sandboxed iframe above.
+			// biome-ignore lint/security/noDangerouslySetInnerHtml: markdown is sanitized by construction
+			dangerouslySetInnerHTML={{ __html: html }}
+		/>
+	);
 }
 
 export default async function PlanPage({
@@ -70,7 +107,7 @@ export default async function PlanPage({
 	searchParams: Promise<{ code?: string }>;
 }) {
 	const { id } = await params;
-	const plan = await load(id);
+	const [plan, viewer, headerList] = await Promise.all([load(id), currentViewer(), headers()]);
 	// Renders p/[id]/not-found.tsx with a real 404 status, rather than a 200 that
 	// only looks like an error.
 	if (plan === undefined) notFound();
@@ -78,8 +115,7 @@ export default async function PlanPage({
 	const { meta } = plan;
 	const supplied = (await searchParams).code;
 	const code = normalizeCode(supplied);
-	const isOwner = ownedBy(plan, await currentViewer());
-	const headerList = await headers();
+	const isOwner = ownedBy(plan, viewer);
 
 	if (!canRead(meta, { isOwner, code })) {
 		// Only a real attempt burns rate-limit budget; arriving with no code at
@@ -107,8 +143,8 @@ export default async function PlanPage({
 
 	// The step before this one in a stack, if any — worth a lookup because
 	// "blocked" or "ready" is the first thing a reader wants to know.
-	const dependency = meta.dependsOn === undefined ? undefined : await load(meta.dependsOn);
-	const blocked = dependency !== undefined && dependency.meta.status !== "done";
+	const dependency = meta.dependsOn === undefined ? undefined : await loadMeta(meta.dependsOn);
+	const blocked = dependency !== undefined && dependency.status !== "done";
 
 	// Absolute, because it goes into deep-link prompts that leave the browser.
 	const host = headerList.get("host");
@@ -177,15 +213,12 @@ export default async function PlanPage({
 						className="h-[75vh] w-full rounded-lg border border-line bg-white"
 					/>
 				) : (
-					<article
-						className="prose prose-invert max-w-none prose-headings:tracking-tight prose-a:text-brand prose-pre:bg-transparent prose-pre:p-0"
-						// The pipeline runs server-side and drops raw HTML, so nothing from a plan
-						// reaches the DOM as markup. HTML plans use the sandboxed iframe above.
-						// biome-ignore lint/security/noDangerouslySetInnerHtml: markdown is sanitized by construction
-						dangerouslySetInnerHTML={{
-							__html: await renderMarkdown(stripLeadingTitle(plan.body, meta.title)),
-						}}
-					/>
+					// Streamed: the header above is already useful, and holding it back
+					// until the markdown is highlighted is what makes a cold open feel
+					// like a blank page.
+					<Suspense fallback={<ProseSkeleton />}>
+						<PlanBody plan={plan} />
+					</Suspense>
 				)}
 			</div>
 

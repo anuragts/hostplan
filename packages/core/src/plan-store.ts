@@ -1,3 +1,4 @@
+import type { PlanMeta } from "./meta";
 import type { AddPlanInput, PlanFilter, StoredPlan, UpdatePlanPatch } from "./store";
 import { addPlan, getPlan, listPlans, removePlan, updatePlan } from "./store";
 
@@ -10,6 +11,13 @@ import { addPlan, getPlan, listPlans, removePlan, updatePlan } from "./store";
 export interface PlanStore {
 	add(input: AddPlanInput): Promise<StoredPlan>;
 	get(id: string): Promise<StoredPlan | undefined>;
+	/**
+	 * Metadata alone, for callers that only need a status or a title. Optional
+	 * because it is only worth implementing where the body costs something extra
+	 * to fetch — on a bucket-backed store that is a whole network round trip.
+	 * Callers fall back to `get`.
+	 */
+	getMeta?(id: string): Promise<PlanMeta | undefined>;
 	list(filter?: PlanFilter): Promise<StoredPlan[]>;
 	update(id: string, patch: UpdatePlanPatch): Promise<StoredPlan | undefined>;
 	remove(id: string): Promise<StoredPlan | undefined>;

@@ -150,6 +150,12 @@ export function pgPlanStore(db: SupabaseClient, userId?: string): PlanStore {
 			return planFromRow(row, await download(row));
 		},
 
+		/** The index already holds everything but the body — skip the download. */
+		async getMeta(id: string): Promise<PlanMeta | undefined> {
+			const row = await rowById(id);
+			return row === undefined ? undefined : metaFromRow(row);
+		},
+
 		async list(filter: PlanFilter = {}): Promise<StoredPlan[]> {
 			let query = db.from("plans").select("*").order("updated_at", { ascending: false });
 			if (filter.project !== undefined) query = query.eq("project", filter.project);

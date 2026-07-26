@@ -1,4 +1,12 @@
-import { canRead, displayPath, isId, normalizeCode, planUrl, resolvePort } from "@hostplan/core";
+import {
+	canRead,
+	displayPath,
+	isId,
+	normalizeCode,
+	planUrl,
+	resolvePort,
+	type StoredPlan,
+} from "@hostplan/core";
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
@@ -13,6 +21,7 @@ import { buildOpenTargets } from "@/lib/providers";
 import { clientKey, codeAttemptKey, consumeAttempt } from "@/lib/rate-limit";
 import { renderMarkdown, stripLeadingTitle } from "@/lib/render";
 import { isRemoteStore, planStore } from "@/lib/store";
+import type { Viewer } from "@/lib/viewer";
 
 export const dynamic = "force-dynamic";
 
@@ -20,10 +29,22 @@ async function load(id: string) {
 	return isId(id) ? planStore().get(id) : undefined;
 }
 
+/**
+ * Ownership is a property of the plan, not of being signed in. Treating any
+ * authenticated visitor as the owner would hand them every private plan in
+ * the store without a code.
+ */
+function ownedBy(plan: StoredPlan, viewer: Viewer): boolean {
+	if (viewer.kind === "local") return true;
+	return viewer.kind === "user" && plan.ownerId !== undefined && plan.ownerId === viewer.userId;
+}
+
 export async function generateMetadata({
 	params,
+	searchParams,
 }: {
 	params: Promise<{ id: string }>;
+	searchParams: Promise<{ code?: string }>;
 }): Promise<Metadata> {
 	const plan = await load((await params).id);
 	// Plans are shared by link, not found by search — a public one landing in
@@ -31,7 +52,11 @@ export async function generateMetadata({
 	const robots = { index: false, follow: false };
 	// A locked plan gives nothing away in the tab title or link previews.
 	if (plan === undefined) return { title: "Plan not found · hostplan", robots };
-	if (plan.meta.visibility !== "public") return { title: "Private plan · hostplan", robots };
+	// Whoever is about to read the plan is already reading its title, so the tab
+	// may as well say which one it is. Same check the page itself runs.
+	const isOwner = ownedBy(plan, await currentViewer());
+	const code = normalizeCode((await searchParams).code);
+	if (!canRead(plan.meta, { isOwner, code })) return { title: "Private plan · hostplan", robots };
 	return { title: `${plan.meta.title} · hostplan`, robots };
 }
 
@@ -51,13 +76,7 @@ export default async function PlanPage({
 	const { meta } = plan;
 	const supplied = (await searchParams).code;
 	const code = normalizeCode(supplied);
-	const viewer = await currentViewer();
-	// Ownership is a property of the plan, not of being signed in. Treating any
-	// authenticated visitor as the owner would hand them every private plan in
-	// the store without a code.
-	const isOwner =
-		viewer.kind === "local" ||
-		(viewer.kind === "user" && plan.ownerId !== undefined && plan.ownerId === viewer.userId);
+	const isOwner = ownedBy(plan, await currentViewer());
 	const headerList = await headers();
 
 	if (!canRead(meta, { isOwner, code })) {

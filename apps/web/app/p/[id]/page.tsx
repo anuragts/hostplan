@@ -14,6 +14,7 @@ import { CodeGate } from "@/components/code-gate";
 import { CopyId } from "@/components/copy-id";
 import { OpenIn } from "@/components/open-in";
 import { Shell } from "@/components/shell";
+import { StatusBadge } from "@/components/status-badge";
 import { VisibilityBadge } from "@/components/visibility-badge";
 import { currentViewer } from "@/lib/current-viewer";
 import { absoluteTime, relativeTime } from "@/lib/format";
@@ -103,6 +104,11 @@ export default async function PlanPage({
 		);
 	}
 
+	// The step before this one in a stack, if any — worth a lookup because
+	// "blocked" or "ready" is the first thing a reader wants to know.
+	const dependency = meta.dependsOn === undefined ? undefined : await load(meta.dependsOn);
+	const blocked = dependency !== undefined && dependency.meta.status !== "done";
+
 	// Absolute, because it goes into deep-link prompts that leave the browser.
 	const host = headerList.get("host");
 	const proto = headerList.get("x-forwarded-proto") ?? "http";
@@ -128,7 +134,18 @@ export default async function PlanPage({
 				<h1 className="text-2xl font-semibold tracking-tight text-ink">{meta.title}</h1>
 				<div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2 text-xs text-ink-faint">
 					<CopyId id={meta.id} />
+					<StatusBadge status={meta.status} />
 					<VisibilityBadge meta={meta} isOwner={isOwner} />
+					{meta.dependsOn !== undefined && (
+						<span
+							className={`rounded border px-2 py-0.5 font-mono text-xs ${blocked ? "border-amber-500/40 text-amber-400" : "border-line text-ink-faint"}`}
+						>
+							{blocked ? "blocked · waits on " : "follows "}
+							<a href={`/p/${meta.dependsOn}`} className="underline underline-offset-2">
+								{meta.dependsOn}
+							</a>
+						</span>
+					)}
 					<span title={absoluteTime(meta.updated)}>updated {relativeTime(meta.updated)}</span>
 					{/* Where the plan sits on disk is the owner's business only. */}
 					{isOwner && !isRemoteStore() && (

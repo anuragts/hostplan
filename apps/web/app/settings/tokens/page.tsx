@@ -40,7 +40,7 @@ export default async function TokensPage({
 				/>
 				<button
 					type="submit"
-					className="rounded-lg bg-accent px-4 py-2 font-medium text-sm text-surface transition-opacity hover:opacity-90"
+					className="rounded-lg bg-brand px-4 py-2 font-medium text-sm text-surface transition-opacity hover:opacity-90"
 				>
 					Create token
 				</button>

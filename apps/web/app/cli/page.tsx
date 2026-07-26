@@ -41,14 +41,14 @@ export default async function CliApprovalPage({
 						autoFocus
 						autoComplete="off"
 						placeholder="XXXX-XXXX"
-						className="rounded-lg border border-line bg-surface-raised px-3 py-2.5 text-center font-mono text-ink text-lg tracking-widest outline-none placeholder:text-ink-faint focus:border-accent"
+						className="rounded-lg border border-line bg-surface-raised px-3 py-2.5 text-center font-mono text-ink text-lg tracking-widest outline-none placeholder:text-ink-faint focus:border-brand"
 					/>
 					{error === "1" && (
 						<p className="text-red-400 text-xs">That code is wrong, used, or expired.</p>
 					)}
 					<button
 						type="submit"
-						className="rounded-lg bg-accent px-4 py-2.5 font-medium text-sm text-surface transition-opacity hover:opacity-90"
+						className="rounded-lg bg-brand px-4 py-2.5 font-medium text-sm text-surface transition-opacity hover:opacity-90"
 					>
 						Connect
 					</button>

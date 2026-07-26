@@ -51,7 +51,7 @@ export function Landing() {
 	return (
 		<div className="min-h-dvh">
 			<Section className="flex items-center justify-between py-6">
-				<span className="font-mono font-semibold text-accent">hostplan</span>
+				<span className="font-mono font-semibold text-brand">hostplan</span>
 				<nav className="flex items-center gap-5 text-sm">
 					<a
 						href={REPO}
@@ -103,7 +103,7 @@ export function Landing() {
 							<span className="text-ink-faint">$ </span>
 							<span className="text-ink">hsp add PLAN.md</span>
 							{"\n"}
-							<span className="text-accent">✓</span>
+							<span className="text-brand">✓</span>
 							<span className="text-ink">
 								{" "}
 								stored{"  "}Worktree GC{"  "}
@@ -111,7 +111,7 @@ export function Landing() {
 							<span className="text-ink-faint">·</span>
 							<span className="text-ink"> nest / feat/delivery </span>
 							<span className="text-ink-faint">·</span>
-							<span className="text-accent"> a3f9c2</span>
+							<span className="text-brand"> a3f9c2</span>
 							{"\n"}
 							<span className="text-ink-faint">→ </span>
 							<span className="text-ink-muted">https://plans.host-plan.com/p/a3f9c2</span>

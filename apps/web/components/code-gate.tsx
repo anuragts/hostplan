@@ -34,7 +34,7 @@ export function CodeGate({
 					spellCheck={false}
 					aria-label="Share code"
 					disabled={throttled}
-					className="w-44 rounded-lg border border-line bg-surface-raised px-3 py-3 text-center font-mono text-ink text-xl uppercase tracking-[0.4em] outline-none placeholder:tracking-normal placeholder:text-ink-faint focus:border-accent disabled:opacity-50"
+					className="w-44 rounded-lg border border-line bg-surface-raised px-3 py-3 text-center font-mono text-ink text-xl uppercase tracking-[0.4em] outline-none placeholder:tracking-normal placeholder:text-ink-faint focus:border-brand disabled:opacity-50"
 					placeholder="CODE"
 				/>
 				{wrong && !throttled && (
@@ -48,7 +48,7 @@ export function CodeGate({
 				<button
 					type="submit"
 					disabled={throttled}
-					className="rounded-lg bg-accent px-5 py-2.5 font-medium text-sm text-surface transition-opacity hover:opacity-90 disabled:opacity-50"
+					className="rounded-lg bg-brand px-5 py-2.5 font-medium text-sm text-surface transition-opacity hover:opacity-90 disabled:opacity-50"
 				>
 					Open plan
 				</button>
@@ -56,7 +56,7 @@ export function CodeGate({
 
 			<p className="mt-8 text-ink-faint text-xs">
 				Own this instance?{" "}
-				<a href={`/login?next=/p/${id}`} className="text-accent hover:underline">
+				<a href={`/login?next=/p/${id}`} className="text-brand hover:underline">
 					Sign in
 				</a>{" "}
 				to read every plan.

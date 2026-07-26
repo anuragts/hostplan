@@ -7,7 +7,7 @@ export function RevealToken({ token }: { token: string }) {
 	const [copied, setCopied] = useState(false);
 
 	return (
-		<div className="mb-8 rounded-lg border border-accent/40 bg-surface-raised p-4">
+		<div className="mb-8 rounded-lg border border-brand/40 bg-surface-raised p-4">
 			<p className="font-medium text-ink text-sm">Copy this now — it won&apos;t be shown again.</p>
 			<button
 				type="button"

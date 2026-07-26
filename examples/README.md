@@ -145,6 +145,35 @@ Once plans are `done` or `superseded` they're *settled*: the hosted dashboard
 folds them into their own collapsed section, so what's left on screen is what's
 in flight.
 
+## Seeing settled plans and stacks in the dashboard
+
+Both UIs only appear when there's something to show — an account of nothing but
+drafts renders neither. To populate them:
+
+```bash
+# a stack, with the first step finished so the second is unblocked
+hsp stack usage-metering/0*.md -p examples -b feat/usage-metering
+hsp status <step-1-id> done
+hsp status <step-2-id> in-progress
+
+# two settled plans: one that shipped, one that was replaced
+hsp add worktree-gc.revised.md    -p examples -b feat/worktree-gc --status done
+hsp add worktree-gc.superseded.md -p examples -b feat/worktree-gc --status superseded
+```
+
+What to look for on the plan pages and dashboard:
+
+| plan | shows |
+| --- | --- |
+| step 1 (`done`) | green `done` badge, folded under **Settled** |
+| step 2 (`in-progress`) | `in-progress` badge, `follows <id>` — its dependency is done, so not blocked |
+| steps 3–4 | amber **blocked · waits on `<id>`**, linked to the step above |
+| `worktree-gc.superseded.md` | `superseded` — work never carried out, unlike `done` |
+
+`superseded` versus `done` is the distinction worth being deliberate about: a
+superseded plan was *replaced*, not completed, which is why it never unblocks a
+plan that depends on it. Only `done` does.
+
 ## The loop, in short
 
 ```bash

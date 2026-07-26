@@ -2,9 +2,10 @@
 
 import type { PlanStatus, StoredPlan } from "@hostplan/core";
 import Link from "next/link";
+import type { CSSProperties, ReactNode } from "react";
 import { useMemo, useState } from "react";
-import { Empty, PageTitle, Row, Shell } from "@/components/shell";
-import { StatusBadge } from "@/components/status-badge";
+import { Empty, PageTitle, Shell } from "@/components/shell";
+import { StatusControl } from "@/components/status-control";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
@@ -27,25 +28,68 @@ function matchesQuery(plan: StoredPlan, query: string): boolean {
 		.every((term) => haystack.includes(term));
 }
 
+/**
+ * A row that is a link *and* holds a control.
+ *
+ * The link is an overlay rather than a wrapper: a dropdown trigger nested
+ * inside an `<a>` is invalid interactive content, and browsers handle the
+ * resulting click ambiguity differently. So the anchor covers the row
+ * underneath, and anything interactive sits above it.
+ */
+function RowShell({
+	href,
+	label,
+	stagger,
+	className,
+	children,
+}: {
+	href: string;
+	label: string;
+	stagger?: number | undefined;
+	className?: string;
+	children: ReactNode;
+}) {
+	return (
+		<div
+			className={`group relative rounded-lg border transition-[border-color,background-color] duration-200 hover:border-ink-faint ${className ?? ""} ${stagger === undefined ? "" : "animate-fade-up"}`}
+			style={stagger === undefined ? undefined : ({ "--stagger": `${stagger}ms` } as CSSProperties)}
+		>
+			<Link
+				href={href}
+				aria-label={label}
+				className="absolute inset-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
+			/>
+			{children}
+		</div>
+	);
+}
+
 function PlanRow({ plan, stagger }: { plan: StoredPlan; stagger?: number | undefined }) {
 	return (
-		<Row
+		<RowShell
 			href={`/p/${plan.meta.id}`}
-			title={plan.meta.title}
-			{...(stagger === undefined ? {} : { stagger })}
-			meta={
-				<span className="flex items-center gap-2">
-					<StatusBadge status={plan.meta.status} />
-					<span>
-						{plan.meta.branch} · {plan.meta.visibility}
-						{plan.meta.visibility === "private" && plan.meta.code !== undefined
-							? ` ${plan.meta.code}`
-							: ""}
-					</span>
-				</span>
-			}
-			trailing={relativeTime(plan.meta.updated)}
-		/>
+			label={plan.meta.title}
+			stagger={stagger}
+			className="border-line bg-surface-raised/40 px-4 py-3 hover:bg-surface-raised"
+		>
+			<div className="flex items-center gap-4">
+				<div className="min-w-0 flex-1">
+					<div className="truncate font-medium text-ink text-sm">{plan.meta.title}</div>
+					<div className="mt-1 flex items-center gap-2 text-ink-faint text-xs">
+						<StatusSlot plan={plan} />
+						<span className="truncate">
+							{plan.meta.branch} · {plan.meta.visibility}
+							{plan.meta.visibility === "private" && plan.meta.code !== undefined
+								? ` ${plan.meta.code}`
+								: ""}
+						</span>
+					</div>
+				</div>
+				<div className="pointer-events-none shrink-0 font-mono text-ink-faint text-xs transition-colors group-hover:text-ink-muted">
+					{relativeTime(plan.meta.updated)}
+				</div>
+			</div>
+		</RowShell>
 	);
 }
 
@@ -56,15 +100,27 @@ function PlanRow({ plan, stagger }: { plan: StoredPlan; stagger?: number | undef
  */
 function SettledRow({ plan }: { plan: StoredPlan }) {
 	return (
-		<Link
+		<RowShell
 			href={`/p/${plan.meta.id}`}
-			className="group flex items-center justify-between gap-4 rounded-lg border border-line/60 px-4 py-2.5 transition-[border-color,background-color,transform] duration-200 hover:border-ink-faint hover:bg-surface-raised/60 active:scale-[0.995]"
+			label={plan.meta.title}
+			className="border-line/60 px-4 py-2.5 hover:bg-surface-raised/60"
 		>
-			<span className="truncate text-ink-muted text-sm transition-colors group-hover:text-ink">
-				{plan.meta.title}
-			</span>
-			<StatusBadge status={plan.meta.status} />
-		</Link>
+			<div className="flex items-center justify-between gap-4">
+				<span className="pointer-events-none truncate text-ink-muted text-sm transition-colors group-hover:text-ink">
+					{plan.meta.title}
+				</span>
+				<StatusSlot plan={plan} />
+			</div>
+		</RowShell>
+	);
+}
+
+/** Sits above the overlay link, so clicking the badge opens the menu, not the plan. */
+function StatusSlot({ plan }: { plan: StoredPlan }) {
+	return (
+		<span className="relative shrink-0">
+			<StatusControl id={plan.meta.id} status={plan.meta.status} />
+		</span>
 	);
 }
 

@@ -2,7 +2,8 @@ import type { PlanStatus } from "@hostplan/core";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
-const STYLES: Record<PlanStatus, string> = {
+/** Shared with StatusControl, so a badge and an editable badge can't drift apart. */
+export const STATUS_STYLES: Record<PlanStatus, string> = {
 	draft: "border-line text-ink-muted",
 	approved: "border-emerald-500/40 text-emerald-400",
 	"in-progress": "border-sky-500/40 text-sky-400",
@@ -14,7 +15,7 @@ export function StatusBadge({ status }: { status: PlanStatus }) {
 	return (
 		<Badge
 			variant="outline"
-			className={cn("rounded bg-transparent font-mono text-xs", STYLES[status])}
+			className={cn("rounded bg-transparent font-mono text-xs", STATUS_STYLES[status])}
 		>
 			{/* A quiet heartbeat on the one status that means "someone is on this
 			    right now" — the only place the page is allowed to move on its own. */}

@@ -1,6 +1,6 @@
 import { displayPath, planUrl, resolvePort } from "@hostplan/core";
 import { printJson, style, table } from "../output";
-import { resolveFilter, resolveRef, type ScopeOptions } from "./shared";
+import { resolveFilter, resolveRef, type ScopeOptions, statusLabel } from "./shared";
 
 export interface GetOptions extends ScopeOptions {
 	json?: boolean;
@@ -24,6 +24,10 @@ export async function getCommand(ref: string, options: GetOptions): Promise<void
 				[style.dim("project"), plan.meta.project],
 				[style.dim("branch"), plan.meta.branch],
 				[style.dim("format"), plan.meta.format],
+				[style.dim("status"), statusLabel(plan.meta.status)],
+				...(plan.meta.dependsOn === undefined
+					? []
+					: [[style.dim("depends on"), style.cyan(plan.meta.dependsOn)]]),
 				[style.dim("created"), plan.meta.created],
 				[style.dim("updated"), plan.meta.updated],
 				[style.dim("url"), url],

@@ -9,7 +9,10 @@ description: >-
   you did not write — "the plan from earlier", "what did the other agent plan",
   a plan id, or a hostplan URL (http://localhost:7433/p/<id> or
   https://plans.host-plan.com/p/<id>). Also use it before starting
-  implementation work on a branch, to check whether a plan already exists.
+  implementation work on a branch, to check whether a plan already exists and
+  whether it is approved; when splitting a large piece of work into ordered
+  steps (plan stacks); when marking progress on a plan (status, checkboxes);
+  and when asked what to work on next.
 ---
 
 # hostplan
@@ -73,6 +76,54 @@ hsp rotate <id>              # new code, old link stops working
 
 Codes are casual privacy, not cryptography. If a plan contains anything
 genuinely sensitive, say so rather than hosting it.
+
+## Status: don't implement a draft
+
+Plans have a lifecycle: `draft` → `approved` → `in-progress` → `done`
+(`superseded` for plans replaced by newer ones). New plans start as drafts.
+
+- Before implementing a plan, run `hsp status <id>` — if it is still `draft`,
+  ask the user to approve it (or to say go ahead) rather than starting.
+- When you begin implementing: `hsp status <id> in-progress`.
+- When the work ships: `hsp status <id> done`. This unblocks any plan that
+  depends on it, and the command prints which.
+
+## Stacks: split big work into chained plans
+
+When a plan is too big for one session, write one file per step and store
+them as a stack — each step stays blocked until the one before it is done:
+
+```bash
+hsp stack step1.md step2.md step3.md
+hsp add MORE.md --after <id>     # append to a chain
+hsp next                         # the step to work on now
+hsp stack <id>                   # show the whole chain
+```
+
+`hsp next` is the question to ask at the start of a session: it returns the
+first plan in scope that is neither done nor waiting on an unfinished
+dependency.
+
+## Revising and tracking progress
+
+- `hsp update <id> PLAN.md` (or `-c "..."`) revises a plan **in place** —
+  same id, same URL. Use it when review feedback changes the plan; never
+  create a second plan for a revision.
+- `hsp tasks <id>` lists the plan's checkboxes as numbered tasks;
+  `hsp check <id> 2 3` ticks them off in the stored plan. Check tasks off as
+  you complete them so the next session (or another agent) can see exactly
+  where work stopped.
+
+## Searching past decisions
+
+`hsp search <terms>` is full-text across every project in the store. Before
+designing something substantial, search for prior art — an earlier session
+may have already decided the approach:
+
+```bash
+hsp search rate limiting
+hsp search migrations -p nest
+```
 
 ## Reading a plan back
 

@@ -1,4 +1,4 @@
-import type { PlanMeta, Remote, StoredPlan, Visibility } from "@hostplan/core";
+import type { PlanMeta, PlanStatus, Remote, StoredPlan, Visibility } from "@hostplan/core";
 import { resolveRemote } from "@hostplan/core";
 import { CliError } from "./output";
 
@@ -17,6 +17,15 @@ export interface PushInput {
 	visibility?: Visibility;
 	id?: string;
 	code?: string;
+	status?: PlanStatus;
+	dependsOn?: string;
+}
+
+export interface PatchInput {
+	status?: PlanStatus;
+	content?: string;
+	dependsOn?: string | null;
+	title?: string;
 }
 
 const TIMEOUT_MS = 20_000;
@@ -67,6 +76,14 @@ export async function push(remote: Remote, input: PushInput): Promise<RemotePlan
 	});
 	if (!response.ok) await fail(response, "push");
 	return (await response.json()) as RemotePlan;
+}
+
+export async function patchPlan(remote: Remote, id: string, patch: PatchInput): Promise<void> {
+	const response = await call(remote, `/api/plans/${id}`, {
+		method: "PATCH",
+		body: JSON.stringify(patch),
+	});
+	if (!response.ok) await fail(response, "sync");
 }
 
 export async function fetchPlan(remote: Remote, id: string): Promise<RemotePlan | undefined> {

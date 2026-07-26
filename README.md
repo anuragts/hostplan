@@ -48,6 +48,17 @@ hsp list                     # plans for this repo and branch
 hsp share <id>               # print its shareable links
 ```
 
+Plans are live objects, not just documents:
+
+```bash
+hsp status <id> approved     # draft → approved → in-progress → done
+hsp stack s1.md s2.md s3.md  # chain steps; each waits on the one before
+hsp next                     # the first plan that's not done and not blocked
+hsp check <id> 2 3           # tick the plan's checkboxes off
+hsp update <id> PLAN.md      # revise in place — same id, same link
+hsp search rate limiting     # full-text, across every project
+```
+
 Project and branch are detected from git, so there's nothing to configure.
 
 **Plans are private by default.** A private plan gets a 4-letter code, and `hsp

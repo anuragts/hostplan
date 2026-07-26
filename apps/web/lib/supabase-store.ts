@@ -1,6 +1,7 @@
 import {
 	type AddPlanInput,
 	branchDirName,
+	DEFAULT_STATUS,
 	formatFromPath,
 	newCode,
 	newId,
@@ -132,6 +133,8 @@ export const supabasePlanStore: PlanStore = {
 			created: now,
 			updated: now,
 			visibility,
+			status: input.status ?? DEFAULT_STATUS,
+			...(input.dependsOn === undefined ? {} : { dependsOn: input.dependsOn }),
 			...(visibility === "private" ? { code: newCode() } : {}),
 			...(input.source === undefined ? {} : { source: input.source }),
 			...(input.cwd === undefined ? {} : { cwd: input.cwd }),
@@ -179,14 +182,18 @@ export const supabasePlanStore: PlanStore = {
 		const meta: PlanMeta = {
 			...plan.meta,
 			...(patch.title === undefined ? {} : { title: patch.title }),
+			...(patch.status === undefined ? {} : { status: patch.status }),
 			visibility,
 			updated: new Date().toISOString(),
 		};
 		if (code === undefined) delete meta.code;
 		else meta.code = code;
+		if (patch.dependsOn === null) delete meta.dependsOn;
+		else if (patch.dependsOn !== undefined) meta.dependsOn = patch.dependsOn;
 
-		await upload(supabase, ref.key, serializePlan(meta, plan.body));
-		return { ...plan, meta };
+		const body = patch.content ?? plan.body;
+		await upload(supabase, ref.key, serializePlan(meta, body));
+		return { ...plan, meta, body };
 	},
 
 	async remove(id: string): Promise<StoredPlan | undefined> {

@@ -1,4 +1,5 @@
 import { spawn } from "node:child_process";
+import type { PlanStatus } from "@hostplan/core";
 import {
 	detectScope,
 	getPlan,
@@ -7,7 +8,8 @@ import {
 	type PlanFilter,
 	type StoredPlan,
 } from "@hostplan/core";
-import { die } from "../output";
+import { die, style, warn } from "../output";
+import { currentRemote, type PatchInput, patchPlan } from "../remote";
 
 export interface ScopeOptions {
 	project?: string;
@@ -53,6 +55,36 @@ export async function resolveRef(ref: string, filter: PlanFilter): Promise<Store
 export function describeFilter(filter: PlanFilter): string {
 	if (filter.project === undefined && filter.branch === undefined) return "the store";
 	return [filter.project ?? "*", filter.branch ?? "*"].join(" / ");
+}
+
+/**
+ * Local first, remote best-effort — the same posture as `hsp add`. A change
+ * that is on disk but didn't reach the deployment is a warning, not a failure.
+ */
+export async function syncPatch(id: string, patch: PatchInput): Promise<void> {
+	const remote = await currentRemote();
+	if (remote === undefined) return;
+	try {
+		await patchPlan(remote, id, patch);
+	} catch (error) {
+		warn(`updated locally but not synced — ${(error as Error).message}`);
+	}
+}
+
+/** One palette for statuses everywhere the CLI prints one. */
+export function statusLabel(status: PlanStatus): string {
+	switch (status) {
+		case "approved":
+			return style.green(status);
+		case "in-progress":
+			return style.cyan(status);
+		case "done":
+			return style.dim(style.green(status));
+		case "superseded":
+			return style.dim(status);
+		default:
+			return style.yellow(status);
+	}
 }
 
 export function openInBrowser(url: string): void {

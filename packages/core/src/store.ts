@@ -14,6 +14,7 @@ import {
 } from "./meta";
 import { ensureDir, plansRoot } from "./paths";
 import { slugify } from "./slug";
+import { DEFAULT_STATUS, type PlanStatus } from "./status";
 
 /**
  * Directory names that would be shadowed by, or shadow, a web route. A project
@@ -56,6 +57,10 @@ export interface AddPlanInput {
 	 */
 	id?: string;
 	code?: string;
+	/** Starting status; new plans are drafts unless the caller says otherwise. */
+	status?: PlanStatus;
+	/** Id of the plan this one waits on — the link that forms a stack. */
+	dependsOn?: string;
 	source?: string;
 	cwd?: string;
 	extraFrontmatter?: Record<string, unknown>;
@@ -197,6 +202,8 @@ export async function addPlan(input: AddPlanInput): Promise<StoredPlan> {
 		created: now,
 		updated: now,
 		visibility,
+		status: input.status ?? DEFAULT_STATUS,
+		...(input.dependsOn === undefined ? {} : { dependsOn: input.dependsOn }),
 		// Public plans carry no code — there would be nothing for it to gate.
 		...(visibility === "private" ? { code: input.code ?? newCode() } : {}),
 		...(input.source === undefined ? {} : { source: input.source }),
@@ -222,12 +229,17 @@ export interface UpdatePlanPatch {
 	/** Issue a fresh share code, invalidating any link already handed out. */
 	rotateCode?: boolean;
 	title?: string;
+	status?: PlanStatus;
+	/** New dependency, or `null` to detach the plan from its stack. */
+	dependsOn?: string | null;
+	/** Replace the body — a revision of the same plan, not a new one. */
+	content?: string;
 }
 
 /**
- * Rewrites a plan's metadata in place, keeping the body byte-identical. The
- * filename is left alone even when the title changes — the id is what the
- * filename is for, and renaming would break links already shared.
+ * Rewrites a plan in place. The filename is left alone even when the title
+ * changes — the id is what the filename is for, and renaming would break
+ * links already shared.
  */
 export async function updatePlan(
 	id: string,
@@ -250,14 +262,18 @@ export async function updatePlan(
 	const meta: PlanMeta = {
 		...plan.meta,
 		...(patch.title === undefined ? {} : { title: patch.title }),
+		...(patch.status === undefined ? {} : { status: patch.status }),
 		visibility,
 		updated: new Date().toISOString(),
 	};
 	if (code === undefined) delete meta.code;
 	else meta.code = code;
+	if (patch.dependsOn === null) delete meta.dependsOn;
+	else if (patch.dependsOn !== undefined) meta.dependsOn = patch.dependsOn;
 
-	await writeFileAtomic(plan.path, serializePlan(meta, plan.body));
-	return { ...plan, meta };
+	const body = patch.content ?? plan.body;
+	await writeFileAtomic(plan.path, serializePlan(meta, body));
+	return { ...plan, meta, body };
 }
 
 export interface ProjectSummary {

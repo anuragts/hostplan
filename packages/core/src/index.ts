@@ -34,7 +34,16 @@ export {
 	storeRoot,
 } from "./paths";
 export { fsPlanStore, type PlanStore } from "./plan-store";
+export { type SearchHit, searchPlans } from "./search";
 export { deslugify, slugify, titleFromHtml, titleFromMarkdown } from "./slug";
+export { byId, inStack, isBlocked, nextActionable, stackOf } from "./stack";
+export {
+	DEFAULT_STATUS,
+	isSettled,
+	isStatus,
+	PLAN_STATUSES,
+	type PlanStatus,
+} from "./status";
 export {
 	type AddPlanInput,
 	addPlan,
@@ -54,3 +63,4 @@ export {
 	type UpdatePlanPatch,
 	updatePlan,
 } from "./store";
+export { type PlanTask, parseTasks, setTask } from "./tasks";

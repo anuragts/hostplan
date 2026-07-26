@@ -171,7 +171,7 @@ export default async function PlanPage({
 					/>
 				) : (
 					<article
-						className="prose prose-invert max-w-none prose-headings:tracking-tight prose-a:text-accent prose-pre:bg-transparent prose-pre:p-0"
+						className="prose prose-invert max-w-none prose-headings:tracking-tight prose-a:text-brand prose-pre:bg-transparent prose-pre:p-0"
 						// The pipeline runs server-side and drops raw HTML, so nothing from a plan
 						// reaches the DOM as markup. HTML plans use the sandboxed iframe above.
 						// biome-ignore lint/security/noDangerouslySetInnerHtml: markdown is sanitized by construction

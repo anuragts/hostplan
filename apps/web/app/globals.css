@@ -1,5 +1,18 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
 @plugin "@tailwindcss/typography";
+
+/* ---------------------------------------------------------------------------
+   Palette. The app's own names (surface/ink/line/brand) come first; the
+   shadcn vocabulary below maps onto the same handful of values, so shadcn
+   components render in house style with no per-component theming.
+
+   `brand` is the cyan. shadcn already means something by `accent` (the subtle
+   hover wash), so the two keep separate names rather than fighting over one.
+--------------------------------------------------------------------------- */
 
 @theme {
 	--color-surface: oklch(0.17 0.006 285);
@@ -8,7 +21,7 @@
 	--color-ink: oklch(0.93 0.004 285);
 	--color-ink-muted: oklch(0.68 0.008 285);
 	--color-ink-faint: oklch(0.54 0.009 285);
-	--color-accent: oklch(0.78 0.13 195);
+	--color-brand: oklch(0.78 0.13 195);
 
 	--font-sans:
 		ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
@@ -16,13 +29,191 @@
 		ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
 }
 
+@theme inline {
+	--font-heading: var(--font-sans);
+	--color-sidebar-ring: var(--sidebar-ring);
+	--color-sidebar-border: var(--sidebar-border);
+	--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+	--color-sidebar-accent: var(--sidebar-accent);
+	--color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+	--color-sidebar-primary: var(--sidebar-primary);
+	--color-sidebar-foreground: var(--sidebar-foreground);
+	--color-sidebar: var(--sidebar);
+	--color-chart-5: var(--chart-5);
+	--color-chart-4: var(--chart-4);
+	--color-chart-3: var(--chart-3);
+	--color-chart-2: var(--chart-2);
+	--color-chart-1: var(--chart-1);
+	--color-ring: var(--ring);
+	--color-input: var(--input);
+	--color-border: var(--border);
+	--color-destructive: var(--destructive);
+	--color-accent-foreground: var(--accent-foreground);
+	--color-accent: var(--accent);
+	--color-muted-foreground: var(--muted-foreground);
+	--color-muted: var(--muted);
+	--color-secondary-foreground: var(--secondary-foreground);
+	--color-secondary: var(--secondary);
+	--color-primary-foreground: var(--primary-foreground);
+	--color-primary: var(--primary);
+	--color-popover-foreground: var(--popover-foreground);
+	--color-popover: var(--popover);
+	--color-card-foreground: var(--card-foreground);
+	--color-card: var(--card);
+	--color-foreground: var(--foreground);
+	--color-background: var(--background);
+	--radius-sm: calc(var(--radius) * 0.6);
+	--radius-md: calc(var(--radius) * 0.8);
+	--radius-lg: var(--radius);
+	--radius-xl: calc(var(--radius) * 1.4);
+	--radius-2xl: calc(var(--radius) * 1.8);
+	--radius-3xl: calc(var(--radius) * 2.2);
+	--radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/* Dark-only app: one block, no `.dark` toggle to fall out of sync with. */
+:root {
+	--background: var(--color-surface);
+	--foreground: var(--color-ink);
+	--card: var(--color-surface-raised);
+	--card-foreground: var(--color-ink);
+	--popover: var(--color-surface-raised);
+	--popover-foreground: var(--color-ink);
+	--primary: var(--color-ink);
+	--primary-foreground: var(--color-surface);
+	--secondary: var(--color-surface-raised);
+	--secondary-foreground: var(--color-ink);
+	--muted: var(--color-surface-raised);
+	--muted-foreground: var(--color-ink-muted);
+	--accent: oklch(0.25 0.007 285);
+	--accent-foreground: var(--color-ink);
+	--destructive: oklch(0.704 0.191 22.216);
+	--border: var(--color-line);
+	--input: var(--color-line);
+	--ring: var(--color-brand);
+	--chart-1: var(--color-brand);
+	--chart-2: var(--color-ink-muted);
+	--chart-3: var(--color-ink-faint);
+	--chart-4: var(--color-line);
+	--chart-5: var(--color-surface-raised);
+	--radius: 0.5rem;
+	--sidebar: var(--color-surface-raised);
+	--sidebar-foreground: var(--color-ink);
+	--sidebar-primary: var(--color-brand);
+	--sidebar-primary-foreground: var(--color-surface);
+	--sidebar-accent: oklch(0.25 0.007 285);
+	--sidebar-accent-foreground: var(--color-ink);
+	--sidebar-border: var(--color-line);
+	--sidebar-ring: var(--color-brand);
+}
+
 html {
 	color-scheme: dark;
 }
 
-body {
-	background: var(--color-surface);
-	color: var(--color-ink);
+@layer base {
+	* {
+		@apply border-border outline-ring/50;
+	}
+	body {
+		@apply bg-background text-foreground;
+	}
+	html {
+		@apply font-sans;
+	}
+}
+
+/* ---------------------------------------------------------------------------
+   Motion. Small distances, short durations, one easing — the page should feel
+   settled, not busy. Everything here collapses to nothing under
+   prefers-reduced-motion.
+--------------------------------------------------------------------------- */
+
+@keyframes fade-up {
+	from {
+		opacity: 0;
+		transform: translateY(4px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes fade-in {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+/* Entrance for list rows and page content. Stagger with --stagger set inline. */
+.animate-fade-up {
+	animation: fade-up 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+	animation-delay: var(--stagger, 0ms);
+}
+
+.animate-fade-in {
+	animation: fade-in 0.3s ease both;
+}
+
+/* Radix Collapsible measures its content into this variable; animating height
+   through it is what lets the settled section fold smoothly at any length. */
+@keyframes collapsible-down {
+	from {
+		height: 0;
+		opacity: 0;
+	}
+	to {
+		height: var(--radix-collapsible-content-height);
+		opacity: 1;
+	}
+}
+
+@keyframes collapsible-up {
+	from {
+		height: var(--radix-collapsible-content-height);
+		opacity: 1;
+	}
+	to {
+		height: 0;
+		opacity: 0;
+	}
+}
+
+.collapsible-content {
+	overflow: hidden;
+}
+
+.collapsible-content[data-state="open"] {
+	animation: collapsible-down 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.collapsible-content[data-state="closed"] {
+	animation: collapsible-up 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.animate-fade-up,
+	.animate-fade-in,
+	.collapsible-content[data-state="open"],
+	.collapsible-content[data-state="closed"] {
+		animation: none;
+	}
+	/* shadcn's Skeleton pulses via animate-pulse; hold it still too. */
+	[data-slot="skeleton"] {
+		animation: none;
+		opacity: 0.7;
+	}
+	*,
+	*::before,
+	*::after {
+		/* biome-ignore lint/complexity/noImportantStyles: reduced-motion must beat
+		   every inline and utility transition, which is exactly what !important is for. */
+		transition-duration: 0.01ms !important;
+	}
 }
 
 /* Shiki emits inline styles for tokens; the surrounding block is ours. */

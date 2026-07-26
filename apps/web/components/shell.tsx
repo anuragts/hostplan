@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 
 export interface Crumb {
 	label: string;
@@ -21,7 +21,7 @@ export function Shell({
 			<header className="mb-10 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
 				<Link
 					href="/"
-					className="font-mono font-semibold text-accent transition-opacity hover:opacity-70"
+					className="font-mono font-semibold text-brand transition-opacity hover:opacity-70"
 				>
 					hostplan
 				</Link>
@@ -68,23 +68,29 @@ export function Row({
 	title,
 	meta,
 	trailing,
+	stagger,
 }: {
 	href: string;
 	title: ReactNode;
 	meta?: ReactNode;
 	trailing?: ReactNode;
+	/** Entrance delay in ms — lists hand each row its position so they cascade. */
+	stagger?: number;
 }) {
 	return (
 		<Link
 			href={href}
-			className="group flex items-center gap-4 rounded-lg border border-line bg-surface-raised/40 px-4 py-3 transition-colors hover:border-ink-faint hover:bg-surface-raised"
+			className={`group flex items-center gap-4 rounded-lg border border-line bg-surface-raised/40 px-4 py-3 transition-[border-color,background-color,transform] duration-200 hover:border-ink-faint hover:bg-surface-raised active:scale-[0.995] ${stagger === undefined ? "" : "animate-fade-up"}`}
+			style={stagger === undefined ? undefined : ({ "--stagger": `${stagger}ms` } as CSSProperties)}
 		>
 			<div className="min-w-0 flex-1">
-				<div className="truncate text-sm font-medium text-ink">{title}</div>
-				{meta !== undefined && <div className="mt-0.5 truncate text-xs text-ink-faint">{meta}</div>}
+				<div className="truncate font-medium text-ink text-sm">{title}</div>
+				{meta !== undefined && <div className="mt-0.5 truncate text-ink-faint text-xs">{meta}</div>}
 			</div>
 			{trailing !== undefined && (
-				<div className="shrink-0 font-mono text-xs text-ink-faint">{trailing}</div>
+				<div className="shrink-0 font-mono text-ink-faint text-xs transition-colors group-hover:text-ink-muted">
+					{trailing}
+				</div>
 			)}
 		</Link>
 	);

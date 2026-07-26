@@ -17,6 +17,7 @@ const base: PlanMeta = {
 	created: "2026-07-26T00:00:00.000Z",
 	updated: "2026-07-26T00:00:00.000Z",
 	visibility: "private",
+	status: "draft",
 	code: "KRWT",
 };
 

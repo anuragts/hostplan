@@ -1,6 +1,6 @@
-import { listPlans, planUrl, resolvePort } from "@hostplan/core";
+import { byId, isBlocked, listPlans, planUrl, resolvePort } from "@hostplan/core";
 import { note, printJson, relativeTime, style, table } from "../output";
-import { describeFilter, resolveFilter, type ScopeOptions } from "./shared";
+import { describeFilter, resolveFilter, type ScopeOptions, statusLabel } from "./shared";
 
 export interface ListOptions extends ScopeOptions {
 	json?: boolean;
@@ -33,10 +33,12 @@ export async function listCommand(options: ListOptions): Promise<void> {
 		return;
 	}
 
+	const map = byId(all);
 	const rows = plans.map((plan) => [
 		style.cyan(plan.meta.id),
 		plan.meta.title,
 		style.dim(`${plan.meta.project} / ${plan.meta.branch}`),
+		isBlocked(plan, map) ? style.red("blocked") : statusLabel(plan.meta.status),
 		plan.meta.visibility === "public"
 			? style.yellow("public")
 			: style.dim(`private ${plan.meta.code ?? "—"}`),

@@ -3,6 +3,10 @@
 Every command takes `--json`. Prefer it when an agent needs to act on the
 output.
 
+For plans you can actually run these against, see
+**[examples/](../examples/)** — a walkthrough of status, stacks, tasks,
+revisions and search with real output.
+
 ## Storing
 
 ```bash

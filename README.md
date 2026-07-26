@@ -70,7 +70,8 @@ Codes are casual privacy, not cryptography: 4 letters is ~234,000 combinations,
 rate-limited but guessable given time. Don't host anything genuinely sensitive.
 
 Full command reference, sharing rules, and environment variables:
-**[docs/cli.md](docs/cli.md)**.
+**[docs/cli.md](docs/cli.md)**. Runnable plans for every workflow command:
+**[examples/](examples/)**.
 
 ## Hosting it
 

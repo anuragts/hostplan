@@ -1,12 +1,14 @@
-<img src="icon.svg" width="64" alt="">
+<img src="icon.svg" width="64" alt="Hostplan logo">
 
 # hostplan
 
 A home for the plans your coding agents write.
 
-Agents produce plans constantly and they land wherever — `~/.claude/plans`, a
-repo's `PLAN.md`, a scratch file that gets deleted. hostplan gives every plan one
-address, filed by project and branch, readable in a browser or by the next agent.
+Hostplan is an open-source CLI and web viewer that gives coding-agent plans
+stable, shareable, machine-readable URLs. Agents produce plans constantly and
+they land wherever — `~/.claude/plans`, a repo's `PLAN.md`, a scratch file that
+gets deleted. Hostplan gives every plan one address, filed by project and
+branch, readable in a browser or by the next agent.
 
 ```
 $ hsp add PLAN.md
@@ -78,6 +80,12 @@ rate-limited but guessable given time. Don't host anything genuinely sensitive.
 Full command reference, sharing rules, and environment variables:
 **[docs/cli.md](docs/cli.md)**. Runnable plans for every workflow command:
 **[examples/](examples/)**.
+
+Web guides:
+**[coding-agent plans](https://plans.host-plan.com/coding-agent-plans)**,
+**[plan handoffs](https://plans.host-plan.com/agent-plan-handoff)**,
+**[Hostplan vs. PLAN.md](https://plans.host-plan.com/compare/plan-md-vs-hostplan)**,
+and **[agent setup](https://plans.host-plan.com/docs/agent-setup)**.
 
 ## Hosting it
 

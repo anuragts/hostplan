@@ -1,5 +1,6 @@
 "use client";
 
+import posthog from "posthog-js";
 import { useEffect, useRef, useState } from "react";
 import { ProviderIcon } from "@/components/provider-icon";
 import type { OpenTarget, ProviderId } from "@/lib/providers";
@@ -84,6 +85,7 @@ export function OpenIn({ targets }: { targets: OpenTarget[] }) {
 		setSelectedId(target.id);
 		localStorage.setItem(STORAGE_KEY, target.id);
 		setMenuOpen(false);
+		posthog.capture("plan_opened_in_agent", { provider: target.id });
 		window.location.href = target.url;
 	}
 

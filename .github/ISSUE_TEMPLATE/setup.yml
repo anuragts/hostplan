@@ -1,0 +1,44 @@
+name: Setup question
+description: Ask about installation, self-hosting, authentication, or agent skill setup.
+title: "setup: "
+labels:
+  - question
+body:
+  - type: checkboxes
+    id: docs
+    attributes:
+      label: Documentation checked
+      options:
+        - label: I checked the CLI reference and agent setup guide.
+          required: true
+  - type: dropdown
+    id: setup
+    attributes:
+      label: Setup
+      options:
+        - Local-only CLI and viewer
+        - Hosted Vercel and Supabase deployment
+        - CLI login to a hosted deployment
+        - Codex skill
+        - Claude Code skill
+        - Cursor skill
+    validations:
+      required: true
+  - type: textarea
+    id: goal
+    attributes:
+      label: What are you trying to do?
+    validations:
+      required: true
+  - type: textarea
+    id: attempted
+    attributes:
+      label: What have you tried?
+      description: Redact tokens, share codes, private URLs, and personal paths.
+    validations:
+      required: true
+  - type: textarea
+    id: output
+    attributes:
+      label: Safe command output
+      render: shell

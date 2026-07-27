@@ -1,6 +1,7 @@
 import { isCode, isId, isStatus, shareUrls } from "@hostplan/core";
 import { currentViewer, unauthorized } from "@/lib/current-viewer";
 import { origin as siteOrigin } from "@/lib/origin";
+import { captureServerEvent } from "@/lib/server-analytics";
 import { planStoreFor } from "@/lib/store";
 import { canBrowse } from "@/lib/viewer";
 
@@ -83,5 +84,13 @@ export async function POST(request: Request) {
 	});
 
 	const origin = siteOrigin(request);
+	captureServerEvent({
+		event: "hosted_plan_created",
+		distinctId: viewer.kind === "user" ? viewer.userId : "local-owner",
+		properties: {
+			visibility: plan.meta.visibility,
+			format: plan.meta.format,
+		},
+	});
 	return Response.json({ ...plan.meta, ...shareUrls(origin, plan.meta) }, { status: 201 });
 }

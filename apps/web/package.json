@@ -2,12 +2,14 @@
 	"name": "@hostplan/web",
 	"version": "0.1.0",
 	"private": true,
+	"description": "The Hostplan web viewer for human- and machine-readable coding-agent plans.",
 	"type": "module",
 	"scripts": {
 		"dev": "next dev -p 7433",
 		"build": "next build",
 		"start": "next start -p 7433",
-		"typecheck": "tsc -p tsconfig.json --noEmit"
+		"typecheck": "tsc -p tsconfig.json --noEmit",
+		"submit:indexnow": "bun scripts/submit-indexnow.ts"
 	},
 	"dependencies": {
 		"@hostplan/core": "workspace:*",

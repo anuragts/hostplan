@@ -1,5 +1,19 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { wantsPlanSource } from "@/lib/plan-content-negotiation";
+import { PUBLIC_ROUTES } from "@/lib/site";
+
+const PUBLIC_ROUTE_SET = new Set<string>(PUBLIC_ROUTES);
+const PUBLIC_SYSTEM_ROUTES = new Set([
+	"/robots.txt",
+	"/sitemap.xml",
+	"/llms.txt",
+	"/opengraph-image",
+	"/74bd004c41f144310fb8cad8cefb4191.txt",
+]);
+
+export function isPublicRoute(pathname: string): boolean {
+	return PUBLIC_ROUTE_SET.has(pathname) || PUBLIC_SYSTEM_ROUTES.has(pathname);
+}
 
 /**
  * Guards the index pages, which list plans and are therefore never anonymous.
@@ -32,13 +46,20 @@ export function middleware(request: NextRequest) {
 		return NextResponse.next();
 	}
 
+	// Public product, documentation, and crawler routes stay reachable even on
+	// an account-enabled deployment. The allowlist is explicit so a new owner
+	// route cannot accidentally become public.
+	if (isPublicRoute(request.nextUrl.pathname)) return NextResponse.next();
+
 	// No accounts configured means running locally, where everything is open.
 	if (process.env.HOSTPLAN_ACCOUNTS !== "1") return NextResponse.next();
 	if (hasSupabaseSession(request)) return NextResponse.next();
 
 	const login = new URL("/login", request.url);
 	login.searchParams.set("next", request.nextUrl.pathname);
-	return NextResponse.redirect(login);
+	const response = NextResponse.redirect(login);
+	response.headers.set("X-Robots-Tag", "noindex, nofollow");
+	return response;
 }
 
 export const config = {
@@ -48,7 +69,8 @@ export const config = {
 		 * Everything except: the home page (serves a public landing page to
 		 * visitors and the dashboard to a user, so it gates itself), the plan page
 		 * (handled by the matcher above), API routes (gated per handler), login,
-		 * and static assets.
+		 * and static assets. Public marketing routes do enter middleware and are
+		 * admitted through the explicit allowlist above.
 		 *
 		 * `login$` rather than `login` so a project named `login-flow` doesn't
 		 * slip past the guard on the strength of its prefix.

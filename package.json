@@ -2,7 +2,7 @@
 	"name": "hostplan",
 	"version": "0.1.0",
 	"private": true,
-	"description": "A central store for coding-agent plans, with a local web viewer.",
+	"description": "An open-source CLI and web viewer for storing, sharing, resuming, and handing off coding-agent plans.",
 	"license": "MIT",
 	"author": "anuragts",
 	"repository": {

@@ -1,0 +1,49 @@
+title: "[Workflow] "
+labels:
+  - workflow
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Share a real Hostplan workflow, limitation, or integration idea. Do not include plan ids, share codes, private URLs, plan contents, tokens, or personal filesystem paths.
+  - type: dropdown
+    id: topic
+    attributes:
+      label: Topic
+      options:
+        - Plan lifecycle
+        - Multi-step plan stack
+        - Team sharing
+        - Codex handoff
+        - Claude Code handoff
+        - Cursor handoff
+        - Another coding-agent app
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem were you solving?
+    validations:
+      required: true
+  - type: textarea
+    id: workflow
+    attributes:
+      label: What did the workflow look like?
+      description: Commands and sanitized output are welcome.
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: What happened?
+      description: Include attributable evidence only when you are comfortable making it public.
+    validations:
+      required: true
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy check
+      options:
+        - label: I removed plan ids, codes, contents, tokens, private URLs, and personal paths.
+          required: true

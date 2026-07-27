@@ -1,9 +1,16 @@
 "use client";
 
+import posthog from "posthog-js";
 import { useState } from "react";
 
 /** The one thing a visitor is meant to leave with, so it's one click to take. */
-export function CopyCommand({ command }: { command: string }) {
+export function CopyCommand({
+	command,
+	event = "install_command_copied",
+}: {
+	command: string;
+	event?: string;
+}) {
 	const [copied, setCopied] = useState(false);
 
 	return (
@@ -11,11 +18,12 @@ export function CopyCommand({ command }: { command: string }) {
 			type="button"
 			onClick={() => {
 				void navigator.clipboard.writeText(command).then(() => {
+					posthog.capture(event);
 					setCopied(true);
 					setTimeout(() => setCopied(false), 1400);
 				});
 			}}
-			className="group flex w-full items-center gap-3 rounded-xl border border-line bg-surface-raised px-5 py-4 text-left transition-colors hover:border-ink-faint sm:w-auto"
+			className="group flex w-full items-center gap-3 rounded-xl bg-surface-raised px-5 py-4 text-left shadow-[0_0_0_1px_rgba(255,255,255,0.08)] transition-[box-shadow,scale] duration-150 ease-out hover:shadow-[0_0_0_1px_rgba(255,255,255,0.13)] active:scale-[0.96] sm:w-auto"
 		>
 			<span className="select-none font-mono text-brand text-sm">$</span>
 			<code className="flex-1 font-mono text-ink text-sm sm:text-base">{command}</code>

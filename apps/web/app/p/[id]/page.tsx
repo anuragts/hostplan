@@ -59,13 +59,13 @@ export async function generateMetadata({
 	// an index would defeat the point of choosing who gets the URL.
 	const robots = { index: false, follow: false };
 	// A locked plan gives nothing away in the tab title or link previews.
-	if (plan === undefined) return { title: "Plan not found · hostplan", robots };
+	if (plan === undefined) return { title: "Plan not found", robots };
 	// Whoever is about to read the plan is already reading its title, so the tab
 	// may as well say which one it is. Same check the page itself runs.
 	const isOwner = ownsPlan(plan, viewer);
 	const code = normalizeCode((await searchParams).code);
-	if (!canRead(plan.meta, { isOwner, code })) return { title: "Private plan · hostplan", robots };
-	return { title: `${plan.meta.title} · hostplan`, robots };
+	if (!canRead(plan.meta, { isOwner, code })) return { title: "Private plan", robots };
+	return { title: plan.meta.title, robots };
 }
 
 /**

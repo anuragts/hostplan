@@ -1,8 +1,13 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { Shell } from "@/components/shell";
 import { currentViewer } from "@/lib/current-viewer";
 
 export const dynamic = "force-dynamic";
+export const metadata: Metadata = {
+	title: "Connect a terminal",
+	robots: { index: false, follow: false },
+};
 
 /** Where `hsp login` sends a human to approve a terminal. */
 export default async function CliApprovalPage({

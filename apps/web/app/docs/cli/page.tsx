@@ -31,17 +31,17 @@ export default function CliReferencePage() {
 				["Plan stack example", "/examples/plan-stack"],
 			]}
 		>
-			<ContentSection title="Install from source">
+			<ContentSection title="Install">
 				<p>
-					Hostplan currently requires Bun and Node 20 or newer. The npm package is not published
-					yet; install the CLI from the public repository.
+					Hostplan requires Bun and Node 20 or newer. Install the public package globally with Bun,
+					then run <code>hsp</code> from any project.
 				</p>
-				<Command>{`git clone https://github.com/anuragts/hostplan.git
-cd hostplan
-bun install
-bun run build
-bun link
+				<Command>{`bun add --global hostplan
 hsp --help`}</Command>
+				<p>
+					<code>npm install --global hostplan</code> also works when Bun is already installed.
+					Source installs remain available from the GitHub repository.
+				</p>
 			</ContentSection>
 
 			<ContentSection title="Store a plan">

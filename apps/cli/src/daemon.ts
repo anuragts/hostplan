@@ -1,14 +1,21 @@
 import { spawn } from "node:child_process";
 import { existsSync, openSync } from "node:fs";
-import { readFile, rm, writeFile } from "node:fs/promises";
-import { join } from "node:path";
+import { cp, mkdtemp, readFile, rename, rm, symlink, writeFile } from "node:fs/promises";
+import { createRequire } from "node:module";
+import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { ensureDir, logPath, pidPath, resolvePort, runRoot } from "@hostplan/core";
+import packageInfo from "../../../package.json" with { type: "json" };
 import { die, note, style } from "./output";
 
-/** `apps/web`, relative to this file at `apps/cli/src/daemon.ts`. */
-export const WEB_DIR = fileURLToPath(new URL("../../web", import.meta.url));
-const REPO_ROOT = fileURLToPath(new URL("../../..", import.meta.url));
+const BUNDLED_ROOT = fileURLToPath(new URL("..", import.meta.url));
+const SOURCE_ROOT = fileURLToPath(new URL("../../..", import.meta.url));
+const IS_BUNDLED = existsSync(join(BUNDLED_ROOT, "apps", "web", "package.json"));
+const REPO_ROOT = IS_BUNDLED ? BUNDLED_ROOT : SOURCE_ROOT;
+const VIEWER_ROOT = IS_BUNDLED ? join(runRoot(), "viewer", packageInfo.version) : REPO_ROOT;
+
+/** The packaged or source checkout's Next.js viewer. */
+export const WEB_DIR = join(VIEWER_ROOT, "apps", "web");
 
 const HEALTH_TIMEOUT_MS = 500;
 const START_TIMEOUT_MS = 30_000;
@@ -19,6 +26,11 @@ function sleep(ms: number): Promise<void> {
 }
 
 function nextBin(): string {
+	try {
+		return createRequire(import.meta.url).resolve("next/dist/bin/next");
+	} catch {
+		// Keep source-checkout fallbacks for linked development installs.
+	}
 	const candidates = [
 		join(WEB_DIR, "node_modules", ".bin", "next"),
 		join(REPO_ROOT, "node_modules", ".bin", "next"),
@@ -28,6 +40,41 @@ function nextBin(): string {
 		die("could not find the `next` binary — run `bun install` in the hostplan repo");
 	}
 	return found;
+}
+
+async function prepareViewer(): Promise<void> {
+	if (!IS_BUNDLED || existsSync(join(VIEWER_ROOT, ".ready"))) return;
+
+	await ensureDir(dirname(VIEWER_ROOT));
+	const temporaryRoot = await mkdtemp(join(dirname(VIEWER_ROOT), `.${packageInfo.version}-`));
+	const dependencies = dirname(
+		dirname(createRequire(import.meta.url).resolve("next/package.json")),
+	);
+
+	try {
+		await ensureDir(join(temporaryRoot, "apps"));
+		await ensureDir(join(temporaryRoot, "packages", "core"));
+		await cp(join(REPO_ROOT, "apps", "web"), join(temporaryRoot, "apps", "web"), {
+			recursive: true,
+		});
+		await cp(
+			join(REPO_ROOT, "packages", "core", "src"),
+			join(temporaryRoot, "packages", "core", "src"),
+			{ recursive: true },
+		);
+		await cp(join(REPO_ROOT, "package.json"), join(temporaryRoot, "package.json"));
+		await cp(join(REPO_ROOT, "tsconfig.base.json"), join(temporaryRoot, "tsconfig.base.json"));
+		await symlink(
+			dependencies,
+			join(temporaryRoot, "node_modules"),
+			process.platform === "win32" ? "junction" : "dir",
+		);
+		await writeFile(join(temporaryRoot, ".ready"), `${packageInfo.version}\n`, "utf8");
+		await rename(temporaryRoot, VIEWER_ROOT);
+	} catch (error) {
+		await rm(temporaryRoot, { recursive: true, force: true });
+		if (!existsSync(join(VIEWER_ROOT, ".ready"))) throw error;
+	}
 }
 
 export function isBuilt(): boolean {
@@ -66,7 +113,10 @@ async function build(): Promise<void> {
 	note(style.dim("building viewer (one-time, ~30s)…"));
 	const output: Buffer[] = [];
 	const code = await new Promise<number>((resolve) => {
-		const child = spawn(nextBin(), ["build"], { cwd: WEB_DIR, stdio: ["ignore", "pipe", "pipe"] });
+		const child = spawn(nextBin(), ["build", "--webpack"], {
+			cwd: WEB_DIR,
+			stdio: ["ignore", "pipe", "pipe"],
+		});
 		child.stdout?.on("data", (chunk: Buffer) => output.push(chunk));
 		child.stderr?.on("data", (chunk: Buffer) => output.push(chunk));
 		child.on("close", (status) => resolve(status ?? 1));
@@ -113,6 +163,7 @@ export async function ensureServer(): Promise<EnsureResult> {
 	const port = await resolvePort();
 	if (await isHealthy(port)) return { port, started: false };
 
+	await prepareViewer();
 	if (!isBuilt()) await build();
 	await startDetached(port);
 
@@ -161,6 +212,7 @@ export async function stopServer(): Promise<boolean> {
 
 /** Runs the viewer in the foreground, for debugging the server itself. */
 export async function runForeground(port: number): Promise<number> {
+	await prepareViewer();
 	if (!isBuilt()) await build();
 	return new Promise((resolve) => {
 		const child = spawn(nextBin(), ["start", "-p", String(port)], {

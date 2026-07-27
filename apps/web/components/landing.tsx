@@ -86,7 +86,7 @@ export function Landing() {
 				</p>
 
 				<div className="mt-10 flex flex-col items-start gap-4 sm:flex-row sm:items-center">
-					<CopyCommand command="git clone https://github.com/anuragts/hostplan.git" />
+					<CopyCommand command="bun add --global hostplan" />
 					<TrackedLink
 						event="marketing_github_clicked"
 						href={REPOSITORY_URL}
@@ -98,8 +98,8 @@ export function Landing() {
 					</TrackedLink>
 				</div>
 				<p className="mt-3 max-w-xl text-pretty font-mono text-ink-faint text-xs">
-					Then run `bun install`, `bun run build`, and `bun link`. The npm package is not published
-					yet.
+					Requires Bun and Node 20+. You can also use `npm install --global hostplan`; the CLI still
+					runs with Bun.
 				</p>
 			</Section>
 

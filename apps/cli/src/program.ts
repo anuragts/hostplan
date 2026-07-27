@@ -1,4 +1,5 @@
 import { Command } from "commander";
+import packageInfo from "../../../package.json" with { type: "json" };
 import { addCommand } from "./commands/add";
 import { loginCommand, logoutCommand, whoamiCommand } from "./commands/auth";
 import { getCommand } from "./commands/get";
@@ -21,7 +22,7 @@ export function buildProgram(): Command {
 	program
 		.name("hsp")
 		.description("hostplan — a central store for agent plans, with a local web viewer")
-		.version("0.1.0")
+		.version(packageInfo.version)
 		.showHelpAfterError();
 
 	program

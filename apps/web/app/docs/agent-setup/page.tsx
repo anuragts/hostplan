@@ -94,9 +94,9 @@ hsp add -c "# Skill smoke test\\n\\n- [ ] Verify retrieval" -t "Skill smoke test
 hsp get latest
 hsp tasks latest`}</Command>
 				<p>
-					If <code>hsp</code> is not found, finish the source installation and run
-					<code>bun link</code>. If hosted URLs are expected but <code>hsp whoami</code> reports
-					local-only mode, run <code>hsp login</code>.
+					If <code>hsp</code> is not found, install it with <code>bun add --global hostplan</code>.
+					If hosted URLs are expected but <code>hsp whoami</code> reports local-only mode, run{" "}
+					<code>hsp login</code>.
 				</p>
 			</ContentSection>
 

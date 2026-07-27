@@ -1,3 +1,5 @@
+import packageInfo from "../../../../../package.json" with { type: "json" };
+
 export const dynamic = "force-dynamic";
 
 /**
@@ -6,5 +8,5 @@ export const dynamic = "force-dynamic";
  * enough to identify the app.
  */
 export function GET() {
-	return Response.json({ app: "hostplan", version: "0.1.0" });
+	return Response.json({ app: "hostplan", version: packageInfo.version });
 }

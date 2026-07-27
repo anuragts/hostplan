@@ -35,12 +35,13 @@ and the same plans become shareable links.
 Requires [Bun](https://bun.sh) and Node 20+.
 
 ```bash
-git clone https://github.com/anuragts/hostplan.git
-cd hostplan
-bun install
-bun run build     # builds the viewer, once
-bun link          # puts `hsp` on your PATH
+bun add --global hostplan
+hsp --version
 ```
+
+You can also run `npm install --global hostplan`; the CLI still uses Bun at
+runtime. To install from source, clone the repository, run `bun install`,
+`bun run build`, and `bun link`.
 
 `hsp` is global — the store lives at `~/.hostplan` and every command works from
 any directory, so it's the same in every project. The viewer starts itself the

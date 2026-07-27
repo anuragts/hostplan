@@ -37,6 +37,21 @@ hsp get <id> --json     # body plus metadata
 
 `<id>` also accepts a full plan URL, so a link can be pasted verbatim.
 
+A share URL is content-negotiated. Open it in a browser for the rendered
+Hostplan viewer, or curl that exact URL for the original plan source:
+
+```bash
+curl -fsSL 'https://plans.host-plan.com/p/a3f9c2?code=KRWT'
+```
+
+Curl's default `Accept: */*` receives Markdown (or the original HTML for an
+HTML-format plan). Other clients can request it explicitly with `Accept:
+text/markdown`. To inspect the rendered Next.js document from curl, override
+that with `Accept: text/html`.
+
+The explicit `/api/raw/<id>?code=<code>` endpoint remains available as a
+fallback, but normal command-line readers do not need to rewrite shared URLs.
+
 ## Finding
 
 ```bash

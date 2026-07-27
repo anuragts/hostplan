@@ -22,11 +22,11 @@ import { StatusControl } from "@/components/status-control";
 import { VisibilityBadge } from "@/components/visibility-badge";
 import { currentViewer } from "@/lib/current-viewer";
 import { absoluteTime, relativeTime } from "@/lib/format";
+import { ownsPlan } from "@/lib/plan-access";
 import { buildOpenTargets } from "@/lib/providers";
 import { clientKey, codeAttemptKey, consumeAttempt } from "@/lib/rate-limit";
 import { renderPlanBody, stripLeadingTitle } from "@/lib/render";
 import { isRemoteStore, planStore } from "@/lib/store";
-import type { Viewer } from "@/lib/viewer";
 
 export const dynamic = "force-dynamic";
 
@@ -46,16 +46,6 @@ async function loadMeta(id: string): Promise<PlanMeta | undefined> {
 	return store.getMeta === undefined ? (await load(id))?.meta : store.getMeta(id);
 }
 
-/**
- * Ownership is a property of the plan, not of being signed in. Treating any
- * authenticated visitor as the owner would hand them every private plan in
- * the store without a code.
- */
-function ownedBy(plan: StoredPlan, viewer: Viewer): boolean {
-	if (viewer.kind === "local") return true;
-	return viewer.kind === "user" && plan.ownerId !== undefined && plan.ownerId === viewer.userId;
-}
-
 export async function generateMetadata({
 	params,
 	searchParams,
@@ -72,7 +62,7 @@ export async function generateMetadata({
 	if (plan === undefined) return { title: "Plan not found · hostplan", robots };
 	// Whoever is about to read the plan is already reading its title, so the tab
 	// may as well say which one it is. Same check the page itself runs.
-	const isOwner = ownedBy(plan, viewer);
+	const isOwner = ownsPlan(plan, viewer);
 	const code = normalizeCode((await searchParams).code);
 	if (!canRead(plan.meta, { isOwner, code })) return { title: "Private plan · hostplan", robots };
 	return { title: `${plan.meta.title} · hostplan`, robots };
@@ -115,7 +105,7 @@ export default async function PlanPage({
 	const { meta } = plan;
 	const supplied = (await searchParams).code;
 	const code = normalizeCode(supplied);
-	const isOwner = ownedBy(plan, viewer);
+	const isOwner = ownsPlan(plan, viewer);
 
 	if (!canRead(meta, { isOwner, code })) {
 		// Only a real attempt burns rate-limit budget; arriving with no code at

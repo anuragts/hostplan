@@ -52,6 +52,16 @@ Give the user that URL — the page renders the plan and has an **Open in**
 button that hands it to Codex, Claude Code, or Cursor. Use `-q` if you only
 want the URL, `--json` if you need to parse the result.
 
+The same URL is both human- and machine-readable. Opening it in a browser shows
+the rendered viewer; curling it returns only the original plan source:
+
+```bash
+curl -fsSL 'https://plans.host-plan.com/p/a3f9c2?code=KRWT'
+```
+
+No `/api/raw/` URL conversion or HTML cleanup is needed. Non-curl clients can
+request `Accept: text/markdown` explicitly.
+
 The viewer starts itself on first use; the very first `hsp add` on a machine
 may take ~30s while it builds. Pass `--no-serve` to skip that if you only need
 the plan on disk.

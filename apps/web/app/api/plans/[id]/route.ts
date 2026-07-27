@@ -1,6 +1,7 @@
 import { canRead, isId, isStatus, normalizeCode, shareUrls } from "@hostplan/core";
 import { currentViewer, unauthorized } from "@/lib/current-viewer";
 import { origin as siteOrigin } from "@/lib/origin";
+import { ownsPlan } from "@/lib/plan-access";
 import { clientKey, codeAttemptKey, consumeAttempt } from "@/lib/rate-limit";
 import { adminPlanStore, planStoreFor } from "@/lib/store";
 import { canBrowse } from "@/lib/viewer";
@@ -24,7 +25,7 @@ export async function GET(request: Request, { params }: Params) {
 
 	const code = normalizeCode(new URL(request.url).searchParams.get("code"));
 	const viewer = await currentViewer(request);
-	const isOwner = canBrowse(viewer);
+	const isOwner = ownsPlan(plan, viewer);
 
 	// Same gate as the page and the raw route — one implementation, no gaps.
 	if (!canRead(plan.meta, { isOwner, code })) {

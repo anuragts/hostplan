@@ -17,7 +17,13 @@ $ hsp add PLAN.md
 
 Another agent runs `hsp get a3f9c2` to read it back. You open the URL and get a
 rendered page, with an **Open in** button that hands the plan straight to Codex,
-Claude Code, or Cursor.
+Claude Code, or Cursor. The same URL is machine-readable: curl it and Hostplan
+returns the original Markdown without the Next.js page, scripts, or viewer
+chrome.
+
+```bash
+curl -fsSL 'https://plans.host-plan.com/p/a3f9c2?code=KRWT'
+```
 
 Works entirely offline against a folder on your machine. Sign in to a deployment
 and the same plans become shareable links.

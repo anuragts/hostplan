@@ -2,9 +2,8 @@
 
 import { PLAN_THEMES, type PlanThemeId, planTheme as themeById } from "@hostplan/core/theme";
 import { Palette } from "lucide-react";
-import { useRouter } from "next/navigation";
 import posthog from "posthog-js";
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useRef, useState } from "react";
 import { planDocumentId } from "@/components/plan-document";
 import {
 	DropdownMenu,
@@ -37,14 +36,14 @@ export function PlanThemeControl({
 	authorTheme: PlanThemeId;
 	isOwner: boolean;
 }) {
-	const router = useRouter();
-	const [refreshing, startTransition] = useTransition();
+	const confirmedTheme = useRef(authorTheme);
 	const [shown, setShown] = useState(authorTheme);
 	const [saving, setSaving] = useState(false);
 	const [failed, setFailed] = useState(false);
 
 	useEffect(() => {
 		if (isOwner) {
+			confirmedTheme.current = authorTheme;
 			clearStoredPlanTheme(id);
 			applyTheme(id, authorTheme);
 			setShown(authorTheme);
@@ -77,12 +76,12 @@ export function PlanThemeControl({
 		})
 			.then((response) => {
 				if (!response.ok) throw new Error(String(response.status));
+				confirmedTheme.current = next;
 				posthog.capture("plan_theme_changed", { theme: next });
-				startTransition(() => router.refresh());
 			})
 			.catch(() => {
-				applyTheme(id, authorTheme);
-				setShown(authorTheme);
+				applyTheme(id, confirmedTheme.current);
+				setShown(confirmedTheme.current);
 				setFailed(true);
 				posthog.capture("plan_theme_save_failed");
 			})
@@ -97,7 +96,7 @@ export function PlanThemeControl({
 	}
 
 	const current = themeById(shown);
-	const busy = saving || refreshing;
+	const busy = saving;
 
 	return (
 		<DropdownMenu>

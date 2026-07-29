@@ -124,14 +124,15 @@ html {
 }
 
 /* ---------------------------------------------------------------------------
-   Plan artifacts. The application chrome stays in Hostplan's dark palette;
-   only this document surface changes voice. Themes provide tokens and the
-   shared structure below consumes them.
+   Plan views. A theme owns the complete plan-reading environment — canvas,
+   navigation, controls, menus, and document — while the rest of Hostplan keeps
+   its established dark palette.
 --------------------------------------------------------------------------- */
 
-.plan-document {
-	--plan-canvas: transparent;
+:where(.plan-environment, .plan-theme-menu) {
+	--plan-canvas: var(--color-surface);
 	--plan-paper: transparent;
+	--plan-panel: var(--color-surface-raised);
 	--plan-ink: var(--color-ink);
 	--plan-muted: var(--color-ink-muted);
 	--plan-faint: var(--color-ink-faint);
@@ -147,6 +148,18 @@ html {
 	--plan-shadow: none;
 
 	color-scheme: dark;
+}
+
+.plan-environment {
+	background-color: var(--plan-canvas);
+	color: var(--plan-ink);
+	min-height: 100dvh;
+	transition:
+		background-color 180ms ease-out,
+		color 180ms ease-out;
+}
+
+.plan-document {
 	background-color: var(--plan-paper);
 	border-radius: var(--plan-radius);
 	box-shadow: var(--plan-shadow);
@@ -158,9 +171,10 @@ html {
 	transition-timing-function: ease-out;
 }
 
-.plan-document[data-plan-theme="working-draft"] {
+:where(.plan-environment, .plan-theme-menu)[data-plan-theme="working-draft"] {
 	--plan-canvas: #d8d6d0;
 	--plan-paper: #f3f1ea;
+	--plan-panel: #f3f1ea;
 	--plan-ink: #171715;
 	--plan-muted: #55534d;
 	--plan-faint: #55534d;
@@ -177,9 +191,10 @@ html {
 	color-scheme: light;
 }
 
-.plan-document[data-plan-theme="office-memo"] {
+:where(.plan-environment, .plan-theme-menu)[data-plan-theme="office-memo"] {
 	--plan-canvas: #d4cab0;
 	--plan-paper: #eee5cb;
+	--plan-panel: #eee5cb;
 	--plan-ink: #292418;
 	--plan-muted: #625b48;
 	--plan-faint: #625b48;
@@ -197,9 +212,10 @@ html {
 	color-scheme: light;
 }
 
-.plan-document[data-plan-theme="editorial"] {
+:where(.plan-environment, .plan-theme-menu)[data-plan-theme="editorial"] {
 	--plan-canvas: #ded8cb;
 	--plan-paper: #f8f4eb;
+	--plan-panel: #f8f4eb;
 	--plan-ink: #28241f;
 	--plan-muted: #686057;
 	--plan-faint: #686057;
@@ -216,9 +232,10 @@ html {
 	color-scheme: light;
 }
 
-.plan-document[data-plan-theme="technical-brief"] {
+:where(.plan-environment, .plan-theme-menu)[data-plan-theme="technical-brief"] {
 	--plan-canvas: #cbd8dc;
 	--plan-paper: #eef5f6;
+	--plan-panel: #eef5f6;
 	--plan-ink: #17333c;
 	--plan-muted: #48646c;
 	--plan-faint: #48646c;
@@ -234,15 +251,19 @@ html {
 		0 0 0 1px rgb(10 55 66 / 10%), 0 2px 4px -2px rgb(10 55 66 / 14%),
 		0 22px 52px -34px rgb(7 37 45 / 45%);
 	color-scheme: light;
+}
+
+.plan-environment[data-plan-theme="technical-brief"] .plan-document {
 	background-image:
 		linear-gradient(rgb(25 99 115 / 5%) 1px, transparent 1px),
 		linear-gradient(90deg, rgb(25 99 115 / 5%) 1px, transparent 1px);
 	background-size: 24px 24px;
 }
 
-.plan-document[data-plan-theme="executive"] {
+:where(.plan-environment, .plan-theme-menu)[data-plan-theme="executive"] {
 	--plan-canvas: #d9dad7;
 	--plan-paper: #fbfbf8;
+	--plan-panel: #fbfbf8;
 	--plan-ink: #202322;
 	--plan-muted: #5e6461;
 	--plan-faint: #5e6461;
@@ -257,6 +278,131 @@ html {
 	--plan-shadow:
 		0 0 0 1px rgb(0 0 0 / 5%), 0 1px 2px -1px rgb(0 0 0 / 6%), 0 20px 50px -32px rgb(0 0 0 / 35%);
 	color-scheme: light;
+}
+
+.plan-environment:not([data-plan-theme="hostplan"]) .hostplan-shell-header {
+	color: var(--plan-muted);
+}
+
+.plan-environment:not([data-plan-theme="hostplan"]) .hostplan-wordmark {
+	color: var(--plan-accent);
+}
+
+.plan-environment:not([data-plan-theme="hostplan"]) .hostplan-crumb {
+	color: var(--plan-muted);
+}
+
+.plan-environment:not([data-plan-theme="hostplan"]) .hostplan-crumb:hover {
+	color: var(--plan-ink);
+}
+
+.plan-environment:not([data-plan-theme="hostplan"]) .hostplan-crumb-divider {
+	color: var(--plan-line);
+}
+
+.plan-environment:not([data-plan-theme="hostplan"]) .plan-theme-trigger,
+.plan-environment:not([data-plan-theme="hostplan"]) .plan-open-in-control,
+.plan-environment:not([data-plan-theme="hostplan"]) .plan-open-in-menu {
+	background: var(--plan-paper);
+	border-color: var(--plan-line);
+	box-shadow:
+		0 0 0 1px rgb(0 0 0 / 5%),
+		0 1px 2px rgb(0 0 0 / 8%),
+		0 12px 30px -22px rgb(0 0 0 / 42%);
+	color: var(--plan-ink);
+}
+
+.plan-environment:not([data-plan-theme="hostplan"]) .plan-theme-trigger {
+	color: var(--plan-muted);
+}
+
+.plan-environment:not([data-plan-theme="hostplan"]) .plan-theme-trigger:hover,
+.plan-environment:not([data-plan-theme="hostplan"]) .plan-open-in-main:hover,
+.plan-environment:not([data-plan-theme="hostplan"]) .plan-open-in-caret:hover,
+.plan-environment:not([data-plan-theme="hostplan"]) .plan-open-in-item:hover,
+.plan-environment:not([data-plan-theme="hostplan"]) .plan-open-in-item:focus {
+	background: var(--plan-code-bg);
+	color: var(--plan-ink);
+}
+
+.plan-environment:not([data-plan-theme="hostplan"]) .plan-open-in-main,
+.plan-environment:not([data-plan-theme="hostplan"]) .plan-open-in-label {
+	color: var(--plan-ink);
+}
+
+.plan-environment:not([data-plan-theme="hostplan"]) .plan-open-in-caret,
+.plan-environment:not([data-plan-theme="hostplan"]) .plan-open-in-hint {
+	color: var(--plan-muted);
+}
+
+.plan-environment:not([data-plan-theme="hostplan"]) .plan-open-in-caret {
+	border-color: var(--plan-line);
+}
+
+.plan-environment:not([data-plan-theme="hostplan"]) .plan-code-gate-title {
+	color: var(--plan-ink);
+}
+
+.plan-environment:not([data-plan-theme="hostplan"]) .plan-code-gate-copy {
+	color: var(--plan-muted);
+}
+
+.plan-environment:not([data-plan-theme="hostplan"]) .plan-code-gate-input {
+	background: var(--plan-paper);
+	border-color: var(--plan-line);
+	color: var(--plan-ink);
+}
+
+.plan-environment:not([data-plan-theme="hostplan"]) .plan-code-gate-input::placeholder {
+	color: var(--plan-faint);
+}
+
+.plan-environment:not([data-plan-theme="hostplan"]) .plan-code-gate-input:focus {
+	border-color: var(--plan-accent);
+}
+
+.plan-environment:not([data-plan-theme="hostplan"]) .plan-code-gate-submit {
+	background: var(--plan-accent);
+	color: var(--plan-paper);
+}
+
+.plan-environment:not([data-plan-theme="hostplan"]) .plan-code-gate-link {
+	color: var(--plan-accent);
+}
+
+.plan-theme-menu {
+	--accent: var(--plan-code-bg);
+	--accent-foreground: var(--plan-ink);
+	--border: var(--plan-line);
+	--popover: var(--plan-panel);
+	--popover-foreground: var(--plan-ink);
+
+	background: var(--plan-panel);
+	border-color: var(--plan-line);
+	box-shadow:
+		0 0 0 1px rgb(0 0 0 / 5%),
+		0 4px 12px -4px rgb(0 0 0 / 14%),
+		0 20px 44px -26px rgb(0 0 0 / 38%);
+	color: var(--plan-ink);
+}
+
+.plan-theme-menu-title {
+	color: var(--plan-ink);
+}
+
+.plan-theme-menu-copy,
+.plan-theme-menu-reset {
+	color: var(--plan-muted);
+}
+
+.plan-theme-menu [data-slot="dropdown-menu-separator"] {
+	background: var(--plan-line);
+}
+
+.plan-theme-menu :is([data-slot="dropdown-menu-radio-item"], .plan-theme-menu-reset):focus,
+.plan-theme-menu :is([data-slot="dropdown-menu-radio-item"], .plan-theme-menu-reset):hover {
+	background: var(--plan-code-bg);
+	color: var(--plan-ink);
 }
 
 .plan-document-header {
@@ -294,32 +440,32 @@ html {
 	color: var(--plan-line);
 }
 
-.plan-document:not([data-plan-theme="hostplan"]) .plan-copy-id {
+.plan-environment:not([data-plan-theme="hostplan"]) .plan-copy-id {
 	background: var(--plan-code-bg);
 	border-color: var(--plan-line);
 	color: var(--plan-ink);
 }
 
-.plan-document:not([data-plan-theme="hostplan"]) :is(.plan-status-badge, .plan-status-control),
-.plan-document:not([data-plan-theme="hostplan"]) .plan-visibility-badge,
-.plan-document:not([data-plan-theme="hostplan"]) .plan-dependency {
+.plan-environment:not([data-plan-theme="hostplan"]) :is(.plan-status-badge, .plan-status-control),
+.plan-environment:not([data-plan-theme="hostplan"]) .plan-visibility-badge,
+.plan-environment:not([data-plan-theme="hostplan"]) .plan-dependency {
 	border-color: var(--plan-line);
 	color: var(--plan-muted);
 }
 
-.plan-document:not([data-plan-theme="hostplan"])
+.plan-environment:not([data-plan-theme="hostplan"])
 	:is(.plan-status-badge, .plan-status-control)[data-plan-status="approved"],
-.plan-document:not([data-plan-theme="hostplan"])
+.plan-environment:not([data-plan-theme="hostplan"])
 	:is(.plan-status-badge, .plan-status-control)[data-plan-status="done"] {
 	color: #176c5b;
 }
 
-.plan-document:not([data-plan-theme="hostplan"])
+.plan-environment:not([data-plan-theme="hostplan"])
 	:is(.plan-status-badge, .plan-status-control)[data-plan-status="in-progress"] {
 	color: #006f89;
 }
 
-.plan-document:not([data-plan-theme="hostplan"]) .plan-dependency[data-blocked="true"] {
+.plan-environment:not([data-plan-theme="hostplan"]) .plan-dependency[data-blocked="true"] {
 	border-color: color-mix(in srgb, #9a5d09 45%, transparent);
 	color: #795015;
 }
@@ -383,29 +529,29 @@ html {
 	outline-offset: -1px;
 }
 
-.plan-document[data-plan-theme="hostplan"] .plan-prose :where(img) {
+.plan-environment[data-plan-theme="hostplan"] .plan-prose :where(img) {
 	outline-color: rgb(255 255 255 / 10%);
 }
 
-.plan-document[data-plan-theme="working-draft"] .plan-title,
-.plan-document[data-plan-theme="office-memo"] .plan-title,
-.plan-document[data-plan-theme="technical-brief"] .plan-title {
+.plan-environment[data-plan-theme="working-draft"] .plan-title,
+.plan-environment[data-plan-theme="office-memo"] .plan-title,
+.plan-environment[data-plan-theme="technical-brief"] .plan-title {
 	letter-spacing: 0.02em;
 	text-transform: uppercase;
 }
 
-.plan-document[data-plan-theme="working-draft"] .plan-prose :where(h2) {
+.plan-environment[data-plan-theme="working-draft"] .plan-prose :where(h2) {
 	border-bottom: 1px solid var(--plan-ink);
 	padding-bottom: 0.35em;
 	text-transform: uppercase;
 }
 
-.plan-document[data-plan-theme="office-memo"] .plan-document-header {
+.plan-environment[data-plan-theme="office-memo"] .plan-document-header {
 	border-bottom-style: double;
 	border-bottom-width: 3px;
 }
 
-.plan-document[data-plan-theme="office-memo"] .plan-prose :where(h2, h3) {
+.plan-environment[data-plan-theme="office-memo"] .plan-prose :where(h2, h3) {
 	letter-spacing: 0.04em;
 	text-decoration: underline;
 	text-decoration-thickness: 1px;
@@ -413,29 +559,29 @@ html {
 	text-transform: uppercase;
 }
 
-.plan-document[data-plan-theme="editorial"] .plan-title {
+.plan-environment[data-plan-theme="editorial"] .plan-title {
 	font-size: clamp(2rem, 5vw, 3.35rem);
 	font-weight: 500;
 	letter-spacing: -0.035em;
 }
 
-.plan-document[data-plan-theme="editorial"] .plan-prose {
+.plan-environment[data-plan-theme="editorial"] .plan-prose {
 	font-size: 1.04rem;
 	line-height: 1.82;
 }
 
-.plan-document[data-plan-theme="technical-brief"] .plan-prose :where(h2) {
+.plan-environment[data-plan-theme="technical-brief"] .plan-prose :where(h2) {
 	border-left: 3px solid var(--plan-accent);
 	letter-spacing: 0.04em;
 	padding-left: 0.75rem;
 	text-transform: uppercase;
 }
 
-.plan-document[data-plan-theme="executive"] .plan-title {
+.plan-environment[data-plan-theme="executive"] .plan-title {
 	font-weight: 600;
 }
 
-.plan-document[data-plan-theme="executive"] .plan-prose :where(h2) {
+.plan-environment[data-plan-theme="executive"] .plan-prose :where(h2) {
 	border-bottom: 1px solid var(--plan-line);
 	padding-bottom: 0.45em;
 }
@@ -587,7 +733,7 @@ html {
 	line-height: 1.6;
 }
 
-.plan-document[data-plan-theme="hostplan"] .shiki span {
+.plan-environment[data-plan-theme="hostplan"] .shiki span {
 	/* biome-ignore lint/complexity/noImportantStyles: Shiki writes each light token
 	   as an inline color, so the selected dark token must override that inline value. */
 	color: var(--shiki-dark) !important;
@@ -614,7 +760,7 @@ html {
 }
 
 @media (max-width: 640px) {
-	.plan-document:not([data-plan-theme="hostplan"]) {
+	.plan-environment:not([data-plan-theme="hostplan"]) {
 		--plan-padding: 1.25rem;
 		--plan-radius: 4px;
 	}
@@ -623,7 +769,7 @@ html {
 		font-size: 1.5rem;
 	}
 
-	.plan-document[data-plan-theme="editorial"] .plan-title {
+	.plan-environment[data-plan-theme="editorial"] .plan-title {
 		font-size: 2rem;
 	}
 }
@@ -645,8 +791,13 @@ html {
 		padding: 0;
 	}
 
-	.hostplan-shell-header,
-	.hostplan-open-in {
+	.plan-environment {
+		background: white;
+		min-height: 0;
+	}
+
+	.plan-environment .hostplan-shell .hostplan-shell-header,
+	.plan-environment .hostplan-shell .hostplan-open-in {
 		display: none;
 	}
 

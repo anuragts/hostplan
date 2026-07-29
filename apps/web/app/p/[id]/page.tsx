@@ -15,7 +15,7 @@ import { cache, Suspense } from "react";
 import { CodeGate } from "@/components/code-gate";
 import { CopyId } from "@/components/copy-id";
 import { OpenIn } from "@/components/open-in";
-import { PlanDocument, PlanThemeBootstrap } from "@/components/plan-document";
+import { PlanDocument, PlanEnvironment, PlanThemeBootstrap } from "@/components/plan-document";
 import { PlanThemeControl } from "@/components/plan-theme-control";
 import { Shell } from "@/components/shell";
 import { ProseSkeleton } from "@/components/skeletons";
@@ -122,14 +122,17 @@ export default async function PlanPage({
 		// `plan.body` is never referenced on this path, so the content is absent
 		// from the response rather than hidden in it.
 		return (
-			<Shell crumbs={[{ label: "private" }]}>
-				<CodeGate
-					id={id}
-					wrong={supplied !== undefined && supplied.length > 0}
-					throttled={throttled}
-					retryAfterSeconds={retryAfter}
-				/>
-			</Shell>
+			<PlanEnvironment id={meta.id} theme={meta.theme}>
+				<PlanThemeBootstrap id={meta.id} />
+				<Shell crumbs={[{ label: "private" }]}>
+					<CodeGate
+						id={id}
+						wrong={supplied !== undefined && supplied.length > 0}
+						throttled={throttled}
+						retryAfterSeconds={retryAfter}
+					/>
+				</Shell>
+			</PlanEnvironment>
 		);
 	}
 
@@ -158,86 +161,88 @@ export default async function PlanPage({
 		: [{ label: meta.project }, { label: meta.branch }];
 
 	return (
-		<Shell crumbs={crumbs}>
-			<div className="mb-4 flex justify-end print:hidden">
-				<PlanThemeControl id={meta.id} authorTheme={meta.theme} isOwner={isOwner} />
-			</div>
+		<PlanEnvironment id={meta.id} theme={meta.theme}>
+			{!isOwner && <PlanThemeBootstrap id={meta.id} />}
+			<Shell crumbs={crumbs}>
+				<div className="mb-4 flex justify-end print:hidden">
+					<PlanThemeControl id={meta.id} authorTheme={meta.theme} isOwner={isOwner} />
+				</div>
 
-			{/* Room at the bottom so the floating button never covers the last lines. */}
-			<div className="plan-page-content pb-24">
-				<PlanDocument id={meta.id} theme={meta.theme}>
-					<header className="plan-document-header">
-						<h1 className="plan-title">{meta.title}</h1>
-						<div className="plan-meta">
-							<CopyId id={meta.id} />
-							{/* The owner can move the plan through its lifecycle from here;
+				{/* Room at the bottom so the floating button never covers the last lines. */}
+				<div className="plan-page-content pb-24">
+					<PlanDocument>
+						<header className="plan-document-header">
+							<h1 className="plan-title">{meta.title}</h1>
+							<div className="plan-meta">
+								<CopyId id={meta.id} />
+								{/* The owner can move the plan through its lifecycle from here;
 							    everyone else sees where it got to. */}
-							{isOwner ? (
-								<StatusControl id={meta.id} status={meta.status} />
+								{isOwner ? (
+									<StatusControl id={meta.id} status={meta.status} />
+								) : (
+									<StatusBadge status={meta.status} />
+								)}
+								<VisibilityBadge meta={meta} isOwner={isOwner} />
+								{meta.dependsOn !== undefined && (
+									<span
+										data-blocked={blocked}
+										className={`plan-dependency rounded border px-2 py-0.5 font-mono text-xs ${blocked ? "border-amber-500/40 text-amber-400" : "border-line text-ink-faint"}`}
+									>
+										{blocked ? "blocked · waits on " : "follows "}
+										<a href={`/p/${meta.dependsOn}`} className="underline underline-offset-2">
+											{meta.dependsOn}
+										</a>
+									</span>
+								)}
+								<span title={absoluteTime(meta.updated)}>updated {relativeTime(meta.updated)}</span>
+								{/* Where the plan sits on disk is the owner's business only. */}
+								{isOwner && !isRemoteStore() && (
+									<>
+										<span className="plan-meta-divider">|</span>
+										<span className="font-mono">{displayPath(plan.path)}</span>
+									</>
+								)}
+							</div>
+						</header>
+
+						<div className="plan-document-body">
+							{meta.format === "html" ? (
+								// Plans are untrusted enough that they shouldn't share an origin with the app.
+								<iframe
+									// The raw route runs the same canRead check, so the code has to
+									// travel with the request.
+									src={`/api/raw/${meta.id}${code === undefined ? "" : `?code=${code}`}`}
+									title={meta.title}
+									sandbox=""
+									className="plan-html-frame h-[75vh] w-full bg-white"
+								/>
 							) : (
-								<StatusBadge status={meta.status} />
-							)}
-							<VisibilityBadge meta={meta} isOwner={isOwner} />
-							{meta.dependsOn !== undefined && (
-								<span
-									data-blocked={blocked}
-									className={`plan-dependency rounded border px-2 py-0.5 font-mono text-xs ${blocked ? "border-amber-500/40 text-amber-400" : "border-line text-ink-faint"}`}
-								>
-									{blocked ? "blocked · waits on " : "follows "}
-									<a href={`/p/${meta.dependsOn}`} className="underline underline-offset-2">
-										{meta.dependsOn}
-									</a>
-								</span>
-							)}
-							<span title={absoluteTime(meta.updated)}>updated {relativeTime(meta.updated)}</span>
-							{/* Where the plan sits on disk is the owner's business only. */}
-							{isOwner && !isRemoteStore() && (
-								<>
-									<span className="plan-meta-divider">|</span>
-									<span className="font-mono">{displayPath(plan.path)}</span>
-								</>
+								// Streamed: the header above is already useful, and holding it back
+								// until the markdown is highlighted is what makes a cold open feel
+								// like a blank page.
+								<Suspense fallback={<ProseSkeleton />}>
+									<PlanBody plan={plan} />
+								</Suspense>
 							)}
 						</div>
-					</header>
+					</PlanDocument>
+				</div>
 
-					<div className="plan-document-body">
-						{meta.format === "html" ? (
-							// Plans are untrusted enough that they shouldn't share an origin with the app.
-							<iframe
-								// The raw route runs the same canRead check, so the code has to
-								// travel with the request.
-								src={`/api/raw/${meta.id}${code === undefined ? "" : `?code=${code}`}`}
-								title={meta.title}
-								sandbox=""
-								className="plan-html-frame h-[75vh] w-full bg-white"
-							/>
-						) : (
-							// Streamed: the header above is already useful, and holding it back
-							// until the markdown is highlighted is what makes a cold open feel
-							// like a blank page.
-							<Suspense fallback={<ProseSkeleton />}>
-								<PlanBody plan={plan} />
-							</Suspense>
-						)}
-					</div>
-				</PlanDocument>
-				{!isOwner && <PlanThemeBootstrap id={meta.id} />}
-			</div>
-
-			<OpenIn
-				targets={buildOpenTargets({
-					planUrl: url,
-					// Local paths are the owner's alone — for anyone else the prompts
-					// point at this page instead.
-					...(isOwner && !isRemoteStore()
-						? {
-								planPath: plan.path,
-								...(meta.cwd === undefined ? {} : { cwd: meta.cwd }),
-								...(meta.source === undefined ? {} : { source: meta.source }),
-							}
-						: {}),
-				})}
-			/>
-		</Shell>
+				<OpenIn
+					targets={buildOpenTargets({
+						planUrl: url,
+						// Local paths are the owner's alone — for anyone else the prompts
+						// point at this page instead.
+						...(isOwner && !isRemoteStore()
+							? {
+									planPath: plan.path,
+									...(meta.cwd === undefined ? {} : { cwd: meta.cwd }),
+									...(meta.source === undefined ? {} : { source: meta.source }),
+								}
+							: {}),
+					})}
+				/>
+			</Shell>
+		</PlanEnvironment>
 	);
 }

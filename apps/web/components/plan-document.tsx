@@ -4,7 +4,7 @@ import { planThemeStorageKey } from "@/lib/plan-theme-storage";
 
 export const planDocumentId = (id: string) => `plan-document-${id}`;
 
-export function PlanDocument({
+export function PlanEnvironment({
 	id,
 	theme,
 	children,
@@ -14,19 +14,23 @@ export function PlanDocument({
 	children: ReactNode;
 }) {
 	return (
-		<section
+		<div
 			id={planDocumentId(id)}
 			data-plan-theme={theme}
-			className="plan-document"
+			className="plan-environment"
 			suppressHydrationWarning
 		>
 			{children}
-		</section>
+		</div>
 	);
 }
 
+export function PlanDocument({ children }: { children: ReactNode }) {
+	return <section className="plan-document">{children}</section>;
+}
+
 /**
- * The themed element is already parsed when this inline script runs, so a
+ * The environment root is already parsed when this inline script runs, so a
  * personal reader override lands before first paint rather than flashing from
  * the author theme after hydration.
  */

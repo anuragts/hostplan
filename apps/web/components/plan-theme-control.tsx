@@ -105,7 +105,7 @@ export function PlanThemeControl({
 				aria-label={`${isOwner ? "Shared theme" : "Appearance"}: ${current.label}`}
 				disabled={busy}
 				className={cn(
-					"inline-flex min-h-10 items-center gap-2 rounded-lg bg-surface-raised px-3 font-mono text-ink-muted text-xs shadow-[0_0_0_1px_rgba(255,255,255,0.08)] outline-none transition-[box-shadow,color,scale,opacity] duration-150 ease-out hover:text-ink hover:shadow-[0_0_0_1px_rgba(255,255,255,0.13)] focus-visible:ring-2 focus-visible:ring-brand/40 active:scale-[0.96]",
+					"plan-theme-trigger inline-flex min-h-10 items-center gap-2 rounded-lg bg-surface-raised px-3 font-mono text-ink-muted text-xs shadow-[0_0_0_1px_rgba(255,255,255,0.08)] outline-none transition-[box-shadow,color,scale,opacity] duration-150 ease-out hover:text-ink hover:shadow-[0_0_0_1px_rgba(255,255,255,0.13)] focus-visible:ring-2 focus-visible:ring-brand/40 active:scale-[0.96]",
 					busy && "opacity-60",
 					failed &&
 						"text-destructive shadow-[0_0_0_1px_color-mix(in_oklab,var(--destructive)_60%,transparent)]",
@@ -117,10 +117,16 @@ export function PlanThemeControl({
 					▾
 				</span>
 			</DropdownMenuTrigger>
-			<DropdownMenuContent align="end" className="w-80 p-1.5">
+			<DropdownMenuContent
+				align="end"
+				data-plan-theme={shown}
+				className="plan-theme-menu w-80 p-1.5"
+			>
 				<DropdownMenuLabel className="px-2 py-1.5">
-					<span className="block text-ink text-xs">{isOwner ? "Shared theme" : "Appearance"}</span>
-					<span className="mt-0.5 block text-pretty font-normal text-[0.7rem] text-ink-faint leading-relaxed">
+					<span className="plan-theme-menu-title block text-ink text-xs">
+						{isOwner ? "Shared theme" : "Appearance"}
+					</span>
+					<span className="plan-theme-menu-copy mt-0.5 block text-pretty font-normal text-[0.7rem] text-ink-faint leading-relaxed">
 						{isOwner
 							? "Everyone opening this plan sees it."
 							: "Changes only this plan in this browser."}
@@ -143,8 +149,10 @@ export function PlanThemeControl({
 								className="theme-swatch size-6 shrink-0 rounded-sm"
 							/>
 							<span className="min-w-0">
-								<span className="block font-medium text-xs">{theme.label}</span>
-								<span className="mt-0.5 block text-pretty text-[0.68rem] text-ink-faint leading-snug">
+								<span className="plan-theme-menu-title block font-medium text-xs">
+									{theme.label}
+								</span>
+								<span className="plan-theme-menu-copy mt-0.5 block text-pretty text-[0.68rem] text-ink-faint leading-snug">
 									{theme.description}
 								</span>
 							</span>
@@ -154,7 +162,10 @@ export function PlanThemeControl({
 				{!isOwner && shown !== authorTheme && (
 					<>
 						<DropdownMenuSeparator />
-						<DropdownMenuItem onSelect={reset} className="min-h-10 px-2 text-ink-muted text-xs">
+						<DropdownMenuItem
+							onSelect={reset}
+							className="plan-theme-menu-reset min-h-10 px-2 text-ink-muted text-xs"
+						>
 							Reset to author theme
 						</DropdownMenuItem>
 					</>

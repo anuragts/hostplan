@@ -21,17 +21,20 @@ export function Shell({
 			<header className="hostplan-shell-header mb-10 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
 				<Link
 					href="/"
-					className="font-mono font-semibold text-brand transition-opacity hover:opacity-70"
+					className="hostplan-wordmark font-mono font-semibold text-brand transition-opacity hover:opacity-70"
 				>
 					hostplan
 				</Link>
 				{crumbs.map((crumb) => (
 					<span key={`${crumb.label}-${crumb.href ?? ""}`} className="flex items-center gap-2">
-						<span className="text-ink-faint">/</span>
+						<span className="hostplan-crumb-divider text-ink-faint">/</span>
 						{crumb.href === undefined ? (
-							<span className="text-ink-muted">{crumb.label}</span>
+							<span className="hostplan-crumb text-ink-muted">{crumb.label}</span>
 						) : (
-							<Link href={crumb.href} className="text-ink-muted transition-colors hover:text-ink">
+							<Link
+								href={crumb.href}
+								className="hostplan-crumb text-ink-muted transition-colors hover:text-ink"
+							>
 								{crumb.label}
 							</Link>
 						)}

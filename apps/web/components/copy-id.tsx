@@ -15,7 +15,7 @@ export function CopyId({ id }: { id: string }) {
 					setTimeout(() => setCopied(false), 1200);
 				});
 			}}
-			className="rounded border border-line bg-surface-raised px-2 py-0.5 font-mono text-xs text-ink-muted transition-colors hover:border-ink-faint hover:text-ink"
+			className="plan-copy-id rounded border border-line bg-surface-raised px-2 py-0.5 font-mono text-xs text-ink-muted transition-colors hover:border-ink-faint hover:text-ink"
 			title="Copy plan id"
 		>
 			{copied ? "copied" : id}

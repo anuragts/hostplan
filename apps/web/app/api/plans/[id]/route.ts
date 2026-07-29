@@ -1,4 +1,12 @@
-import { canRead, isId, isStatus, normalizeCode, shareUrls } from "@hostplan/core";
+import {
+	canRead,
+	isId,
+	isPlanTheme,
+	isStatus,
+	normalizeCode,
+	PLAN_THEME_IDS,
+	shareUrls,
+} from "@hostplan/core";
 import { currentViewer, unauthorized } from "@/lib/current-viewer";
 import { origin as siteOrigin } from "@/lib/origin";
 import { ownsPlan } from "@/lib/plan-access";
@@ -66,6 +74,7 @@ export async function PATCH(request: Request, { params }: Params) {
 		rotateCode?: boolean;
 		title?: string;
 		status?: string;
+		theme?: string;
 		content?: string;
 		dependsOn?: string | null;
 	};
@@ -77,6 +86,12 @@ export async function PATCH(request: Request, { params }: Params) {
 	if (body.status !== undefined && !isStatus(body.status)) {
 		return Response.json({ error: `\`${body.status}\` is not a status` }, { status: 400 });
 	}
+	if (body.theme !== undefined && !isPlanTheme(body.theme)) {
+		return Response.json(
+			{ error: `theme must be one of ${PLAN_THEME_IDS.join(", ")}` },
+			{ status: 400 },
+		);
+	}
 
 	const plan = await planStoreFor(viewer).update(id, {
 		...(body.visibility === "public" || body.visibility === "private"
@@ -85,6 +100,7 @@ export async function PATCH(request: Request, { params }: Params) {
 		...(body.rotateCode === true ? { rotateCode: true } : {}),
 		...(body.title === undefined ? {} : { title: body.title }),
 		...(isStatus(body.status) ? { status: body.status } : {}),
+		...(isPlanTheme(body.theme) ? { theme: body.theme } : {}),
 		...(typeof body.content === "string" ? { content: body.content } : {}),
 		// `null` detaches a plan from its stack; a string re-chains it.
 		...(body.dependsOn === null

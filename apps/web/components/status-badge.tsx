@@ -15,7 +15,11 @@ export function StatusBadge({ status }: { status: PlanStatus }) {
 	return (
 		<Badge
 			variant="outline"
-			className={cn("rounded bg-transparent font-mono text-xs", STATUS_STYLES[status])}
+			data-plan-status={status}
+			className={cn(
+				"plan-status-badge rounded bg-transparent font-mono text-xs",
+				STATUS_STYLES[status],
+			)}
 		>
 			{/* A quiet heartbeat on the one status that means "someone is on this
 			    right now" — the only place the page is allowed to move on its own. */}

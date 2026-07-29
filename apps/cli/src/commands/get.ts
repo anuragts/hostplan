@@ -25,6 +25,7 @@ export async function getCommand(ref: string, options: GetOptions): Promise<void
 				[style.dim("branch"), plan.meta.branch],
 				[style.dim("format"), plan.meta.format],
 				[style.dim("status"), statusLabel(plan.meta.status)],
+				[style.dim("theme"), plan.meta.theme],
 				...(plan.meta.dependsOn === undefined
 					? []
 					: [[style.dim("depends on"), style.cyan(plan.meta.dependsOn)]]),

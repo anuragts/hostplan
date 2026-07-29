@@ -15,6 +15,8 @@ import { cache, Suspense } from "react";
 import { CodeGate } from "@/components/code-gate";
 import { CopyId } from "@/components/copy-id";
 import { OpenIn } from "@/components/open-in";
+import { PlanDocument, PlanThemeBootstrap } from "@/components/plan-document";
+import { PlanThemeControl } from "@/components/plan-theme-control";
 import { Shell } from "@/components/shell";
 import { ProseSkeleton } from "@/components/skeletons";
 import { StatusBadge } from "@/components/status-badge";
@@ -80,7 +82,7 @@ async function PlanBody({ plan }: { plan: StoredPlan }) {
 	);
 	return (
 		<article
-			className="prose prose-invert max-w-none prose-headings:tracking-tight prose-a:text-brand prose-pre:bg-transparent prose-pre:p-0"
+			className="plan-prose prose max-w-none prose-pre:bg-transparent prose-pre:p-0"
 			// The pipeline runs server-side and drops raw HTML, so nothing from a plan
 			// reaches the DOM as markup. HTML plans use the sandboxed iframe above.
 			// biome-ignore lint/security/noDangerouslySetInnerHtml: markdown is sanitized by construction
@@ -157,59 +159,69 @@ export default async function PlanPage({
 
 	return (
 		<Shell crumbs={crumbs}>
-			<header className="mb-8 border-b border-line pb-6">
-				<h1 className="text-2xl font-semibold tracking-tight text-ink">{meta.title}</h1>
-				<div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2 text-xs text-ink-faint">
-					<CopyId id={meta.id} />
-					{/* The owner can move the plan through its lifecycle from here;
-					    everyone else sees where it got to. */}
-					{isOwner ? (
-						<StatusControl id={meta.id} status={meta.status} />
-					) : (
-						<StatusBadge status={meta.status} />
-					)}
-					<VisibilityBadge meta={meta} isOwner={isOwner} />
-					{meta.dependsOn !== undefined && (
-						<span
-							className={`rounded border px-2 py-0.5 font-mono text-xs ${blocked ? "border-amber-500/40 text-amber-400" : "border-line text-ink-faint"}`}
-						>
-							{blocked ? "blocked · waits on " : "follows "}
-							<a href={`/p/${meta.dependsOn}`} className="underline underline-offset-2">
-								{meta.dependsOn}
-							</a>
-						</span>
-					)}
-					<span title={absoluteTime(meta.updated)}>updated {relativeTime(meta.updated)}</span>
-					{/* Where the plan sits on disk is the owner's business only. */}
-					{isOwner && !isRemoteStore() && (
-						<>
-							<span className="text-line">|</span>
-							<span className="font-mono">{displayPath(plan.path)}</span>
-						</>
-					)}
-				</div>
-			</header>
+			<div className="mb-4 flex justify-end print:hidden">
+				<PlanThemeControl id={meta.id} authorTheme={meta.theme} isOwner={isOwner} />
+			</div>
 
 			{/* Room at the bottom so the floating button never covers the last lines. */}
-			<div className="pb-24">
-				{meta.format === "html" ? (
-					// Plans are untrusted enough that they shouldn't share an origin with the app.
-					<iframe
-						// The raw route runs the same canRead check, so the code has to
-						// travel with the request.
-						src={`/api/raw/${meta.id}${code === undefined ? "" : `?code=${code}`}`}
-						title={meta.title}
-						sandbox=""
-						className="h-[75vh] w-full rounded-lg border border-line bg-white"
-					/>
-				) : (
-					// Streamed: the header above is already useful, and holding it back
-					// until the markdown is highlighted is what makes a cold open feel
-					// like a blank page.
-					<Suspense fallback={<ProseSkeleton />}>
-						<PlanBody plan={plan} />
-					</Suspense>
-				)}
+			<div className="plan-page-content pb-24">
+				<PlanDocument id={meta.id} theme={meta.theme}>
+					<header className="plan-document-header">
+						<h1 className="plan-title">{meta.title}</h1>
+						<div className="plan-meta">
+							<CopyId id={meta.id} />
+							{/* The owner can move the plan through its lifecycle from here;
+							    everyone else sees where it got to. */}
+							{isOwner ? (
+								<StatusControl id={meta.id} status={meta.status} />
+							) : (
+								<StatusBadge status={meta.status} />
+							)}
+							<VisibilityBadge meta={meta} isOwner={isOwner} />
+							{meta.dependsOn !== undefined && (
+								<span
+									data-blocked={blocked}
+									className={`plan-dependency rounded border px-2 py-0.5 font-mono text-xs ${blocked ? "border-amber-500/40 text-amber-400" : "border-line text-ink-faint"}`}
+								>
+									{blocked ? "blocked · waits on " : "follows "}
+									<a href={`/p/${meta.dependsOn}`} className="underline underline-offset-2">
+										{meta.dependsOn}
+									</a>
+								</span>
+							)}
+							<span title={absoluteTime(meta.updated)}>updated {relativeTime(meta.updated)}</span>
+							{/* Where the plan sits on disk is the owner's business only. */}
+							{isOwner && !isRemoteStore() && (
+								<>
+									<span className="plan-meta-divider">|</span>
+									<span className="font-mono">{displayPath(plan.path)}</span>
+								</>
+							)}
+						</div>
+					</header>
+
+					<div className="plan-document-body">
+						{meta.format === "html" ? (
+							// Plans are untrusted enough that they shouldn't share an origin with the app.
+							<iframe
+								// The raw route runs the same canRead check, so the code has to
+								// travel with the request.
+								src={`/api/raw/${meta.id}${code === undefined ? "" : `?code=${code}`}`}
+								title={meta.title}
+								sandbox=""
+								className="plan-html-frame h-[75vh] w-full bg-white"
+							/>
+						) : (
+							// Streamed: the header above is already useful, and holding it back
+							// until the markdown is highlighted is what makes a cold open feel
+							// like a blank page.
+							<Suspense fallback={<ProseSkeleton />}>
+								<PlanBody plan={plan} />
+							</Suspense>
+						)}
+					</div>
+				</PlanDocument>
+				{!isOwner && <PlanThemeBootstrap id={meta.id} />}
 			</div>
 
 			<OpenIn

@@ -66,9 +66,15 @@ hsp next                     # the first plan that's not done and not blocked
 hsp check <id> 2 3           # tick the plan's checkboxes off
 hsp update <id> PLAN.md      # revise in place — same id, same link
 hsp search rate limiting     # full-text, across every project
+hsp theme <id> editorial     # give the shared document a distinct voice
 ```
 
 Project and branch are detected from git, so there's nothing to configure.
+
+Plans can use curated document themes such as Working Draft, Office Memo,
+Editorial, Technical Brief, and Executive. The author theme is stored with the
+plan and follows its existing URL; readers can still keep an optional
+per-plan appearance override in their own browser.
 
 **Plans are private by default.** A private plan gets a 4-letter code, and `hsp
 add` prints both forms of its link — the bare one asks for the code, the `?code=`

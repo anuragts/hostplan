@@ -71,8 +71,9 @@ export function StatusControl({ id, status }: { id: string; status: PlanStatus }
 		<DropdownMenu>
 			<DropdownMenuTrigger
 				aria-label={`Status: ${shown}. Change it`}
+				data-plan-status={shown}
 				className={cn(
-					"inline-flex items-center gap-1.5 rounded border px-2 py-0.5 font-mono text-xs transition-[color,border-color,opacity] duration-200 hover:brightness-125 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40",
+					"plan-status-control inline-flex items-center gap-1.5 rounded border px-2 py-0.5 font-mono text-xs transition-[color,border-color,opacity] duration-200 hover:brightness-125 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40",
 					STATUS_STYLES[shown],
 					pending && "opacity-60",
 					failed && "border-destructive/60 text-destructive",

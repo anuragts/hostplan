@@ -90,7 +90,7 @@ export function OpenIn({ targets }: { targets: OpenTarget[] }) {
 	}
 
 	return (
-		<div ref={root} className="fixed right-6 bottom-6 z-50">
+		<div ref={root} className="hostplan-open-in fixed right-6 bottom-6 z-50">
 			{menuOpen && (
 				<div
 					role="menu"

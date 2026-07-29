@@ -17,8 +17,8 @@ export function Shell({
 	action?: ReactNode;
 }) {
 	return (
-		<div className="mx-auto min-h-dvh w-full max-w-4xl px-6 py-10">
-			<header className="mb-10 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+		<div className="hostplan-shell mx-auto min-h-dvh w-full max-w-4xl px-6 py-10">
+			<header className="hostplan-shell-header mb-10 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
 				<Link
 					href="/"
 					className="font-mono font-semibold text-brand transition-opacity hover:opacity-70"

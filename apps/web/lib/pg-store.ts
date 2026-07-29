@@ -1,11 +1,13 @@
 import {
 	type AddPlanInput,
 	branchDirName,
+	DEFAULT_PLAN_THEME,
 	DEFAULT_STATUS,
 	isCode,
 	isStatus,
 	newCode,
 	newId,
+	normalizePlanTheme,
 	type PlanFilter,
 	type PlanMeta,
 	type PlanStore,
@@ -27,6 +29,7 @@ interface PlanRow {
 	format: string;
 	visibility: string;
 	status: string;
+	theme: string;
 	depends_on: string | null;
 	code: string | null;
 	storage_path: string;
@@ -45,6 +48,7 @@ function metaFromRow(row: PlanRow): PlanMeta {
 		format: row.format === "html" ? "html" : "md",
 		visibility: row.visibility === "public" ? "public" : "private",
 		status: isStatus(row.status) ? row.status : DEFAULT_STATUS,
+		theme: normalizePlanTheme(row.theme),
 		created: row.created_at,
 		updated: row.updated_at,
 		...(row.depends_on === null ? {} : { dependsOn: row.depends_on }),
@@ -128,6 +132,7 @@ export function pgPlanStore(db: SupabaseClient, userId?: string): PlanStore {
 					format: input.format,
 					visibility,
 					status: input.status ?? DEFAULT_STATUS,
+					theme: input.theme ?? DEFAULT_PLAN_THEME,
 					depends_on: input.dependsOn ?? null,
 					code: code ?? null,
 					storage_path: path,
@@ -197,6 +202,7 @@ export function pgPlanStore(db: SupabaseClient, userId?: string): PlanStore {
 					code,
 					...(patch.title === undefined ? {} : { title: patch.title }),
 					...(patch.status === undefined ? {} : { status: patch.status }),
+					...(patch.theme === undefined ? {} : { theme: patch.theme }),
 					...(patch.dependsOn === undefined ? {} : { depends_on: patch.dependsOn }),
 				})
 				.eq("id", id)

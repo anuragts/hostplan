@@ -13,6 +13,7 @@ revisions and search with real output.
 hsp add PLAN.md                    # from a file
 hsp add -c "# Title\n..." -t "Title"   # without one
 hsp add PLAN.md --public           # anyone with the link can read it
+hsp add PLAN.md --theme editorial  # choose the shared document presentation
 hsp add PLAN.md --local            # store locally, don't push to a deployment
 hsp add PLAN.md -q                 # print only the URL, for $(...)
 hsp add PLAN.md --no-serve         # skip starting the local viewer
@@ -101,6 +102,27 @@ hsp update <id> -c "..."     # inline
 
 The previous revision is kept under `~/.hostplan/revisions/<id>/`, so an
 update can always be walked back.
+
+## Themes
+
+Every plan carries one curated document theme in its metadata. It follows the
+same link through revisions, publishing, code rotation, and hosted sync.
+
+```bash
+hsp theme --list
+hsp theme <id>                     # print the current theme
+hsp theme <id> working-draft       # change it without changing the link
+hsp add PLAN.md --theme editorial
+hsp stack one.md two.md --theme technical-brief
+```
+
+A Markdown source may also set `theme: editorial` in its frontmatter. An
+explicit `--theme` wins. Unknown themes are rejected; Hostplan does not accept
+arbitrary CSS or remote font URLs.
+
+The shared theme is canonical. A reader may choose a personal appearance in
+the browser, but that override stays in localStorage for that plan and is not
+written back or passed on when the link is shared.
 
 ## Tasks
 

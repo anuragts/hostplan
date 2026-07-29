@@ -64,3 +64,13 @@ export {
 	updatePlan,
 } from "./store";
 export { type PlanTask, parseTasks, setTask } from "./tasks";
+export {
+	DEFAULT_PLAN_THEME,
+	isPlanTheme,
+	normalizePlanTheme,
+	PLAN_THEME_IDS,
+	PLAN_THEMES,
+	type PlanTheme,
+	type PlanThemeId,
+	planTheme,
+} from "./theme";

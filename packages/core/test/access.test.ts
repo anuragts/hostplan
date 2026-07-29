@@ -18,6 +18,7 @@ const base: PlanMeta = {
 	updated: "2026-07-26T00:00:00.000Z",
 	visibility: "private",
 	status: "draft",
+	theme: "hostplan",
 	code: "KRWT",
 };
 

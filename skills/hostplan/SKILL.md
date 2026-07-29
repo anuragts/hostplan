@@ -114,6 +114,21 @@ hsp stack <id>                   # show the whole chain
 first plan in scope that is neither done nor waiting on an unfinished
 dependency.
 
+## Document themes
+
+Themes are plan metadata, so the author's chosen presentation follows the
+same link through revisions, publishing, and sync:
+
+```bash
+hsp theme --list
+hsp add PLAN.md --theme working-draft
+hsp theme <id> editorial
+```
+
+Use a curated theme when the user asks for a memo, draft, editorial report,
+technical brief, or executive presentation. Do not encode themes in share
+URLs. A browser reader's personal override stays local to that reader.
+
 ## Revising and tracking progress
 
 - `hsp update <id> PLAN.md` (or `-c "..."`) revises a plan **in place** —

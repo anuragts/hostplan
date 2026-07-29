@@ -6,6 +6,7 @@ import type { Visibility } from "./access";
 import { normalizeCode } from "./code";
 import { isId } from "./id";
 import { DEFAULT_STATUS, isStatus, type PlanStatus } from "./status";
+import { normalizePlanTheme, type PlanThemeId } from "./theme";
 
 export type PlanFormat = "md" | "html";
 
@@ -23,6 +24,8 @@ export interface PlanMeta {
 	visibility: Visibility;
 	/** Where the plan is in its life. New plans start as drafts. */
 	status: PlanStatus;
+	/** Curated document presentation shared with every reader. */
+	theme: PlanThemeId;
 	/**
 	 * Id of the plan this one waits on. A plan is blocked until its dependency
 	 * is `done` — this is what chains a stack of plans together.
@@ -58,6 +61,7 @@ const OWNED_KEYS = [
 	"code",
 	"status",
 	"depends_on",
+	"theme",
 ] as const;
 
 const HTML_META_PATTERN = /^<!--hostplan\s+([\s\S]*?)-->\n?/;
@@ -75,6 +79,7 @@ function metaToRecord(meta: PlanMeta): Record<string, unknown> {
 		// can't be written is worse than one that defaults to private.
 		visibility: meta.visibility ?? "private",
 		status: meta.status ?? DEFAULT_STATUS,
+		theme: meta.theme,
 		...(meta.dependsOn === undefined ? {} : { depends_on: meta.dependsOn }),
 		...(meta.code === undefined ? {} : { code: meta.code }),
 		...(meta.source === undefined ? {} : { source: meta.source }),
@@ -110,6 +115,7 @@ function recordToMeta(record: Record<string, unknown>, fallbackFormat: PlanForma
 		updated: str("updated") ?? str("created") ?? new Date(0).toISOString(),
 		visibility,
 		status,
+		theme: normalizePlanTheme(record.theme),
 		...(dependsOn === undefined ? {} : { dependsOn }),
 		...(code === undefined ? {} : { code }),
 		...(source === undefined ? {} : { source }),
@@ -162,6 +168,7 @@ export function readSourceFrontmatter(raw: string): {
 	data: Record<string, unknown>;
 	content: string;
 	title?: string;
+	theme?: unknown;
 } {
 	let parsed: matter.GrayMatterFile<string>;
 	try {
@@ -175,7 +182,11 @@ export function readSourceFrontmatter(raw: string): {
 		if (!(OWNED_KEYS as readonly string[]).includes(key)) data[key] = value;
 	}
 	const title = parsed.data.title;
-	const base = { data, content: parsed.content };
+	const base = {
+		data,
+		content: parsed.content,
+		...(parsed.data.theme === undefined ? {} : { theme: parsed.data.theme }),
+	};
 	return typeof title === "string" && title.length > 0 ? { ...base, title } : base;
 }
 

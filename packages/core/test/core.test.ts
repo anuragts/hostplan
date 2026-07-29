@@ -13,6 +13,7 @@ import {
 	projectDirName,
 	removePlan,
 } from "../src/store";
+import { isPlanTheme, normalizePlanTheme, PLAN_THEME_IDS } from "../src/theme";
 
 describe("slugify", () => {
 	test("makes branch names filesystem safe", () => {
@@ -59,6 +60,22 @@ describe("ids", () => {
 	});
 });
 
+describe("plan themes", () => {
+	test("ships a closed registry and a safe backwards-compatible default", () => {
+		expect(PLAN_THEME_IDS).toEqual([
+			"hostplan",
+			"working-draft",
+			"office-memo",
+			"editorial",
+			"technical-brief",
+			"executive",
+		]);
+		expect(isPlanTheme("editorial")).toBe(true);
+		expect(isPlanTheme("custom-css")).toBe(false);
+		expect(normalizePlanTheme("custom-css")).toBe("hostplan");
+	});
+});
+
 describe("serialization round-trip", () => {
 	const meta: PlanMeta = {
 		id: "a3f9c2",
@@ -70,6 +87,7 @@ describe("serialization round-trip", () => {
 		updated: "2026-07-25T18:04:11.220Z",
 		visibility: "private",
 		status: "approved",
+		theme: "hostplan",
 		code: "KRWT",
 		source: "/Users/anurag/kafka/nest/PLAN.md",
 		cwd: "/Users/anurag/kafka/nest",
@@ -86,6 +104,17 @@ describe("serialization round-trip", () => {
 		const raw = serializePlan(meta, "body", { author: "anurag", tags: ["cli"] });
 		const reparsed = readSourceFrontmatter(raw);
 		expect(reparsed.data.author).toBe("anurag");
+	});
+
+	test("source theme is extracted as owned metadata rather than passed through", () => {
+		const parsed = readSourceFrontmatter("---\ntheme: editorial\nauthor: anurag\n---\nbody\n");
+		expect(parsed.theme).toBe("editorial");
+		expect(parsed.data).toEqual({ author: "anurag" });
+	});
+
+	test("old and hand-edited files resolve to the default theme", () => {
+		expect(parsePlan("# Old plan\n", "md").meta.theme).toBe("hostplan");
+		expect(parsePlan("---\ntheme: custom-css\n---\nbody\n", "md").meta.theme).toBe("hostplan");
 	});
 
 	test("html metadata survives a title containing an arrow", () => {

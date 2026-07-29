@@ -124,6 +124,363 @@ html {
 }
 
 /* ---------------------------------------------------------------------------
+   Plan artifacts. The application chrome stays in Hostplan's dark palette;
+   only this document surface changes voice. Themes provide tokens and the
+   shared structure below consumes them.
+--------------------------------------------------------------------------- */
+
+.plan-document {
+	--plan-canvas: transparent;
+	--plan-paper: transparent;
+	--plan-ink: var(--color-ink);
+	--plan-muted: var(--color-ink-muted);
+	--plan-faint: var(--color-ink-faint);
+	--plan-line: var(--color-line);
+	--plan-accent: var(--color-brand);
+	--plan-code-bg: var(--color-surface-raised);
+	--plan-heading-font: var(--font-sans);
+	--plan-body-font: var(--font-sans);
+	--plan-code-font: var(--font-mono);
+	--plan-measure: none;
+	--plan-radius: 0;
+	--plan-padding: 0;
+	--plan-shadow: none;
+
+	color-scheme: dark;
+	background-color: var(--plan-paper);
+	border-radius: var(--plan-radius);
+	box-shadow: var(--plan-shadow);
+	color: var(--plan-ink);
+	font-family: var(--plan-body-font);
+	padding: var(--plan-padding);
+	transition-property: background-color, color, box-shadow;
+	transition-duration: 180ms;
+	transition-timing-function: ease-out;
+}
+
+.plan-document[data-plan-theme="working-draft"] {
+	--plan-canvas: #d8d6d0;
+	--plan-paper: #f3f1ea;
+	--plan-ink: #171715;
+	--plan-muted: #55534d;
+	--plan-faint: #55534d;
+	--plan-line: #b9b5aa;
+	--plan-accent: #171715;
+	--plan-code-bg: #e4e1d8;
+	--plan-heading-font: var(--font-mono);
+	--plan-body-font: Arial, Helvetica, sans-serif;
+	--plan-measure: 76ch;
+	--plan-radius: 1px;
+	--plan-padding: clamp(1.5rem, 5vw, 3.75rem);
+	--plan-shadow:
+		0 0 0 1px rgb(0 0 0 / 8%), 0 1px 2px -1px rgb(0 0 0 / 10%), 0 18px 45px -28px rgb(0 0 0 / 45%);
+	color-scheme: light;
+}
+
+.plan-document[data-plan-theme="office-memo"] {
+	--plan-canvas: #d4cab0;
+	--plan-paper: #eee5cb;
+	--plan-ink: #292418;
+	--plan-muted: #625b48;
+	--plan-faint: #625b48;
+	--plan-line: #b8aa88;
+	--plan-accent: #872f25;
+	--plan-code-bg: #dfd4b6;
+	--plan-heading-font: var(--font-mono);
+	--plan-body-font: var(--font-mono);
+	--plan-measure: 74ch;
+	--plan-radius: 2px;
+	--plan-padding: clamp(1.5rem, 5vw, 3.75rem);
+	--plan-shadow:
+		0 0 0 1px rgb(55 43 19 / 10%), 0 1px 3px -1px rgb(55 43 19 / 16%),
+		0 20px 48px -30px rgb(18 14 7 / 50%);
+	color-scheme: light;
+}
+
+.plan-document[data-plan-theme="editorial"] {
+	--plan-canvas: #ded8cb;
+	--plan-paper: #f8f4eb;
+	--plan-ink: #28241f;
+	--plan-muted: #686057;
+	--plan-faint: #686057;
+	--plan-line: #cbc2b6;
+	--plan-accent: #8e422f;
+	--plan-code-bg: #ede7dc;
+	--plan-heading-font: Georgia, "Times New Roman", serif;
+	--plan-body-font: Georgia, "Times New Roman", serif;
+	--plan-measure: 68ch;
+	--plan-radius: 2px;
+	--plan-padding: clamp(1.75rem, 6vw, 4.5rem);
+	--plan-shadow:
+		0 0 0 1px rgb(0 0 0 / 6%), 0 2px 5px -2px rgb(0 0 0 / 10%), 0 24px 60px -38px rgb(0 0 0 / 42%);
+	color-scheme: light;
+}
+
+.plan-document[data-plan-theme="technical-brief"] {
+	--plan-canvas: #cbd8dc;
+	--plan-paper: #eef5f6;
+	--plan-ink: #17333c;
+	--plan-muted: #48646c;
+	--plan-faint: #48646c;
+	--plan-line: #b7cdd1;
+	--plan-accent: #006f89;
+	--plan-code-bg: #dcebed;
+	--plan-heading-font: var(--font-mono);
+	--plan-body-font: var(--font-sans);
+	--plan-measure: 76ch;
+	--plan-radius: 3px;
+	--plan-padding: clamp(1.5rem, 5vw, 3.75rem);
+	--plan-shadow:
+		0 0 0 1px rgb(10 55 66 / 10%), 0 2px 4px -2px rgb(10 55 66 / 14%),
+		0 22px 52px -34px rgb(7 37 45 / 45%);
+	color-scheme: light;
+	background-image:
+		linear-gradient(rgb(25 99 115 / 5%) 1px, transparent 1px),
+		linear-gradient(90deg, rgb(25 99 115 / 5%) 1px, transparent 1px);
+	background-size: 24px 24px;
+}
+
+.plan-document[data-plan-theme="executive"] {
+	--plan-canvas: #d9dad7;
+	--plan-paper: #fbfbf8;
+	--plan-ink: #202322;
+	--plan-muted: #5e6461;
+	--plan-faint: #5e6461;
+	--plan-line: #d4d8d5;
+	--plan-accent: #176c5b;
+	--plan-code-bg: #f0f2ef;
+	--plan-heading-font: var(--font-sans);
+	--plan-body-font: var(--font-sans);
+	--plan-measure: 74ch;
+	--plan-radius: 8px;
+	--plan-padding: clamp(1.75rem, 6vw, 4.5rem);
+	--plan-shadow:
+		0 0 0 1px rgb(0 0 0 / 5%), 0 1px 2px -1px rgb(0 0 0 / 6%), 0 20px 50px -32px rgb(0 0 0 / 35%);
+	color-scheme: light;
+}
+
+.plan-document-header {
+	border-bottom: 1px solid var(--plan-line);
+	margin-bottom: 2rem;
+	padding-bottom: 1.5rem;
+}
+
+.plan-title {
+	color: var(--plan-ink);
+	font-family: var(--plan-heading-font);
+	font-size: clamp(1.5rem, 3vw, 2rem);
+	font-weight: 650;
+	letter-spacing: -0.025em;
+	line-height: 1.15;
+	text-wrap: balance;
+}
+
+.plan-meta {
+	align-items: center;
+	color: var(--plan-faint);
+	display: flex;
+	flex-wrap: wrap;
+	font-family: var(--font-sans);
+	font-size: 0.75rem;
+	gap: 0.5rem 0.75rem;
+	margin-top: 0.875rem;
+}
+
+.plan-meta a {
+	color: inherit;
+}
+
+.plan-meta-divider {
+	color: var(--plan-line);
+}
+
+.plan-document:not([data-plan-theme="hostplan"]) .plan-copy-id {
+	background: var(--plan-code-bg);
+	border-color: var(--plan-line);
+	color: var(--plan-ink);
+}
+
+.plan-document:not([data-plan-theme="hostplan"]) :is(.plan-status-badge, .plan-status-control),
+.plan-document:not([data-plan-theme="hostplan"]) .plan-visibility-badge,
+.plan-document:not([data-plan-theme="hostplan"]) .plan-dependency {
+	border-color: var(--plan-line);
+	color: var(--plan-muted);
+}
+
+.plan-document:not([data-plan-theme="hostplan"])
+	:is(.plan-status-badge, .plan-status-control)[data-plan-status="approved"],
+.plan-document:not([data-plan-theme="hostplan"])
+	:is(.plan-status-badge, .plan-status-control)[data-plan-status="done"] {
+	color: #176c5b;
+}
+
+.plan-document:not([data-plan-theme="hostplan"])
+	:is(.plan-status-badge, .plan-status-control)[data-plan-status="in-progress"] {
+	color: #006f89;
+}
+
+.plan-document:not([data-plan-theme="hostplan"]) .plan-dependency[data-blocked="true"] {
+	border-color: color-mix(in srgb, #9a5d09 45%, transparent);
+	color: #795015;
+}
+
+.plan-document-body,
+.plan-document-header {
+	margin-inline: auto;
+	max-width: var(--plan-measure);
+}
+
+.plan-prose {
+	--tw-prose-body: var(--plan-ink);
+	--tw-prose-headings: var(--plan-ink);
+	--tw-prose-lead: var(--plan-muted);
+	--tw-prose-links: var(--plan-accent);
+	--tw-prose-bold: var(--plan-ink);
+	--tw-prose-counters: var(--plan-muted);
+	--tw-prose-bullets: var(--plan-faint);
+	--tw-prose-hr: var(--plan-line);
+	--tw-prose-quotes: var(--plan-ink);
+	--tw-prose-quote-borders: var(--plan-accent);
+	--tw-prose-captions: var(--plan-muted);
+	--tw-prose-code: var(--plan-ink);
+	--tw-prose-pre-code: var(--plan-ink);
+	--tw-prose-pre-bg: var(--plan-code-bg);
+	--tw-prose-th-borders: var(--plan-line);
+	--tw-prose-td-borders: var(--plan-line);
+	color: var(--plan-ink);
+	font-family: var(--plan-body-font);
+	line-height: 1.75;
+}
+
+.plan-prose :where(h1, h2, h3, h4) {
+	color: var(--plan-ink);
+	font-family: var(--plan-heading-font);
+	letter-spacing: -0.02em;
+	text-wrap: balance;
+}
+
+.plan-prose :where(p, li, blockquote, figcaption) {
+	text-wrap: pretty;
+}
+
+.plan-prose :where(a) {
+	color: var(--plan-accent);
+	text-decoration-color: color-mix(in srgb, var(--plan-accent) 45%, transparent);
+	text-underline-offset: 0.2em;
+}
+
+.plan-prose :where(blockquote) {
+	border-left-color: var(--plan-accent);
+	color: var(--plan-muted);
+}
+
+.plan-prose :where(hr) {
+	border-color: var(--plan-line);
+}
+
+.plan-prose :where(img) {
+	outline: 1px solid rgb(0 0 0 / 10%);
+	outline-offset: -1px;
+}
+
+.plan-document[data-plan-theme="hostplan"] .plan-prose :where(img) {
+	outline-color: rgb(255 255 255 / 10%);
+}
+
+.plan-document[data-plan-theme="working-draft"] .plan-title,
+.plan-document[data-plan-theme="office-memo"] .plan-title,
+.plan-document[data-plan-theme="technical-brief"] .plan-title {
+	letter-spacing: 0.02em;
+	text-transform: uppercase;
+}
+
+.plan-document[data-plan-theme="working-draft"] .plan-prose :where(h2) {
+	border-bottom: 1px solid var(--plan-ink);
+	padding-bottom: 0.35em;
+	text-transform: uppercase;
+}
+
+.plan-document[data-plan-theme="office-memo"] .plan-document-header {
+	border-bottom-style: double;
+	border-bottom-width: 3px;
+}
+
+.plan-document[data-plan-theme="office-memo"] .plan-prose :where(h2, h3) {
+	letter-spacing: 0.04em;
+	text-decoration: underline;
+	text-decoration-thickness: 1px;
+	text-underline-offset: 0.25em;
+	text-transform: uppercase;
+}
+
+.plan-document[data-plan-theme="editorial"] .plan-title {
+	font-size: clamp(2rem, 5vw, 3.35rem);
+	font-weight: 500;
+	letter-spacing: -0.035em;
+}
+
+.plan-document[data-plan-theme="editorial"] .plan-prose {
+	font-size: 1.04rem;
+	line-height: 1.82;
+}
+
+.plan-document[data-plan-theme="technical-brief"] .plan-prose :where(h2) {
+	border-left: 3px solid var(--plan-accent);
+	letter-spacing: 0.04em;
+	padding-left: 0.75rem;
+	text-transform: uppercase;
+}
+
+.plan-document[data-plan-theme="executive"] .plan-title {
+	font-weight: 600;
+}
+
+.plan-document[data-plan-theme="executive"] .plan-prose :where(h2) {
+	border-bottom: 1px solid var(--plan-line);
+	padding-bottom: 0.45em;
+}
+
+.plan-html-frame {
+	border: 0;
+	border-radius: max(0px, calc(var(--plan-radius) - 2px));
+	box-shadow: 0 0 0 1px var(--plan-line);
+}
+
+.theme-swatch {
+	box-shadow:
+		0 0 0 1px rgb(0 0 0 / 10%),
+		0 1px 2px rgb(0 0 0 / 8%);
+}
+
+.theme-swatch[data-theme-swatch="hostplan"] {
+	background: linear-gradient(135deg, #1a191d 0 64%, #5ed6d0 64%);
+	box-shadow: 0 0 0 1px rgb(255 255 255 / 10%);
+}
+
+.theme-swatch[data-theme-swatch="working-draft"] {
+	background: linear-gradient(135deg, #f3f1ea 0 68%, #171715 68%);
+}
+
+.theme-swatch[data-theme-swatch="office-memo"] {
+	background: linear-gradient(135deg, #eee5cb 0 68%, #872f25 68%);
+}
+
+.theme-swatch[data-theme-swatch="editorial"] {
+	background: linear-gradient(135deg, #f8f4eb 0 68%, #8e422f 68%);
+}
+
+.theme-swatch[data-theme-swatch="technical-brief"] {
+	background:
+		linear-gradient(rgb(25 99 115 / 15%) 1px, transparent 1px),
+		linear-gradient(90deg, rgb(25 99 115 / 15%) 1px, #eef5f6 1px);
+	background-size: 6px 6px;
+}
+
+.theme-swatch[data-theme-swatch="executive"] {
+	background: linear-gradient(135deg, #fbfbf8 0 68%, #176c5b 68%);
+}
+
+/* ---------------------------------------------------------------------------
    Motion. Small distances, short durations, one easing — the page should feel
    settled, not busy. Everything here collapses to nothing under
    prefers-reduced-motion.
@@ -220,18 +577,25 @@ html {
 .prose pre.shiki {
 	/* biome-ignore lint/complexity/noImportantStyles: shiki sets the background as an
 	   inline style on the <pre>, which no amount of selector specificity can override. */
-	background: var(--color-surface-raised) !important;
-	border: 1px solid var(--color-line);
-	border-radius: 0.5rem;
+	background: var(--plan-code-bg, var(--color-surface-raised)) !important;
+	border: 1px solid var(--plan-line, var(--color-line));
+	border-radius: max(3px, var(--plan-radius, 0.5rem));
+	color: var(--plan-ink, var(--color-ink));
 	padding: 1rem;
 	overflow-x: auto;
 	font-size: 0.8125rem;
 	line-height: 1.6;
 }
 
+.plan-document[data-plan-theme="hostplan"] .shiki span {
+	/* biome-ignore lint/complexity/noImportantStyles: Shiki writes each light token
+	   as an inline color, so the selected dark token must override that inline value. */
+	color: var(--shiki-dark) !important;
+}
+
 .prose :where(code):not(:where(pre code)) {
-	background: var(--color-surface-raised);
-	border: 1px solid var(--color-line);
+	background: var(--plan-code-bg, var(--color-surface-raised));
+	border: 1px solid var(--plan-line, var(--color-line));
 	border-radius: 0.3rem;
 	padding: 0.1em 0.35em;
 	font-weight: 400;
@@ -247,4 +611,61 @@ html {
 	display: block;
 	overflow-x: auto;
 	white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+	.plan-document:not([data-plan-theme="hostplan"]) {
+		--plan-padding: 1.25rem;
+		--plan-radius: 4px;
+	}
+
+	.plan-title {
+		font-size: 1.5rem;
+	}
+
+	.plan-document[data-plan-theme="editorial"] .plan-title {
+		font-size: 2rem;
+	}
+}
+
+@media print {
+	html,
+	body {
+		background: white;
+		color: black;
+	}
+
+	body > div {
+		display: contents;
+	}
+
+	.hostplan-shell {
+		max-width: none;
+		min-height: 0;
+		padding: 0;
+	}
+
+	.hostplan-shell-header,
+	.hostplan-open-in {
+		display: none;
+	}
+
+	.plan-page-content {
+		padding-bottom: 0;
+	}
+
+	.plan-document {
+		--plan-padding: 0;
+		--plan-shadow: none;
+		background: white;
+		color: black;
+	}
+
+	.plan-document .plan-meta {
+		color: #555;
+	}
+
+	.plan-document a {
+		color: inherit;
+	}
 }

@@ -10,6 +10,7 @@ import { serveCommand, serveStatusCommand, serveStopCommand } from "./commands/s
 import { stackCommand } from "./commands/stack";
 import { nextCommand, statusCommand } from "./commands/status";
 import { checkCommand, tasksCommand } from "./commands/tasks";
+import { themeCommand } from "./commands/theme";
 import { updateCommand } from "./commands/update";
 import { openCommand, urlCommand } from "./commands/url";
 import { publishCommand, rotateCodeCommand, shareCommand } from "./commands/visibility";
@@ -41,6 +42,7 @@ export function buildProgram(): Command {
 			"chain this plan after another — it stays blocked until that one is done",
 		)
 		.option("--status <status>", "starting status (draft, approved, in-progress, done, superseded)")
+		.option("--theme <theme>", "document theme (run `hsp theme --list` to see choices)")
 		.option("--open", "open the plan in a browser")
 		.option("-q, --quiet", "print only the URL")
 		.option("--json", "print the stored plan as JSON")
@@ -99,6 +101,7 @@ export function buildProgram(): Command {
 		.option("-b, --branch <name>", `branch bucket (${SCOPE_HELP})`)
 		.option("-a, --all", "when listing, every stack in the store")
 		.option("--public", "anyone with the links can read them")
+		.option("--theme <theme>", "document theme shared by every step")
 		.option("--local", "store locally without pushing to the deployment")
 		.option("--no-serve", "do not start the viewer")
 		.option("--json", "print as JSON")
@@ -116,6 +119,18 @@ export function buildProgram(): Command {
 		.option("-a, --all", "resolve `latest` across every project")
 		.option("--json", "print as JSON")
 		.action(updateCommand);
+
+	program
+		.command("theme")
+		.argument("[ref]", "plan id, plan URL, or `latest`")
+		.argument("[theme]", "new document theme")
+		.description("show or change a plan's document theme")
+		.option("--list", "list the built-in themes")
+		.option("-p, --project <name>", "scope for `latest`")
+		.option("-b, --branch <name>", "scope for `latest`")
+		.option("-a, --all", "resolve `latest` across every project")
+		.option("--json", "print as JSON")
+		.action(themeCommand);
 
 	program
 		.command("search")

@@ -7,6 +7,7 @@
 	"types": "./src/index.ts",
 	"exports": {
 		".": "./src/index.ts",
+		"./theme": "./src/theme.ts",
 		"./test/plan-store-contract": "./test/plan-store-contract.ts"
 	},
 	"scripts": {

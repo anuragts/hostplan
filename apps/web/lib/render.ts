@@ -56,7 +56,10 @@ const processor = unified()
 	.use(remarkRehype)
 	.use(rehypeSlug)
 	.use(rehypeShiki, {
-		theme: "github-dark",
+		themes: {
+			light: "github-light",
+			dark: "github-dark",
+		},
 		langs: LANGS,
 		// A fence in some language nobody loaded is still readable as plain text;
 		// it is not a reason to fail the whole page.

@@ -2,6 +2,13 @@
 
 All notable Hostplan releases are documented here.
 
+## Unreleased
+
+- Add six curated document themes with canonical plan metadata, CLI controls,
+  hosted sync, and per-reader browser overrides.
+- Expose a public appearance-only manifest while keeping private plan content
+  and operational metadata behind the existing access gate.
+
 ## 0.1.0 - 2026-07-28
 
 Initial public release.

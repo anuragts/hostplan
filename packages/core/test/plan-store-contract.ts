@@ -118,6 +118,31 @@ export function runPlanStoreContract(store: PlanStore): void {
 		await store.remove(added.meta.id);
 	});
 
+	test("themes default, update, and survive unrelated metadata changes", async () => {
+		const added = await store.add(input);
+		expect(added.meta.theme).toBe("hostplan");
+
+		await store.update(added.meta.id, { theme: "editorial" });
+		await store.update(added.meta.id, { status: "approved" });
+		await store.update(added.meta.id, { visibility: "public" });
+		await store.update(added.meta.id, { visibility: "private" });
+		await store.update(added.meta.id, { rotateCode: true });
+		await store.update(added.meta.id, { dependsOn: "zzzzzz" });
+		await store.update(added.meta.id, {
+			content: "# Contract\n\nrevised without resetting theme\n",
+		});
+		const themed = await store.get(added.meta.id);
+
+		expect(themed?.meta.theme).toBe("editorial");
+		expect(themed?.meta.status).toBe("approved");
+		expect(themed?.meta.visibility).toBe("private");
+		expect(isCode(themed?.meta.code ?? "")).toBe(true);
+		expect(themed?.meta.dependsOn).toBe("zzzzzz");
+		expect(themed?.body).toContain("revised without resetting theme");
+
+		await store.remove(added.meta.id);
+	});
+
 	test("a dependency link survives the round trip", async () => {
 		const first = await store.add(input);
 		const second = await store.add({ ...input, title: "Step Two", dependsOn: first.meta.id });

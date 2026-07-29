@@ -13,6 +13,7 @@ const plan: StoredPlan = {
 		updated: "2026-07-26T00:00:00.000Z",
 		visibility: "private",
 		status: "draft",
+		theme: "hostplan",
 		code: "KRWT",
 	},
 	body: "# Worktree GC\n",

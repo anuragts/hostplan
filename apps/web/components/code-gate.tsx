@@ -1,4 +1,5 @@
 import { CODE_LENGTH } from "@hostplan/core";
+import { CodeInput } from "@/components/code-input";
 
 /**
  * A plain GET form: submitting navigates to `?code=XXXX` on this same page,
@@ -26,19 +27,7 @@ export function CodeGate({
 			</p>
 
 			<form method="get" className="mt-8 flex flex-col items-center gap-3">
-				<input
-					name="code"
-					// biome-ignore lint/a11y/noAutofocus: the entire page is this one field
-					autoFocus
-					maxLength={CODE_LENGTH}
-					autoComplete="off"
-					autoCapitalize="characters"
-					spellCheck={false}
-					aria-label="Share code"
-					disabled={throttled}
-					className="plan-code-gate-input w-44 rounded-lg border border-line bg-surface-raised px-3 py-3 text-center font-mono text-ink text-xl uppercase tracking-[0.4em] outline-none placeholder:tracking-normal placeholder:text-ink-faint focus:border-brand disabled:opacity-50"
-					placeholder="CODE"
-				/>
+				<CodeInput length={CODE_LENGTH} disabled={throttled} />
 				{wrong && !throttled && (
 					<p className="text-red-400 text-xs">That code doesn&rsquo;t match this plan.</p>
 				)}

@@ -1,4 +1,12 @@
-import { isCode, isId, isPlanTheme, isStatus, PLAN_THEME_IDS, shareUrls } from "@hostplan/core";
+import {
+	isCode,
+	isId,
+	isPlanTheme,
+	isStatus,
+	PLAN_THEME_IDS,
+	shareUrls,
+	validateCustomHtml,
+} from "@hostplan/core";
 import { currentViewer, unauthorized } from "@/lib/current-viewer";
 import { origin as siteOrigin } from "@/lib/origin";
 import { captureServerEvent } from "@/lib/server-analytics";
@@ -71,6 +79,16 @@ export async function POST(request: Request) {
 			{ status: 400 },
 		);
 	}
+	const format = body.format === "html" ? "html" : "md";
+	if (format === "html") {
+		const validation = validateCustomHtml(content);
+		if (!validation.valid) {
+			return Response.json(
+				{ error: "invalid custom HTML", issues: validation.errors },
+				{ status: 422 },
+			);
+		}
+	}
 
 	// A push carries the plan's identity so both sides hold one plan, not two.
 	const plan = await planStoreFor(viewer).add({
@@ -80,7 +98,7 @@ export async function POST(request: Request) {
 		title,
 		project,
 		branch,
-		format: body.format === "html" ? "html" : "md",
+		format,
 		visibility: body.visibility === "public" ? "public" : "private",
 		...(isStatus(body.status) ? { status: body.status } : {}),
 		...(isPlanTheme(body.theme) ? { theme: body.theme } : {}),

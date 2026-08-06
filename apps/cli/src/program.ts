@@ -2,6 +2,7 @@ import { Command } from "commander";
 import packageInfo from "../../../package.json" with { type: "json" };
 import { addCommand } from "./commands/add";
 import { loginCommand, logoutCommand, whoamiCommand } from "./commands/auth";
+import { guideCommand, validateCommand } from "./commands/custom-html";
 import { getCommand } from "./commands/get";
 import { listCommand } from "./commands/list";
 import { rmCommand } from "./commands/rm";
@@ -49,6 +50,20 @@ export function buildProgram(): Command {
 		.option("--local", "store locally without pushing to the deployment")
 		.option("--no-serve", "do not start the viewer")
 		.action(addCommand);
+
+	program
+		.command("guide")
+		.argument("<topic>", "guide to print (custom-html)")
+		.description("print a prompt-ready authoring guide")
+		.option("--json", "print the guide as JSON")
+		.action(guideCommand);
+
+	program
+		.command("validate")
+		.argument("<file>", "plan file to validate")
+		.description("validate a plan before storing it")
+		.option("--json", "print structured diagnostics")
+		.action(validateCommand);
 
 	program
 		.command("get")

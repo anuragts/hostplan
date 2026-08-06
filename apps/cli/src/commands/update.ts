@@ -9,6 +9,7 @@ import {
 	writeFileAtomic,
 } from "@hostplan/core";
 import { die, printJson, style } from "../output";
+import { assertValidCustomHtml } from "./custom-html";
 import { resolveFilter, resolveRef, type ScopeOptions, syncPatch } from "./shared";
 
 export interface UpdateOptions extends ScopeOptions {
@@ -40,6 +41,7 @@ export async function updateCommand(
 	} else {
 		return die("nothing to update with — pass a plan file or --content");
 	}
+	if (plan.meta.format === "html") assertValidCustomHtml(raw);
 
 	// Keep only the body; hostplan's own frontmatter is about to be rewritten.
 	const content = plan.meta.format === "md" ? readSourceFrontmatter(raw).content : raw;

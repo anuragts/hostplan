@@ -1,17 +1,27 @@
 import { beforeEach, describe, expect, mock, test } from "bun:test";
-import type { AddPlanInput, StoredPlan, UpdatePlanPatch } from "@hostplan/core";
+import {
+	type AddPlanInput,
+	CUSTOM_HTML_SKELETON,
+	type PlanFormat,
+	type StoredPlan,
+	type UpdatePlanPatch,
+} from "@hostplan/core";
 
 let added: AddPlanInput | undefined;
 let patched: UpdatePlanPatch | undefined;
+let currentFormat: PlanFormat = "md";
 
-function stored(theme: StoredPlan["meta"]["theme"]): StoredPlan {
+function stored(
+	theme: StoredPlan["meta"]["theme"],
+	format: PlanFormat = currentFormat,
+): StoredPlan {
 	return {
 		meta: {
 			id: "a3f9c2",
 			title: "Themed plan",
 			project: "hostplan",
 			branch: "main",
-			format: "md",
+			format,
 			created: "2026-07-30T00:00:00.000Z",
 			updated: "2026-07-30T00:00:00.000Z",
 			visibility: "private",
@@ -29,7 +39,7 @@ function stored(theme: StoredPlan["meta"]["theme"]): StoredPlan {
 const store = {
 	add: async (input: AddPlanInput) => {
 		added = input;
-		return stored(input.theme ?? "hostplan");
+		return stored(input.theme ?? "hostplan", input.format);
 	},
 	update: async (_id: string, patch: UpdatePlanPatch) => {
 		patched = patch;
@@ -61,6 +71,7 @@ const context = { params: Promise.resolve({ id: "a3f9c2" }) };
 beforeEach(() => {
 	added = undefined;
 	patched = undefined;
+	currentFormat = "md";
 });
 
 describe("plan theme API mutations", () => {
@@ -81,6 +92,66 @@ describe("plan theme API mutations", () => {
 
 		expect(response.status).toBe(201);
 		expect(added?.theme).toBe("editorial");
+	});
+
+	test("accepts valid custom HTML and rejects invalid HTML before storage", async () => {
+		const valid = await POST(
+			new Request("https://plans.host-plan.com/api/plans", {
+				method: "POST",
+				headers: { "content-type": "application/json" },
+				body: JSON.stringify({
+					content: CUSTOM_HTML_SKELETON,
+					title: "Custom plan",
+					project: "hostplan",
+					branch: "main",
+					format: "html",
+				}),
+			}),
+		);
+		expect(valid.status).toBe(201);
+		expect(added?.format).toBe("html");
+
+		added = undefined;
+		const invalid = await POST(
+			new Request("https://plans.host-plan.com/api/plans", {
+				method: "POST",
+				headers: { "content-type": "application/json" },
+				body: JSON.stringify({
+					content: "<script>alert(1)</script>",
+					title: "Unsafe",
+					project: "hostplan",
+					branch: "main",
+					format: "html",
+				}),
+			}),
+		);
+		expect(invalid.status).toBe(422);
+		expect(added).toBeUndefined();
+	});
+
+	test("validates HTML content updates but not metadata-only updates", async () => {
+		currentFormat = "html";
+		const invalid = await PATCH(
+			new Request("https://plans.host-plan.com/api/plans/a3f9c2", {
+				method: "PATCH",
+				headers: { "content-type": "application/json" },
+				body: JSON.stringify({ content: "<script>alert(1)</script>" }),
+			}),
+			context,
+		);
+		expect(invalid.status).toBe(422);
+		expect(patched).toBeUndefined();
+
+		const metadata = await PATCH(
+			new Request("https://plans.host-plan.com/api/plans/a3f9c2", {
+				method: "PATCH",
+				headers: { "content-type": "application/json" },
+				body: JSON.stringify({ status: "approved" }),
+			}),
+			context,
+		);
+		expect(metadata.status).toBe(200);
+		expect(patched?.status).toBe("approved");
 	});
 
 	test("PATCH validates and stores a built-in theme", async () => {

@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en" data-hp-mode="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="hostplan-profile" content="custom-html-v1">
+  <title>Custom plan dashboard</title>
+  <style>
+    :root { --hp-accent: #79d492; }
+    .summary { --hp-grid-gap: var(--hp-space-3); }
+    @media print { .screen-only { display: none; } }
+    @media (prefers-reduced-motion: reduce) { * { animation: none; } }
+  </style>
+</head>
+<body>
+  <main class="hp-page hp-stack">
+    <header class="hp-stack">
+      <p class="hp-kicker">Release plan</p>
+      <h1>Custom plan dashboard</h1>
+      <p class="hp-lede">A compact example composed from Hostplan’s static primitives.</p>
+    </header>
+
+    <section class="hp-stat-grid summary" aria-label="Release summary">
+      <div class="hp-stat"><strong class="hp-stat-value">12</strong><span class="hp-stat-label">ready</span></div>
+      <div class="hp-stat"><strong class="hp-stat-value">3</strong><span class="hp-stat-label">blocked</span></div>
+      <div class="hp-stat"><strong class="hp-stat-value">2</strong><span class="hp-stat-label">risks</span></div>
+    </section>
+
+    <section class="hp-split">
+      <article class="hp-card">
+        <header class="hp-card-header"><h2 class="hp-card-title">Ship now</h2></header>
+        <div class="hp-card-body">
+          <ul class="hp-list">
+            <li class="hp-list-item"><span class="hp-list-main">Validate the production build</span><span class="hp-list-status" data-tone="success">ready</span></li>
+            <li class="hp-list-item"><span class="hp-list-main">Publish the migration</span><span class="hp-list-status" data-tone="success">ready</span></li>
+          </ul>
+        </div>
+      </article>
+      <article class="hp-card">
+        <header class="hp-card-header"><h2 class="hp-card-title">Needs attention</h2></header>
+        <div class="hp-card-body"><p class="hp-callout" data-tone="warning">Confirm rollback ownership before deployment.</p></div>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

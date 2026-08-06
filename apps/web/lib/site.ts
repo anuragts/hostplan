@@ -5,7 +5,7 @@ export const SITE_NAME = "Hostplan";
 export const SITE_DESCRIPTION =
 	"Store, share, resume, and hand off coding-agent plans with stable, machine-readable URLs.";
 export const REPOSITORY_URL = "https://github.com/anuragts/hostplan";
-export const SITE_UPDATED = "2026-07-28";
+export const SITE_UPDATED = "2026-08-06";
 
 export const HOME_JSON_LD = {
 	"@context": "https://schema.org",
@@ -53,6 +53,7 @@ export const PUBLIC_ROUTES = [
 	"/integrations/cursor",
 	"/docs/cli",
 	"/docs/agent-setup",
+	"/docs/custom-html-plans",
 	"/examples",
 	"/examples/plan-lifecycle",
 	"/examples/plan-stack",

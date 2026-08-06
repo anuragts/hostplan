@@ -76,6 +76,19 @@ Editorial, Technical Brief, and Executive. The author theme is stored with the
 plan and follows its existing URL; readers can still keep an optional
 per-plan appearance override in their own browser.
 
+For plans that need a visual layout, Hostplan also supports static custom HTML
+with a versioned component kit for cards, stats, lists, badges, grids, callouts,
+steps, and tables. Agents can fetch the exact contract, validate the file, and
+store it through the same workflow:
+
+```bash
+hsp guide custom-html
+hsp validate plan.html
+hsp add plan.html
+```
+
+Custom plans run without scripts or network access inside a sandboxed document.
+
 **Plans are private by default.** A private plan gets a 4-letter code, and `hsp
 add` prints both forms of its link — the bare one asks for the code, the `?code=`
 one opens directly. `hsp add --public` gives a single link that opens for anyone.

@@ -27,6 +27,7 @@ export default function AgentSetupPage() {
 			description={description}
 			related={[
 				["CLI reference", "/docs/cli"],
+				["Custom HTML plans", "/docs/custom-html-plans"],
 				["Agent handoff workflow", "/agent-plan-handoff"],
 				["Open in Codex", "/integrations/codex"],
 				["Agent handoff example", "/examples/agent-handoff"],
@@ -105,6 +106,14 @@ hsp tasks latest`}</Command>
 					The skill coordinates plan files; it does not grant broader permission to publish code,
 					push branches, expose private plans, or perform destructive actions. Existing repository
 					and user instructions still control those actions.
+				</p>
+			</ContentSection>
+
+			<ContentSection title="Optional visual plans">
+				<p>
+					When a user asks for a custom visual plan, the skill can fetch Hostplan&apos;s versioned
+					HTML contract and component catalog with <code>hsp guide custom-html</code>. The agent
+					validates the static document before storing it; ordinary plans remain Markdown.
 				</p>
 			</ContentSection>
 		</ContentPage>

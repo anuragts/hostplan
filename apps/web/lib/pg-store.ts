@@ -116,9 +116,11 @@ export function pgPlanStore(db: SupabaseClient, userId?: string): PlanStore {
 			const code = visibility === "private" ? (input.code ?? newCode()) : undefined;
 			const path = storageKey(userId, input, id);
 
-			const upload = await db.storage
-				.from(BUCKET)
-				.upload(path, input.content, { contentType: "text/markdown; charset=utf-8", upsert: true });
+			const upload = await db.storage.from(BUCKET).upload(path, input.content, {
+				contentType:
+					input.format === "html" ? "text/html; charset=utf-8" : "text/markdown; charset=utf-8",
+				upsert: true,
+			});
 			if (upload.error !== null) throw new Error(`upload failed: ${upload.error.message}`);
 
 			const { data, error } = await db
@@ -189,7 +191,8 @@ export function pgPlanStore(db: SupabaseClient, userId?: string): PlanStore {
 			// A revised body goes to the same storage key: same plan, new content.
 			if (patch.content !== undefined) {
 				const upload = await db.storage.from(BUCKET).upload(row.storage_path, patch.content, {
-					contentType: "text/markdown; charset=utf-8",
+					contentType:
+						row.format === "html" ? "text/html; charset=utf-8" : "text/markdown; charset=utf-8",
 					upsert: true,
 				});
 				if (upload.error !== null) throw new Error(`upload failed: ${upload.error.message}`);

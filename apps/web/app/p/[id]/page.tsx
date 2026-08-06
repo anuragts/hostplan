@@ -1,5 +1,6 @@
 import {
 	canRead,
+	DEFAULT_PLAN_THEME,
 	displayPath,
 	isId,
 	normalizeCode,
@@ -14,6 +15,8 @@ import { notFound } from "next/navigation";
 import { cache, Suspense } from "react";
 import { CodeGate } from "@/components/code-gate";
 import { CopyId } from "@/components/copy-id";
+import { CustomHtmlBadge } from "@/components/custom-html-badge";
+import { HtmlPlanFrame } from "@/components/html-plan-frame";
 import { OpenIn } from "@/components/open-in";
 import { PlanDocument, PlanEnvironment, PlanThemeBootstrap } from "@/components/plan-document";
 import { PlanThemeControl } from "@/components/plan-theme-control";
@@ -122,8 +125,11 @@ export default async function PlanPage({
 		// `plan.body` is never referenced on this path, so the content is absent
 		// from the response rather than hidden in it.
 		return (
-			<PlanEnvironment id={meta.id} theme={meta.theme}>
-				<PlanThemeBootstrap id={meta.id} />
+			<PlanEnvironment
+				id={meta.id}
+				theme={meta.format === "html" ? DEFAULT_PLAN_THEME : meta.theme}
+			>
+				{meta.format === "md" && <PlanThemeBootstrap id={meta.id} />}
 				<Shell crumbs={[{ label: "private" }]}>
 					<CodeGate
 						id={id}
@@ -161,11 +167,15 @@ export default async function PlanPage({
 		: [{ label: meta.project }, { label: meta.branch }];
 
 	return (
-		<PlanEnvironment id={meta.id} theme={meta.theme}>
-			{!isOwner && <PlanThemeBootstrap id={meta.id} />}
+		<PlanEnvironment id={meta.id} theme={meta.format === "html" ? DEFAULT_PLAN_THEME : meta.theme}>
+			{meta.format === "md" && !isOwner && <PlanThemeBootstrap id={meta.id} />}
 			<Shell crumbs={crumbs}>
 				<div className="mb-4 flex justify-end print:hidden">
-					<PlanThemeControl id={meta.id} authorTheme={meta.theme} isOwner={isOwner} />
+					{meta.format === "html" ? (
+						<CustomHtmlBadge />
+					) : (
+						<PlanThemeControl id={meta.id} authorTheme={meta.theme} isOwner={isOwner} />
+					)}
 				</div>
 
 				{/* Room at the bottom so the floating button never covers the last lines. */}
@@ -207,14 +217,9 @@ export default async function PlanPage({
 
 						<div className="plan-document-body">
 							{meta.format === "html" ? (
-								// Plans are untrusted enough that they shouldn't share an origin with the app.
-								<iframe
-									// The raw route runs the same canRead check, so the code has to
-									// travel with the request.
-									src={`/api/raw/${meta.id}${code === undefined ? "" : `?code=${code}`}`}
+								<HtmlPlanFrame
+									src={`/api/render/${meta.id}${code === undefined ? "" : `?code=${code}`}`}
 									title={meta.title}
-									sandbox=""
-									className="plan-html-frame h-[75vh] w-full bg-white"
 								/>
 							) : (
 								// Streamed: the header above is already useful, and holding it back

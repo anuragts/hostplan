@@ -119,9 +119,12 @@ async function download(supabase: SupabaseClient, ref: ObjectRef): Promise<Store
 }
 
 async function upload(supabase: SupabaseClient, key: string, contents: string): Promise<void> {
+	const contentType = key.endsWith(".html")
+		? "text/html; charset=utf-8"
+		: "text/markdown; charset=utf-8";
 	const { error } = await supabase.storage
 		.from(BUCKET)
-		.upload(key, contents, { contentType: "text/markdown; charset=utf-8", upsert: true });
+		.upload(key, contents, { contentType, upsert: true });
 	if (error !== null) throw new Error(`supabase upload failed: ${error.message}`);
 }
 

@@ -13,7 +13,7 @@ import {
 	projectDirName,
 	removePlan,
 } from "../src/store";
-import { isPlanTheme, normalizePlanTheme, PLAN_THEME_IDS } from "../src/theme";
+import { isPlanTheme, normalizePlanTheme, PLAN_THEME_IDS, PLAN_THEMES } from "../src/theme";
 
 describe("slugify", () => {
 	test("makes branch names filesystem safe", () => {
@@ -64,6 +64,9 @@ describe("plan themes", () => {
 	test("ships a closed registry and a safe backwards-compatible default", () => {
 		expect(PLAN_THEME_IDS).toEqual([
 			"hostplan",
+			"midnight",
+			"terminal",
+			"nocturne",
 			"working-draft",
 			"office-memo",
 			"editorial",
@@ -71,6 +74,9 @@ describe("plan themes", () => {
 			"executive",
 		]);
 		expect(isPlanTheme("editorial")).toBe(true);
+		expect(PLAN_THEMES.filter((theme) => theme.scheme === "dark").map((theme) => theme.id)).toEqual(
+			["hostplan", "midnight", "terminal", "nocturne"],
+		);
 		expect(isPlanTheme("custom-css")).toBe(false);
 		expect(normalizePlanTheme("custom-css")).toBe("hostplan");
 	});

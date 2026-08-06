@@ -55,6 +55,7 @@ export const PUBLIC_ROUTES = [
 	"/docs/agent-setup",
 	"/docs/custom-html-plans",
 	"/examples",
+	"/examples/custom-html",
 	"/examples/plan-lifecycle",
 	"/examples/plan-stack",
 	"/examples/agent-handoff",

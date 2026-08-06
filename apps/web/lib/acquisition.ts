@@ -18,6 +18,7 @@ const SAFE_PUBLIC_PATHS = new Set([
 	"/docs/cli",
 	"/docs/agent-setup",
 	"/examples",
+	"/examples/custom-html",
 	"/examples/plan-lifecycle",
 	"/examples/plan-stack",
 	"/examples/agent-handoff",

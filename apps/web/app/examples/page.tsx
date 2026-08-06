@@ -5,7 +5,7 @@ import { EXAMPLES } from "@/lib/examples";
 import { pageMetadata } from "@/lib/site";
 
 const description =
-	"Runnable Hostplan examples for coding-agent plan lifecycle, dependency-aware plan stacks, task tracking, and cross-agent handoffs.";
+	"Runnable Hostplan examples for visual HTML plans, coding-agent plan lifecycle, dependency-aware stacks, task tracking, and cross-agent handoffs.";
 
 export const metadata: Metadata = pageMetadata({
 	title: "Coding-agent plan examples",

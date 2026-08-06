@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, mock, test } from "bun:test";
-import type { StoredPlan } from "@hostplan/core";
+import { CUSTOM_HTML_SKELETON, type StoredPlan } from "@hostplan/core";
 import type { Viewer } from "../lib/viewer";
 
 const plan: StoredPlan = {
@@ -37,6 +37,7 @@ mock.module("@/lib/current-viewer", () => ({
 }));
 
 const { GET } = await import("../app/api/raw/[id]/route");
+const { GET: renderGET } = await import("../app/api/render/[id]/route");
 const context = { params: Promise.resolve({ id: "a3f9c2" }) };
 
 function request(query = "", ip = "203.0.113.1"): Request {
@@ -110,5 +111,32 @@ describe("raw plan route", () => {
 		}
 
 		expect((await GET(request("?code=WRON", "203.0.113.11"), context)).status).toBe(429);
+	});
+});
+
+describe("custom HTML render route", () => {
+	test("injects components behind the same access gate and sandbox", async () => {
+		storedPlan = {
+			...plan,
+			meta: { ...plan.meta, format: "html" },
+			body: CUSTOM_HTML_SKELETON,
+			path: "/plans/a3f9c2.html",
+		};
+		const response = await renderGET(request("?code=krwt"), context);
+		const body = await response.text();
+
+		expect(response.status).toBe(200);
+		expect(body).toContain('data-hostplan-components="custom-html-v1"');
+		expect(body).toContain(".hp-card");
+		expect(storedPlan.body).not.toContain("data-hostplan-components");
+		expect(response.headers.get("content-security-policy")).toContain("script-src 'none'");
+		expect(response.headers.get("referrer-policy")).toBe("no-referrer");
+	});
+
+	test("rejects unauthorized readers and Markdown plans", async () => {
+		storedPlan = { ...plan, meta: { ...plan.meta, format: "html" }, body: CUSTOM_HTML_SKELETON };
+		expect((await renderGET(request(), context)).status).toBe(404);
+		storedPlan = plan;
+		expect((await renderGET(request("?code=krwt"), context)).status).toBe(404);
 	});
 });

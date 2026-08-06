@@ -6,6 +6,7 @@ import {
 	normalizeCode,
 	PLAN_THEME_IDS,
 	shareUrls,
+	validateCustomHtml,
 } from "@hostplan/core";
 import { currentViewer, unauthorized } from "@/lib/current-viewer";
 import { origin as siteOrigin } from "@/lib/origin";
@@ -93,7 +94,22 @@ export async function PATCH(request: Request, { params }: Params) {
 		);
 	}
 
-	const plan = await planStoreFor(viewer).update(id, {
+	const store = planStoreFor(viewer);
+	if (typeof body.content === "string") {
+		const existing = await store.get(id);
+		if (existing === undefined) return notFound();
+		if (existing.meta.format === "html") {
+			const validation = validateCustomHtml(body.content);
+			if (!validation.valid) {
+				return Response.json(
+					{ error: "invalid custom HTML", issues: validation.errors },
+					{ status: 422 },
+				);
+			}
+		}
+	}
+
+	const plan = await store.update(id, {
 		...(body.visibility === "public" || body.visibility === "private"
 			? { visibility: body.visibility }
 			: {}),

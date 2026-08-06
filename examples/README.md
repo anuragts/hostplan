@@ -1,5 +1,9 @@
 # Examples
 
+`custom-plan.html` is a valid `custom-html-v1` document composed from Hostplan
+cards, stats, lists, badges, grids, and tokens. Validate it with
+`hsp validate examples/custom-plan.html` before storing it.
+
 Real plans you can store and drive with `hsp`, covering the workflow features:
 status, stacks, tasks, revisions and search.
 

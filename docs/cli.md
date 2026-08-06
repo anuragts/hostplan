@@ -27,6 +27,28 @@ Branch names with slashes are slugified for the directory (`feat/delivery` →
 `feat-delivery`) while the real name is kept in the plan's frontmatter and shown
 in the UI.
 
+## Custom HTML plans
+
+Markdown remains the default. When a plan benefits from a dashboard, timeline,
+architecture map, or another authored layout, fetch the versioned static HTML
+contract and component catalog:
+
+```bash
+hsp guide custom-html
+hsp guide custom-html --json
+hsp validate plan.html
+hsp add plan.html
+```
+
+The guide includes Hostplan primitives for grids, cards, stats, lists, badges,
+callouts, steps, tables, and supporting text. Agents may combine those classes
+and add their own inline CSS. Custom documents cannot use scripts, network
+assets, embeds, submitting forms, or external styles. `hsp add` and hosted APIs
+run the same validation automatically.
+
+`hsp tasks` and `hsp check` are Markdown-only because arbitrary HTML has no
+stable checkbox rewrite contract. Use the plan lifecycle for HTML plans.
+
 ## Reading
 
 ```bash

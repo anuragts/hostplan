@@ -129,6 +129,33 @@ Use a curated theme when the user asks for a memo, draft, editorial report,
 technical brief, or executive presentation. Do not encode themes in share
 URLs. A browser reader's personal override stays local to that reader.
 
+## Custom HTML plans
+
+Markdown is the default. Use a custom HTML plan only when the user asks for a
+custom visual artifact or when a dashboard, timeline, architecture map,
+comparison, or similarly authored layout materially improves comprehension.
+
+Fetch the current contract instead of improvising it:
+
+```bash
+hsp guide custom-html
+```
+
+Follow its response rules exactly. Compose Hostplan's `hp-*` cards, lists,
+stats, grids, badges, callouts, steps, tables, and tokens where useful, and add
+custom semantic classes/CSS for the plan's specific visual form. Scripts,
+network assets, embeds, submitting forms, and external styles are forbidden.
+
+Write the response as raw HTML to a `.html` file, validate it, then store it:
+
+```bash
+hsp validate PLAN.html
+hsp add PLAN.html
+```
+
+Return the resulting Hostplan link to the user, not the raw HTML. HTML plans do
+not support `hsp tasks` or `hsp check`; use their lifecycle status instead.
+
 ## Revising and tracking progress
 
 - `hsp update <id> PLAN.md` (or `-c "..."`) revises a plan **in place** —

@@ -1,4 +1,17 @@
 export const EXAMPLES = {
+	"custom-html": {
+		title: "Create a visual plan with custom HTML and Hostplan components",
+		shortTitle: "Custom HTML plan",
+		description:
+			"Compose a responsive plan from Hostplan cards, stats, lists, callouts, and layout primitives while keeping scripts and network resources out.",
+		scenario:
+			"A release or architecture plan needs a denser visual hierarchy than Markdown can express, but it must remain portable, reviewable, and safely sandboxed.",
+		commands: `hsp guide custom-html
+hsp validate examples/custom-plan.html
+hsp add examples/custom-plan.html --local`,
+		proof:
+			"Validation reports no errors, the stored plan renders the shared component layer in a sandboxed frame, and the original HTML source remains available unchanged.",
+	},
 	"plan-lifecycle": {
 		title: "Run a plan through draft, approval, execution, and completion",
 		shortTitle: "Plan lifecycle",

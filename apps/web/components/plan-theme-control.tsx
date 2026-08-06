@@ -24,7 +24,10 @@ import { cn } from "@/lib/utils";
 
 function applyTheme(id: string, theme: PlanThemeId): void {
 	const document = window.document.getElementById(planDocumentId(id));
-	if (document !== null) document.dataset.planTheme = theme;
+	if (document !== null) {
+		document.dataset.planTheme = theme;
+		document.dataset.planScheme = themeById(theme).scheme;
+	}
 }
 
 export function PlanThemeControl({
@@ -119,6 +122,7 @@ export function PlanThemeControl({
 			<DropdownMenuContent
 				align="end"
 				data-plan-theme={shown}
+				data-plan-scheme={current.scheme}
 				className="plan-theme-menu w-80 p-1.5"
 			>
 				<DropdownMenuLabel className="px-2 py-1.5">

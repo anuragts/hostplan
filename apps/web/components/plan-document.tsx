@@ -1,4 +1,4 @@
-import { PLAN_THEME_IDS, type PlanThemeId } from "@hostplan/core/theme";
+import { PLAN_THEME_IDS, PLAN_THEMES, type PlanThemeId, planTheme } from "@hostplan/core/theme";
 import type { ReactNode } from "react";
 import { planThemeStorageKey } from "@/lib/plan-theme-storage";
 
@@ -17,6 +17,7 @@ export function PlanEnvironment({
 		<div
 			id={planDocumentId(id)}
 			data-plan-theme={theme}
+			data-plan-scheme={planTheme(theme).scheme}
 			className="plan-environment"
 			suppressHydrationWarning
 		>
@@ -35,7 +36,8 @@ export function PlanDocument({ children }: { children: ReactNode }) {
  * the author theme after hydration.
  */
 export function PlanThemeBootstrap({ id }: { id: string }) {
-	const script = `try{const raw=localStorage.getItem(${JSON.stringify(planThemeStorageKey(id))});if(raw){const value=JSON.parse(raw);if(value&&value.mode==="personal"&&${JSON.stringify(PLAN_THEME_IDS)}.includes(value.theme)){const node=document.getElementById(${JSON.stringify(planDocumentId(id))});if(node)node.dataset.planTheme=value.theme}}}catch{}`;
+	const schemes = Object.fromEntries(PLAN_THEMES.map((theme) => [theme.id, theme.scheme]));
+	const script = `try{const raw=localStorage.getItem(${JSON.stringify(planThemeStorageKey(id))});if(raw){const value=JSON.parse(raw);if(value&&value.mode==="personal"&&${JSON.stringify(PLAN_THEME_IDS)}.includes(value.theme)){const node=document.getElementById(${JSON.stringify(planDocumentId(id))});if(node){node.dataset.planTheme=value.theme;node.dataset.planScheme=${JSON.stringify(schemes)}[value.theme]}}}}catch{}`;
 	return (
 		<script
 			// Static ids and a closed theme registry are the only values embedded.

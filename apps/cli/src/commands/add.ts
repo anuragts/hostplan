@@ -27,6 +27,7 @@ import {
 import { ensureServer } from "../daemon";
 import { die, printJson, style, warn } from "../output";
 import { currentRemote, push, type RemotePlan } from "../remote";
+import { assertValidCustomHtml } from "./custom-html";
 import { openInBrowser, resolveRef } from "./shared";
 
 export interface AddOptions {
@@ -103,6 +104,7 @@ export async function storeOnePlan(
 	dependsOn?: string,
 ): Promise<StoredResult> {
 	const source = await readSource(file, options);
+	if (source.format === "html") assertValidCustomHtml(source.raw);
 
 	// Markdown sources may carry their own frontmatter; keep the parts we don't own.
 	const parsed =

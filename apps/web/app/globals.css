@@ -146,8 +146,78 @@ html {
 	--plan-radius: 0;
 	--plan-padding: 0;
 	--plan-shadow: none;
+	--plan-status-success: #77cf8b;
+	--plan-status-info: #70d7d1;
+	--plan-status-blocked: #e2bb5f;
 
 	color-scheme: dark;
+}
+
+:where(.plan-environment, .plan-theme-menu)[data-plan-theme="midnight"] {
+	--plan-canvas: #090f1e;
+	--plan-paper: #111a2d;
+	--plan-panel: #111a2d;
+	--plan-ink: #e8edf8;
+	--plan-muted: #a4afc5;
+	--plan-faint: #78859e;
+	--plan-line: #2a3650;
+	--plan-accent: #7ba9ff;
+	--plan-code-bg: #0c1426;
+	--plan-heading-font: var(--font-sans);
+	--plan-body-font: var(--font-sans);
+	--plan-measure: 76ch;
+	--plan-radius: 7px;
+	--plan-padding: clamp(1.5rem, 5vw, 3.75rem);
+	--plan-shadow:
+		0 0 0 1px rgb(255 255 255 / 5%), 0 1px 2px rgb(0 0 0 / 32%), 0 24px 60px -38px rgb(0 0 0 / 80%);
+	--plan-status-success: #81d69a;
+	--plan-status-info: #84b6ff;
+	--plan-status-blocked: #dfbd6c;
+}
+
+:where(.plan-environment, .plan-theme-menu)[data-plan-theme="terminal"] {
+	--plan-canvas: #080b09;
+	--plan-paper: #101512;
+	--plan-panel: #101512;
+	--plan-ink: #e2eae4;
+	--plan-muted: #96a29a;
+	--plan-faint: #6b786f;
+	--plan-line: #29332c;
+	--plan-accent: #79d492;
+	--plan-code-bg: #0b100d;
+	--plan-heading-font: var(--font-mono);
+	--plan-body-font: var(--font-sans);
+	--plan-measure: 78ch;
+	--plan-radius: 3px;
+	--plan-padding: clamp(1.5rem, 5vw, 3.5rem);
+	--plan-shadow:
+		0 0 0 1px rgb(121 212 146 / 9%), 0 1px 2px rgb(0 0 0 / 40%), 0 20px 52px -36px rgb(0 0 0 / 82%);
+	--plan-status-success: #79d492;
+	--plan-status-info: #7eb9e8;
+	--plan-status-blocked: #e0bd69;
+}
+
+:where(.plan-environment, .plan-theme-menu)[data-plan-theme="nocturne"] {
+	--plan-canvas: #140f15;
+	--plan-paper: #1e171f;
+	--plan-panel: #1e171f;
+	--plan-ink: #f0e9e6;
+	--plan-muted: #b7a8ac;
+	--plan-faint: #88787e;
+	--plan-line: #3c2e38;
+	--plan-accent: #e39cb1;
+	--plan-code-bg: #171118;
+	--plan-heading-font: Georgia, "Times New Roman", serif;
+	--plan-body-font: var(--font-sans);
+	--plan-measure: 69ch;
+	--plan-radius: 9px;
+	--plan-padding: clamp(1.75rem, 6vw, 4.25rem);
+	--plan-shadow:
+		0 0 0 1px rgb(255 255 255 / 5%), 0 2px 5px -2px rgb(0 0 0 / 34%),
+		0 26px 62px -38px rgb(0 0 0 / 82%);
+	--plan-status-success: #83cf9a;
+	--plan-status-info: #d4a2d9;
+	--plan-status-blocked: #dfb66a;
 }
 
 .plan-environment {
@@ -384,6 +454,8 @@ html {
 		0 4px 12px -4px rgb(0 0 0 / 14%),
 		0 20px 44px -26px rgb(0 0 0 / 38%);
 	color: var(--plan-ink);
+	max-height: min(42rem, calc(100dvh - 2rem));
+	overflow-y: auto;
 }
 
 .plan-theme-menu-title {
@@ -457,17 +529,17 @@ html {
 	:is(.plan-status-badge, .plan-status-control)[data-plan-status="approved"],
 .plan-environment:not([data-plan-theme="hostplan"])
 	:is(.plan-status-badge, .plan-status-control)[data-plan-status="done"] {
-	color: #176c5b;
+	color: var(--plan-status-success, #176c5b);
 }
 
 .plan-environment:not([data-plan-theme="hostplan"])
 	:is(.plan-status-badge, .plan-status-control)[data-plan-status="in-progress"] {
-	color: #006f89;
+	color: var(--plan-status-info, #006f89);
 }
 
 .plan-environment:not([data-plan-theme="hostplan"]) .plan-dependency[data-blocked="true"] {
 	border-color: color-mix(in srgb, #9a5d09 45%, transparent);
-	color: #795015;
+	color: var(--plan-status-blocked, #795015);
 }
 
 .plan-document-body,
@@ -529,7 +601,7 @@ html {
 	outline-offset: -1px;
 }
 
-.plan-environment[data-plan-theme="hostplan"] .plan-prose :where(img) {
+.plan-environment[data-plan-scheme="dark"] .plan-prose :where(img) {
 	outline-color: rgb(255 255 255 / 10%);
 }
 
@@ -586,10 +658,71 @@ html {
 	padding-bottom: 0.45em;
 }
 
+.plan-environment[data-plan-theme="midnight"] .plan-prose :where(h2) {
+	border-left: 3px solid var(--plan-accent);
+	padding-left: 0.75rem;
+}
+
+.plan-environment[data-plan-theme="terminal"] :is(.plan-title, .plan-prose h2) {
+	letter-spacing: 0.035em;
+	text-transform: uppercase;
+}
+
+.plan-environment[data-plan-theme="nocturne"] .plan-title {
+	font-size: clamp(2rem, 5vw, 3.2rem);
+	font-weight: 500;
+	letter-spacing: -0.035em;
+}
+
+.plan-html-viewer {
+	background: var(--plan-panel);
+	border-radius: 10px;
+	box-shadow:
+		0 0 0 1px var(--plan-line),
+		0 18px 48px -34px rgb(0 0 0 / 55%);
+	overflow: hidden;
+}
+
+.plan-html-toolbar {
+	align-items: center;
+	border-bottom: 1px solid var(--plan-line);
+	display: flex;
+	justify-content: space-between;
+	min-height: 3rem;
+	padding-inline: 0.5rem 0.25rem;
+}
+
+.plan-html-frame-shell {
+	background: #0f1012;
+	min-height: clamp(32rem, 76dvh, 60rem);
+	position: relative;
+}
+
 .plan-html-frame {
+	background: white;
 	border: 0;
-	border-radius: max(0px, calc(var(--plan-radius) - 2px));
-	box-shadow: 0 0 0 1px var(--plan-line);
+	display: block;
+	height: clamp(32rem, 76dvh, 60rem);
+	opacity: 1;
+	transition: opacity 180ms ease-out;
+	width: 100%;
+}
+
+.plan-html-frame[data-state="loading"] {
+	opacity: 0;
+}
+
+.plan-html-loading,
+.plan-html-error {
+	inset: 0;
+	padding: clamp(1.25rem, 4vw, 3rem);
+	position: absolute;
+}
+
+.plan-html-error {
+	display: grid;
+	place-content: center;
+	text-align: center;
 }
 
 .theme-swatch {
@@ -600,6 +733,21 @@ html {
 
 .theme-swatch[data-theme-swatch="hostplan"] {
 	background: linear-gradient(135deg, #1a191d 0 64%, #5ed6d0 64%);
+	box-shadow: 0 0 0 1px rgb(255 255 255 / 10%);
+}
+
+.theme-swatch[data-theme-swatch="midnight"] {
+	background: linear-gradient(135deg, #111a2d 0 68%, #7ba9ff 68%);
+	box-shadow: 0 0 0 1px rgb(255 255 255 / 10%);
+}
+
+.theme-swatch[data-theme-swatch="terminal"] {
+	background: linear-gradient(135deg, #101512 0 68%, #79d492 68%);
+	box-shadow: 0 0 0 1px rgb(255 255 255 / 10%);
+}
+
+.theme-swatch[data-theme-swatch="nocturne"] {
+	background: linear-gradient(135deg, #1e171f 0 68%, #e39cb1 68%);
 	box-shadow: 0 0 0 1px rgb(255 255 255 / 10%);
 }
 
@@ -733,7 +881,7 @@ html {
 	line-height: 1.6;
 }
 
-.plan-environment[data-plan-theme="hostplan"] .shiki span {
+.plan-environment[data-plan-scheme="dark"] .shiki span {
 	/* biome-ignore lint/complexity/noImportantStyles: Shiki writes each light token
 	   as an inline color, so the selected dark token must override that inline value. */
 	color: var(--shiki-dark) !important;

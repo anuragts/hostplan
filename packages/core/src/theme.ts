@@ -6,6 +6,24 @@ export const PLAN_THEMES = [
 		scheme: "dark",
 	},
 	{
+		id: "midnight",
+		label: "Midnight",
+		description: "Cool navy and blue for architecture and research.",
+		scheme: "dark",
+	},
+	{
+		id: "terminal",
+		label: "Terminal",
+		description: "Graphite and green for runbooks and operational plans.",
+		scheme: "dark",
+	},
+	{
+		id: "nocturne",
+		label: "Nocturne",
+		description: "Warm ink and serif detail for strategy and long-form work.",
+		scheme: "dark",
+	},
+	{
 		id: "working-draft",
 		label: "Working draft",
 		description: "Monochrome xerox paper for plans still taking shape.",

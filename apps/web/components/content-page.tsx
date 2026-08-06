@@ -53,7 +53,7 @@ export function ContentPage({
 					<div className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-1 text-ink-faint text-xs">
 						<span>Maintained by the Hostplan project</span>
 						<span aria-hidden="true">·</span>
-						<time dateTime={SITE_UPDATED}>Updated July 28, 2026</time>
+						<time dateTime={SITE_UPDATED}>Updated August 6, 2026</time>
 						<span aria-hidden="true">·</span>
 						<a
 							href={REPOSITORY_URL}

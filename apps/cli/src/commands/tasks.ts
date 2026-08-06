@@ -18,6 +18,15 @@ function progress(done: number, total: number): string {
 /** The plan's checkboxes as durable, addressable state. */
 export async function tasksCommand(ref: string, options: TasksOptions): Promise<void> {
 	const plan = await resolveRef(ref, await resolveFilter(options));
+	if (plan.meta.format === "html") {
+		const unsupported = "HTML plans do not expose mutable checkbox tasks; use plan status instead.";
+		if (options.json === true) {
+			printJson({ id: plan.meta.id, title: plan.meta.title, tasks: [], unsupported });
+			return;
+		}
+		note(style.dim(unsupported));
+		return;
+	}
 	const tasks = parseTasks(plan.body);
 
 	if (options.json === true) {
@@ -47,6 +56,9 @@ export async function checkCommand(
 	options: CheckOptions,
 ): Promise<void> {
 	const plan = await resolveRef(ref, await resolveFilter(options));
+	if (plan.meta.format === "html") {
+		die("HTML plans do not expose mutable checkbox tasks; use plan status instead.");
+	}
 	const indexes = numbers.map((value) => {
 		const index = Number.parseInt(value, 10);
 		if (Number.isNaN(index) || index < 1) die(`\`${value}\` is not a task number`);

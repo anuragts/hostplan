@@ -10,6 +10,7 @@ export {
 	resolveRemote,
 	writeConfig,
 } from "./config";
+export * from "./custom-html";
 export { detectScope, NO_BRANCH, type Scope } from "./git";
 export { ID_LENGTH, isId, newId } from "./id";
 export {

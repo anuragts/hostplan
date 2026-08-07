@@ -2,7 +2,6 @@
 
 import { PLAN_THEMES, type PlanThemeId, planTheme as themeById } from "@hostplan/core/theme";
 import { Palette } from "lucide-react";
-import posthog from "posthog-js";
 import { useEffect, useRef, useState } from "react";
 import { planDocumentId } from "@/components/plan-document";
 import {
@@ -15,6 +14,7 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { captureAnalyticsEvent } from "@/lib/client-analytics";
 import {
 	clearStoredPlanTheme,
 	readStoredPlanTheme,
@@ -67,7 +67,7 @@ export function PlanThemeControl({
 
 		if (!isOwner) {
 			writeStoredPlanTheme(id, next);
-			posthog.capture("plan_theme_personalized", { theme: next });
+			captureAnalyticsEvent("plan_theme_personalized", { theme: next });
 			return;
 		}
 
@@ -80,13 +80,13 @@ export function PlanThemeControl({
 			.then((response) => {
 				if (!response.ok) throw new Error(String(response.status));
 				confirmedTheme.current = next;
-				posthog.capture("plan_theme_changed", { theme: next });
+				captureAnalyticsEvent("plan_theme_changed", { theme: next });
 			})
 			.catch(() => {
 				applyTheme(id, confirmedTheme.current);
 				setShown(confirmedTheme.current);
 				setFailed(true);
-				posthog.capture("plan_theme_save_failed");
+				captureAnalyticsEvent("plan_theme_save_failed");
 			})
 			.finally(() => setSaving(false));
 	}
@@ -95,7 +95,7 @@ export function PlanThemeControl({
 		clearStoredPlanTheme(id);
 		applyTheme(id, authorTheme);
 		setShown(authorTheme);
-		posthog.capture("plan_theme_personalization_reset");
+		captureAnalyticsEvent("plan_theme_personalization_reset");
 	}
 
 	const current = themeById(shown);

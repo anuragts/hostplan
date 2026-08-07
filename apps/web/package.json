@@ -12,6 +12,7 @@
 		"submit:indexnow": "bun scripts/submit-indexnow.ts"
 	},
 	"dependencies": {
+		"@anuragdev/sea": "0.1.0",
 		"@hostplan/core": "workspace:*",
 		"@shikijs/rehype": "^3.0.0",
 		"@supabase/ssr": "^0.12.3",

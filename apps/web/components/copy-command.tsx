@@ -1,7 +1,7 @@
 "use client";
 
-import posthog from "posthog-js";
 import { useState } from "react";
+import { captureAnalyticsEvent } from "@/lib/client-analytics";
 
 /** The one thing a visitor is meant to leave with, so it's one click to take. */
 export function CopyCommand({
@@ -18,7 +18,7 @@ export function CopyCommand({
 			type="button"
 			onClick={() => {
 				void navigator.clipboard.writeText(command).then(() => {
-					posthog.capture(event);
+					captureAnalyticsEvent(event);
 					setCopied(true);
 					setTimeout(() => setCopied(false), 1400);
 				});

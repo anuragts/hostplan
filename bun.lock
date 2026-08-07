@@ -54,6 +54,7 @@
       "name": "@hostplan/web",
       "version": "0.1.0",
       "dependencies": {
+        "@anuragdev/sea": "0.1.0",
         "@hostplan/core": "workspace:*",
         "@shikijs/rehype": "^3.0.0",
         "@supabase/ssr": "^0.12.3",
@@ -96,6 +97,8 @@
   },
   "packages": {
     "@alloc/quick-lru": ["@alloc/quick-lru@5.2.0", "", {}, "sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw=="],
+
+    "@anuragdev/sea": ["@anuragdev/sea@0.1.0", "", { "peerDependencies": { "next": ">=15.0.0", "react": ">=18.0.0" } }, "sha512-OKVyIEE5NUPurq7auZBnZOi5A0Ysgt6hJhA37sZxNbAMQv9CWen00dXAWG+rReNfFV7Py4C6UObqbBTNsdeFOg=="],
 
     "@babel/code-frame": ["@babel/code-frame@7.29.7", "", { "dependencies": { "@babel/helper-validator-identifier": "^7.29.7", "js-tokens": "^4.0.0", "picocolors": "^1.1.1" } }, "sha512-Aup7aUOfpbAUg2ROOJN6Iw5f9DMBlzu0mIkm/malLQFN/YQgO48wCj0Kxa3sEHJvPVFg7siR+qRInwXd2qhQKw=="],
 

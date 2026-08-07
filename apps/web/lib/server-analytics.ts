@@ -14,7 +14,7 @@ const sea = seaProjectKey
 			projectKey: seaProjectKey,
 			endpoint:
 				process.env.NEXT_PUBLIC_SEA_COLLECTOR_URL ??
-				"https://sea-worker.anuragsharma011011.workers.dev/v1/collect",
+				"https://sea-worker.zshlabs.com/v1/collect",
 		})
 	: undefined;
 

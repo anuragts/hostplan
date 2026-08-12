@@ -158,7 +158,7 @@ export const supabasePlanStore: PlanStore = {
 			updated: now,
 			visibility,
 			status: input.status ?? DEFAULT_STATUS,
-			theme: input.theme ?? DEFAULT_PLAN_THEME,
+			theme: DEFAULT_PLAN_THEME,
 			...(input.dependsOn === undefined ? {} : { dependsOn: input.dependsOn }),
 			...(visibility === "private" ? { code: newCode() } : {}),
 			...(input.source === undefined ? {} : { source: input.source }),
@@ -208,7 +208,7 @@ export const supabasePlanStore: PlanStore = {
 			...plan.meta,
 			...(patch.title === undefined ? {} : { title: patch.title }),
 			...(patch.status === undefined ? {} : { status: patch.status }),
-			...(patch.theme === undefined ? {} : { theme: patch.theme }),
+			theme: DEFAULT_PLAN_THEME,
 			visibility,
 			updated: new Date().toISOString(),
 		};

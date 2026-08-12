@@ -109,6 +109,8 @@
 
 html {
 	color-scheme: dark;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
 }
 
 @layer base {
@@ -124,25 +126,25 @@ html {
 }
 
 /* ---------------------------------------------------------------------------
-   Plan views. A theme owns the complete plan-reading environment — canvas,
-   navigation, controls, menus, and document — while the rest of Hostplan keeps
-   its established dark palette.
+   Plan reader. One quiet, dark environment keeps every shared plan familiar
+   and puts the writing ahead of presentation controls.
 --------------------------------------------------------------------------- */
 
-:where(.plan-environment, .plan-theme-menu) {
-	--plan-canvas: #000;
+.plan-environment {
+	--plan-canvas: #0a0a0a;
 	--plan-paper: transparent;
-	--plan-panel: #111113;
-	--plan-ink: #f1f1f2;
-	--plan-muted: #b4b4b9;
-	--plan-faint: #77777f;
-	--plan-line: #252529;
+	--plan-panel: #141414;
+	--plan-ink: #f5f5f7;
+	--plan-body-ink: #d1d1d6;
+	--plan-muted: oklch(0.7 0.008 285);
+	--plan-faint: oklch(0.53 0.009 285);
+	--plan-line: oklch(0.24 0.008 285);
 	--plan-accent: var(--color-brand);
-	--plan-code-bg: #101012;
+	--plan-code-bg: oklch(0.125 0.006 285);
 	--plan-heading-font: var(--font-sans);
 	--plan-body-font: var(--font-sans);
 	--plan-code-font: var(--font-mono);
-	--plan-measure: 76ch;
+	--plan-measure: 45rem;
 	--plan-radius: 0;
 	--plan-padding: 0;
 	--plan-shadow: none;
@@ -151,73 +153,6 @@ html {
 	--plan-status-blocked: #e2bb5f;
 
 	color-scheme: dark;
-}
-
-:where(.plan-environment, .plan-theme-menu)[data-plan-theme="midnight"] {
-	--plan-canvas: #090f1e;
-	--plan-paper: #111a2d;
-	--plan-panel: #111a2d;
-	--plan-ink: #e8edf8;
-	--plan-muted: #a4afc5;
-	--plan-faint: #78859e;
-	--plan-line: #2a3650;
-	--plan-accent: #7ba9ff;
-	--plan-code-bg: #0c1426;
-	--plan-heading-font: var(--font-sans);
-	--plan-body-font: var(--font-sans);
-	--plan-measure: 76ch;
-	--plan-radius: 7px;
-	--plan-padding: clamp(1.5rem, 5vw, 3.75rem);
-	--plan-shadow:
-		0 0 0 1px rgb(255 255 255 / 5%), 0 1px 2px rgb(0 0 0 / 32%), 0 24px 60px -38px rgb(0 0 0 / 80%);
-	--plan-status-success: #81d69a;
-	--plan-status-info: #84b6ff;
-	--plan-status-blocked: #dfbd6c;
-}
-
-:where(.plan-environment, .plan-theme-menu)[data-plan-theme="terminal"] {
-	--plan-canvas: #080b09;
-	--plan-paper: #101512;
-	--plan-panel: #101512;
-	--plan-ink: #e2eae4;
-	--plan-muted: #96a29a;
-	--plan-faint: #6b786f;
-	--plan-line: #29332c;
-	--plan-accent: #79d492;
-	--plan-code-bg: #0b100d;
-	--plan-heading-font: var(--font-mono);
-	--plan-body-font: var(--font-sans);
-	--plan-measure: 78ch;
-	--plan-radius: 3px;
-	--plan-padding: clamp(1.5rem, 5vw, 3.5rem);
-	--plan-shadow:
-		0 0 0 1px rgb(121 212 146 / 9%), 0 1px 2px rgb(0 0 0 / 40%), 0 20px 52px -36px rgb(0 0 0 / 82%);
-	--plan-status-success: #79d492;
-	--plan-status-info: #7eb9e8;
-	--plan-status-blocked: #e0bd69;
-}
-
-:where(.plan-environment, .plan-theme-menu)[data-plan-theme="nocturne"] {
-	--plan-canvas: #140f15;
-	--plan-paper: #1e171f;
-	--plan-panel: #1e171f;
-	--plan-ink: #f0e9e6;
-	--plan-muted: #b7a8ac;
-	--plan-faint: #88787e;
-	--plan-line: #3c2e38;
-	--plan-accent: #e39cb1;
-	--plan-code-bg: #171118;
-	--plan-heading-font: Georgia, "Times New Roman", serif;
-	--plan-body-font: var(--font-sans);
-	--plan-measure: 69ch;
-	--plan-radius: 9px;
-	--plan-padding: clamp(1.75rem, 6vw, 4.25rem);
-	--plan-shadow:
-		0 0 0 1px rgb(255 255 255 / 5%), 0 2px 5px -2px rgb(0 0 0 / 34%),
-		0 26px 62px -38px rgb(0 0 0 / 82%);
-	--plan-status-success: #83cf9a;
-	--plan-status-info: #d4a2d9;
-	--plan-status-blocked: #dfb66a;
 }
 
 .plan-environment {
@@ -241,250 +176,10 @@ html {
 	transition-timing-function: ease-out;
 }
 
-:where(.plan-environment, .plan-theme-menu)[data-plan-theme="working-draft"] {
-	--plan-canvas: #d8d6d0;
-	--plan-paper: #f3f1ea;
-	--plan-panel: #f3f1ea;
-	--plan-ink: #171715;
-	--plan-muted: #55534d;
-	--plan-faint: #55534d;
-	--plan-line: #b9b5aa;
-	--plan-accent: #171715;
-	--plan-code-bg: #e4e1d8;
-	--plan-heading-font: var(--font-mono);
-	--plan-body-font: Arial, Helvetica, sans-serif;
-	--plan-measure: 76ch;
-	--plan-radius: 1px;
-	--plan-padding: clamp(1.5rem, 5vw, 3.75rem);
-	--plan-shadow:
-		0 0 0 1px rgb(0 0 0 / 8%), 0 1px 2px -1px rgb(0 0 0 / 10%), 0 18px 45px -28px rgb(0 0 0 / 45%);
-	color-scheme: light;
-}
-
-:where(.plan-environment, .plan-theme-menu)[data-plan-theme="office-memo"] {
-	--plan-canvas: #d4cab0;
-	--plan-paper: #eee5cb;
-	--plan-panel: #eee5cb;
-	--plan-ink: #292418;
-	--plan-muted: #625b48;
-	--plan-faint: #625b48;
-	--plan-line: #b8aa88;
-	--plan-accent: #872f25;
-	--plan-code-bg: #dfd4b6;
-	--plan-heading-font: var(--font-mono);
-	--plan-body-font: var(--font-mono);
-	--plan-measure: 74ch;
-	--plan-radius: 2px;
-	--plan-padding: clamp(1.5rem, 5vw, 3.75rem);
-	--plan-shadow:
-		0 0 0 1px rgb(55 43 19 / 10%), 0 1px 3px -1px rgb(55 43 19 / 16%),
-		0 20px 48px -30px rgb(18 14 7 / 50%);
-	color-scheme: light;
-}
-
-:where(.plan-environment, .plan-theme-menu)[data-plan-theme="editorial"] {
-	--plan-canvas: #ded8cb;
-	--plan-paper: #f8f4eb;
-	--plan-panel: #f8f4eb;
-	--plan-ink: #28241f;
-	--plan-muted: #686057;
-	--plan-faint: #686057;
-	--plan-line: #cbc2b6;
-	--plan-accent: #8e422f;
-	--plan-code-bg: #ede7dc;
-	--plan-heading-font: Georgia, "Times New Roman", serif;
-	--plan-body-font: Georgia, "Times New Roman", serif;
-	--plan-measure: 68ch;
-	--plan-radius: 2px;
-	--plan-padding: clamp(1.75rem, 6vw, 4.5rem);
-	--plan-shadow:
-		0 0 0 1px rgb(0 0 0 / 6%), 0 2px 5px -2px rgb(0 0 0 / 10%), 0 24px 60px -38px rgb(0 0 0 / 42%);
-	color-scheme: light;
-}
-
-:where(.plan-environment, .plan-theme-menu)[data-plan-theme="technical-brief"] {
-	--plan-canvas: #cbd8dc;
-	--plan-paper: #eef5f6;
-	--plan-panel: #eef5f6;
-	--plan-ink: #17333c;
-	--plan-muted: #48646c;
-	--plan-faint: #48646c;
-	--plan-line: #b7cdd1;
-	--plan-accent: #006f89;
-	--plan-code-bg: #dcebed;
-	--plan-heading-font: var(--font-mono);
-	--plan-body-font: var(--font-sans);
-	--plan-measure: 76ch;
-	--plan-radius: 3px;
-	--plan-padding: clamp(1.5rem, 5vw, 3.75rem);
-	--plan-shadow:
-		0 0 0 1px rgb(10 55 66 / 10%), 0 2px 4px -2px rgb(10 55 66 / 14%),
-		0 22px 52px -34px rgb(7 37 45 / 45%);
-	color-scheme: light;
-}
-
-.plan-environment[data-plan-theme="technical-brief"] .plan-document {
-	background-image:
-		linear-gradient(rgb(25 99 115 / 5%) 1px, transparent 1px),
-		linear-gradient(90deg, rgb(25 99 115 / 5%) 1px, transparent 1px);
-	background-size: 24px 24px;
-}
-
-:where(.plan-environment, .plan-theme-menu)[data-plan-theme="executive"] {
-	--plan-canvas: #d9dad7;
-	--plan-paper: #fbfbf8;
-	--plan-panel: #fbfbf8;
-	--plan-ink: #202322;
-	--plan-muted: #5e6461;
-	--plan-faint: #5e6461;
-	--plan-line: #d4d8d5;
-	--plan-accent: #176c5b;
-	--plan-code-bg: #f0f2ef;
-	--plan-heading-font: var(--font-sans);
-	--plan-body-font: var(--font-sans);
-	--plan-measure: 74ch;
-	--plan-radius: 8px;
-	--plan-padding: clamp(1.75rem, 6vw, 4.5rem);
-	--plan-shadow:
-		0 0 0 1px rgb(0 0 0 / 5%), 0 1px 2px -1px rgb(0 0 0 / 6%), 0 20px 50px -32px rgb(0 0 0 / 35%);
-	color-scheme: light;
-}
-
-.plan-environment:not([data-plan-theme="hostplan"]) .hostplan-shell-header {
-	color: var(--plan-muted);
-}
-
-.plan-environment:not([data-plan-theme="hostplan"]) .hostplan-wordmark {
-	color: var(--plan-accent);
-}
-
-.plan-environment:not([data-plan-theme="hostplan"]) .hostplan-crumb {
-	color: var(--plan-muted);
-}
-
-.plan-environment:not([data-plan-theme="hostplan"]) .hostplan-crumb:hover {
-	color: var(--plan-ink);
-}
-
-.plan-environment:not([data-plan-theme="hostplan"]) .hostplan-crumb-divider {
-	color: var(--plan-line);
-}
-
-.plan-environment:not([data-plan-theme="hostplan"]) .plan-theme-trigger,
-.plan-environment:not([data-plan-theme="hostplan"]) .plan-open-in-control,
-.plan-environment:not([data-plan-theme="hostplan"]) .plan-open-in-menu {
-	background: var(--plan-paper);
-	border-color: var(--plan-line);
-	box-shadow:
-		0 0 0 1px rgb(0 0 0 / 5%),
-		0 1px 2px rgb(0 0 0 / 8%),
-		0 12px 30px -22px rgb(0 0 0 / 42%);
-	color: var(--plan-ink);
-}
-
-.plan-environment:not([data-plan-theme="hostplan"]) .plan-theme-trigger {
-	color: var(--plan-muted);
-}
-
-.plan-environment:not([data-plan-theme="hostplan"]) .plan-theme-trigger:hover,
-.plan-environment:not([data-plan-theme="hostplan"]) .plan-open-in-main:hover,
-.plan-environment:not([data-plan-theme="hostplan"]) .plan-open-in-caret:hover,
-.plan-environment:not([data-plan-theme="hostplan"]) .plan-open-in-item:hover,
-.plan-environment:not([data-plan-theme="hostplan"]) .plan-open-in-item:focus {
-	background: var(--plan-code-bg);
-	color: var(--plan-ink);
-}
-
-.plan-environment:not([data-plan-theme="hostplan"]) .plan-open-in-main,
-.plan-environment:not([data-plan-theme="hostplan"]) .plan-open-in-label {
-	color: var(--plan-ink);
-}
-
-.plan-environment:not([data-plan-theme="hostplan"]) .plan-open-in-caret,
-.plan-environment:not([data-plan-theme="hostplan"]) .plan-open-in-hint {
-	color: var(--plan-muted);
-}
-
-.plan-environment:not([data-plan-theme="hostplan"]) .plan-open-in-caret {
-	border-color: var(--plan-line);
-}
-
-.plan-environment:not([data-plan-theme="hostplan"]) .plan-code-gate-title {
-	color: var(--plan-ink);
-}
-
-.plan-environment:not([data-plan-theme="hostplan"]) .plan-code-gate-copy {
-	color: var(--plan-muted);
-}
-
-.plan-environment:not([data-plan-theme="hostplan"]) .plan-code-gate-input {
-	background: var(--plan-paper);
-	border-color: var(--plan-line);
-	color: var(--plan-ink);
-}
-
-.plan-environment:not([data-plan-theme="hostplan"]) .plan-code-gate-input::placeholder {
-	color: var(--plan-faint);
-}
-
-.plan-environment:not([data-plan-theme="hostplan"]) .plan-code-gate-input:focus {
-	border-color: var(--plan-accent);
-}
-
-.plan-environment:not([data-plan-theme="hostplan"]) .plan-code-gate-submit {
-	background: var(--plan-accent);
-	color: var(--plan-paper);
-}
-
-.plan-environment:not([data-plan-theme="hostplan"]) .plan-code-gate-link {
-	color: var(--plan-accent);
-}
-
-.plan-theme-menu {
-	--accent: var(--plan-code-bg);
-	--accent-foreground: var(--plan-ink);
-	--border: var(--plan-line);
-	--popover: var(--plan-panel);
-	--popover-foreground: var(--plan-ink);
-
-	background: var(--plan-panel);
-	border-color: var(--plan-line);
-	box-shadow:
-		0 0 0 1px rgb(0 0 0 / 5%),
-		0 4px 12px -4px rgb(0 0 0 / 14%),
-		0 20px 44px -26px rgb(0 0 0 / 38%);
-	color: var(--plan-ink);
-	max-height: min(42rem, calc(100dvh - 2rem));
-	overflow-y: auto;
-}
-
-.plan-theme-menu-title {
-	color: var(--plan-ink);
-}
-
-.plan-theme-menu-copy,
-.plan-theme-menu-reset {
-	color: var(--plan-muted);
-}
-
-.plan-theme-menu [data-slot="dropdown-menu-separator"] {
-	background: var(--plan-line);
-}
-
-.plan-theme-menu :is([data-slot="dropdown-menu-radio-item"], .plan-theme-menu-reset):focus,
-.plan-theme-menu :is([data-slot="dropdown-menu-radio-item"], .plan-theme-menu-reset):hover {
-	background: var(--plan-code-bg);
-	color: var(--plan-ink);
-}
-
 .plan-document-header {
 	border-bottom: 1px solid var(--plan-line);
 	margin-bottom: 2rem;
 	padding-bottom: 1.5rem;
-}
-
-.plan-environment[data-plan-theme="hostplan"] .plan-document-header {
-	margin-bottom: 2.5rem;
 }
 
 .plan-title {
@@ -497,11 +192,13 @@ html {
 	text-wrap: balance;
 }
 
-.plan-environment[data-plan-theme="hostplan"] .plan-title {
-	font-size: clamp(1.5rem, 2.5vw, 1.75rem);
+.plan-environment .plan-title {
+	color: var(--plan-ink);
+	font-size: clamp(2.5rem, 6vw, 3rem);
 	font-weight: 600;
-	letter-spacing: -0.022em;
-	line-height: 1.25;
+	letter-spacing: -0.04em;
+	line-height: 1.0834;
+	max-width: 20ch;
 }
 
 .plan-meta {
@@ -523,40 +220,124 @@ html {
 	color: var(--plan-line);
 }
 
-.plan-environment:not([data-plan-theme="hostplan"]) .plan-copy-id {
-	background: var(--plan-code-bg);
-	border-color: var(--plan-line);
-	color: var(--plan-ink);
+.plan-environment .plan-meta {
+	align-items: center;
+	font-variant-numeric: tabular-nums;
+	gap: 0.5rem;
+	line-height: 1.25rem;
+	margin-top: 1.5rem;
+	min-width: 0;
 }
 
-.plan-environment:not([data-plan-theme="hostplan"]) :is(.plan-status-badge, .plan-status-control),
-.plan-environment:not([data-plan-theme="hostplan"]) .plan-visibility-badge,
-.plan-environment:not([data-plan-theme="hostplan"]) .plan-dependency {
-	border-color: var(--plan-line);
+.plan-environment .plan-meta > * {
+	max-width: 100%;
+}
+
+.plan-environment .plan-meta-divider {
+	display: none;
+}
+
+.plan-environment .plan-meta-path {
+	flex-basis: 100%;
+	line-height: 1.25rem;
+	overflow-wrap: anywhere;
+}
+
+.plan-environment
+	.plan-meta
+	:is(.plan-status-badge, .plan-status-control, .plan-visibility-badge, .plan-dependency) {
+	background: color-mix(in oklch, var(--plan-panel) 72%, transparent);
+	border-color: transparent;
+	border-radius: 9999px;
+	box-shadow: 0 0 0 1px rgb(255 255 255 / 8%);
+	display: inline-flex;
+	min-height: 1.75rem;
+	padding-inline: 0.625rem;
+}
+
+.plan-environment :is(.plan-status-badge, .plan-status-control)[data-plan-status="draft"] {
+	background: oklch(0.65 0.12 295 / 12%);
+	box-shadow: 0 0 0 1px oklch(0.72 0.12 295 / 24%);
+	color: oklch(0.82 0.08 295);
+}
+
+.plan-environment :is(.plan-status-badge, .plan-status-control)[data-plan-status="in-progress"] {
+	background: oklch(0.7 0.12 225 / 12%);
+	box-shadow: 0 0 0 1px oklch(0.76 0.12 225 / 24%);
+	color: oklch(0.84 0.09 225);
+}
+
+.plan-environment :is(.plan-status-badge, .plan-status-control)[data-plan-status="approved"],
+.plan-environment :is(.plan-status-badge, .plan-status-control)[data-plan-status="done"] {
+	background: oklch(0.72 0.12 155 / 10%);
+	box-shadow: 0 0 0 1px oklch(0.76 0.12 155 / 22%);
+	color: oklch(0.82 0.1 155);
+}
+
+.plan-environment .plan-visibility-badge {
+	background: rgb(255 255 255 / 4%);
 	color: var(--plan-muted);
 }
 
-.plan-environment:not([data-plan-theme="hostplan"])
-	:is(.plan-status-badge, .plan-status-control)[data-plan-status="approved"],
-.plan-environment:not([data-plan-theme="hostplan"])
-	:is(.plan-status-badge, .plan-status-control)[data-plan-status="done"] {
-	color: var(--plan-status-success, #176c5b);
-}
-
-.plan-environment:not([data-plan-theme="hostplan"])
-	:is(.plan-status-badge, .plan-status-control)[data-plan-status="in-progress"] {
-	color: var(--plan-status-info, #006f89);
-}
-
-.plan-environment:not([data-plan-theme="hostplan"]) .plan-dependency[data-blocked="true"] {
-	border-color: color-mix(in srgb, #9a5d09 45%, transparent);
-	color: var(--plan-status-blocked, #795015);
+.plan-environment .plan-copy-id {
+	background: oklch(0.72 0.1 195 / 10%);
+	box-shadow: 0 0 0 1px oklch(0.76 0.1 195 / 22%);
+	color: oklch(0.84 0.08 195);
 }
 
 .plan-document-body,
 .plan-document-header {
 	margin-inline: auto;
 	max-width: var(--plan-measure);
+}
+
+/* The article stays narrow enough to read while supporting metadata gets a
+   quiet, scannable line of its own. */
+.plan-environment .hostplan-shell {
+	max-width: 75rem;
+	padding-block: 2rem 6rem;
+	padding-inline: clamp(1.25rem, 4vw, 3rem);
+}
+
+.plan-environment .hostplan-shell-header {
+	margin-bottom: 5rem;
+	margin-inline: auto;
+	max-width: 45rem;
+	min-height: 2.5rem;
+}
+
+.plan-environment .hostplan-wordmark,
+.plan-environment .hostplan-crumb {
+	transition-property: color, opacity;
+	transition-duration: 150ms;
+	transition-timing-function: ease-out;
+}
+
+.plan-environment .hostplan-wordmark:focus-visible,
+.plan-environment .hostplan-crumb:focus-visible {
+	border-radius: 0.25rem;
+	outline: 2px solid color-mix(in oklch, var(--plan-accent) 55%, transparent);
+	outline-offset: 0.25rem;
+}
+
+.plan-environment .plan-document {
+	margin-inline: auto;
+	max-width: 45rem;
+	width: 100%;
+}
+
+.plan-environment .plan-document-header {
+	border: 0;
+	margin: 0 0 4rem;
+	max-width: 45rem;
+	padding: 0;
+	width: 100%;
+}
+
+.plan-environment .plan-document-body {
+	margin: 0;
+	max-width: 45rem;
+	min-width: 0;
 }
 
 .plan-prose {
@@ -581,8 +362,10 @@ html {
 	line-height: 1.75;
 }
 
-.plan-environment[data-plan-theme="hostplan"] .plan-prose {
-	font-size: 0.9375rem;
+.plan-environment .plan-prose {
+	--tw-prose-body: var(--plan-body-ink);
+	color: var(--plan-body-ink);
+	font-size: 1rem;
 	line-height: 1.6;
 }
 
@@ -593,50 +376,59 @@ html {
 	text-wrap: balance;
 }
 
-.plan-environment[data-plan-theme="hostplan"] .plan-prose :where(h1, h2) {
-	font-size: 1.5rem;
+.plan-environment .plan-prose :where(h1, h2) {
+	color: var(--plan-ink);
+	font-size: 1.75rem;
+	font-weight: 650;
+	letter-spacing: -0.03em;
+	line-height: 2.25rem;
+	margin-bottom: 2rem;
+	margin-top: 4rem;
+}
+
+.plan-environment .plan-prose :where(h3) {
+	border-bottom: 1px solid color-mix(in oklch, var(--plan-accent) 24%, transparent);
+	color: color-mix(in oklch, var(--plan-accent) 80%, white);
+	font-size: 1.25rem;
 	font-weight: 600;
-	line-height: 2rem;
-	margin-bottom: 1rem;
+	line-height: 1.75rem;
+	margin-bottom: 1.5rem;
 	margin-top: 3rem;
+	padding-bottom: 0.5rem;
 }
 
-.plan-environment[data-plan-theme="hostplan"] .plan-prose :where(h3) {
-	font-size: 1.125rem;
-	font-weight: 600;
-	line-height: 1.5rem;
-	margin-bottom: 0.75rem;
-	margin-top: 2rem;
-}
-
-.plan-environment[data-plan-theme="hostplan"] .plan-prose :where(h4) {
+.plan-environment .plan-prose :where(h4) {
 	font-size: 1rem;
-	font-weight: 600;
+	font-weight: 500;
 	line-height: 1.5rem;
 	margin-bottom: 0.5rem;
-	margin-top: 1.5rem;
+	margin-top: 2rem;
 }
 
 .plan-prose :where(p, li, blockquote, figcaption) {
 	text-wrap: pretty;
 }
 
-.plan-environment[data-plan-theme="hostplan"] .plan-prose :where(p) {
-	margin-bottom: 1rem;
-	margin-top: 1rem;
+.plan-environment .plan-prose :where(p) {
+	margin-bottom: 1.5rem;
+	margin-top: 0;
 }
 
-.plan-environment[data-plan-theme="hostplan"] .plan-prose :where(ul, ol) {
-	margin-bottom: 1.25rem;
-	margin-top: 1.25rem;
+.plan-environment .plan-prose :where(ul, ol) {
+	margin-bottom: 1.5rem;
+	margin-top: 1.5rem;
 }
 
-.plan-environment[data-plan-theme="hostplan"] .plan-prose :where(li) {
+.plan-environment .plan-prose :where(li) {
 	margin-bottom: 0.5rem;
 	margin-top: 0.5rem;
 }
 
-.plan-environment[data-plan-theme="hostplan"] .plan-prose :where(strong) {
+.plan-environment .plan-prose > :first-child {
+	margin-top: 0;
+}
+
+.plan-environment .plan-prose :where(strong) {
 	font-weight: 600;
 }
 
@@ -646,18 +438,42 @@ html {
 	text-underline-offset: 0.2em;
 }
 
+.plan-environment .plan-prose :where(a) {
+	transition-property: color, text-decoration-color;
+	transition-duration: 150ms;
+	transition-timing-function: ease-out;
+}
+
+.plan-environment .plan-prose :where(a:hover) {
+	color: color-mix(in oklch, var(--plan-accent) 84%, white);
+	text-decoration-color: currentColor;
+}
+
+.plan-environment .plan-prose :where(a:focus-visible) {
+	border-radius: 0.2rem;
+	outline: 2px solid color-mix(in oklch, var(--plan-accent) 55%, transparent);
+	outline-offset: 0.2rem;
+}
+
 .plan-prose :where(blockquote) {
 	border-left-color: var(--plan-accent);
 	color: var(--plan-muted);
 }
 
-.plan-environment[data-plan-theme="hostplan"] .plan-prose :where(blockquote) {
+.plan-environment .plan-prose :where(blockquote) {
+	border-left-width: 1px;
 	font-style: normal;
 	font-weight: 400;
+	margin-block: 2rem;
+	padding-left: 1.5rem;
 }
 
 .plan-prose :where(hr) {
 	border-color: var(--plan-line);
+}
+
+.plan-environment .plan-prose :where(hr) {
+	margin-block: 4rem;
 }
 
 .plan-prose :where(img) {
@@ -665,8 +481,76 @@ html {
 	outline-offset: -1px;
 }
 
-.plan-environment[data-plan-scheme="dark"] .plan-prose :where(img) {
+.plan-environment .plan-prose :where(img) {
 	outline-color: rgb(255 255 255 / 10%);
+}
+
+.plan-environment .plan-prose :where(img) {
+	border-radius: 0.5rem;
+	margin-block: 2.5rem;
+}
+
+.plan-mermaid {
+	align-items: center;
+	background: color-mix(in oklch, var(--plan-panel) 88%, black);
+	border: 1px solid var(--plan-line);
+	border-radius: 1rem;
+	box-shadow: inset 0 1px rgb(255 255 255 / 3%);
+	box-sizing: border-box;
+	display: grid;
+	height: clamp(22rem, 70vw, 36rem);
+	justify-items: center;
+	margin-block: 2rem;
+	overflow: auto;
+	padding: 1.5rem;
+	scrollbar-gutter: stable;
+	transition: border-color 150ms ease-out;
+}
+
+.plan-mermaid:hover {
+	border-color: color-mix(in oklch, var(--plan-line) 68%, var(--plan-muted));
+}
+
+.plan-mermaid:focus-visible {
+	outline: 2px solid color-mix(in oklch, var(--plan-accent) 55%, transparent);
+	outline-offset: 0.25rem;
+}
+
+.plan-mermaid[data-mermaid-state="loading"],
+.plan-mermaid[data-mermaid-state="rendering"] {
+	color: transparent;
+	font-size: 0;
+}
+
+.plan-mermaid[data-mermaid-state="loading"]::before,
+.plan-mermaid[data-mermaid-state="rendering"]::before {
+	background:
+		linear-gradient(var(--plan-line) 0 0) 50% 0 / 44% 3rem no-repeat,
+		linear-gradient(var(--plan-line) 0 0) 7% 7.5rem / 28% 3rem no-repeat,
+		linear-gradient(var(--plan-line) 0 0) 50% 7.5rem / 28% 3rem no-repeat,
+		linear-gradient(var(--plan-line) 0 0) 93% 7.5rem / 28% 3rem no-repeat,
+		linear-gradient(var(--plan-line) 0 0) 22% 15rem / 32% 3rem no-repeat,
+		linear-gradient(var(--plan-line) 0 0) 78% 15rem / 32% 3rem no-repeat;
+	content: "";
+	height: 18rem;
+	max-width: 30rem;
+	opacity: 0.55;
+	width: 88%;
+}
+
+.plan-mermaid[data-mermaid-state="rendered"] svg {
+	display: block;
+	height: 100%;
+	max-height: 100%;
+	max-width: 100%;
+	width: 100%;
+}
+
+.plan-mermaid[data-mermaid-state="error"] {
+	color: var(--plan-muted);
+	font-size: 0.875rem;
+	line-height: 1.5rem;
+	text-align: center;
 }
 
 .plan-empty-state {
@@ -687,75 +571,6 @@ html {
 	line-height: 1.5rem;
 	margin-top: 0.5rem;
 	text-wrap: pretty;
-}
-
-.plan-environment[data-plan-theme="working-draft"] .plan-title,
-.plan-environment[data-plan-theme="office-memo"] .plan-title,
-.plan-environment[data-plan-theme="technical-brief"] .plan-title {
-	letter-spacing: 0.02em;
-	text-transform: uppercase;
-}
-
-.plan-environment[data-plan-theme="working-draft"] .plan-prose :where(h2) {
-	border-bottom: 1px solid var(--plan-ink);
-	padding-bottom: 0.35em;
-	text-transform: uppercase;
-}
-
-.plan-environment[data-plan-theme="office-memo"] .plan-document-header {
-	border-bottom-style: double;
-	border-bottom-width: 3px;
-}
-
-.plan-environment[data-plan-theme="office-memo"] .plan-prose :where(h2, h3) {
-	letter-spacing: 0.04em;
-	text-decoration: underline;
-	text-decoration-thickness: 1px;
-	text-underline-offset: 0.25em;
-	text-transform: uppercase;
-}
-
-.plan-environment[data-plan-theme="editorial"] .plan-title {
-	font-size: clamp(2rem, 5vw, 3.35rem);
-	font-weight: 500;
-	letter-spacing: -0.035em;
-}
-
-.plan-environment[data-plan-theme="editorial"] .plan-prose {
-	font-size: 1.04rem;
-	line-height: 1.82;
-}
-
-.plan-environment[data-plan-theme="technical-brief"] .plan-prose :where(h2) {
-	border-left: 3px solid var(--plan-accent);
-	letter-spacing: 0.04em;
-	padding-left: 0.75rem;
-	text-transform: uppercase;
-}
-
-.plan-environment[data-plan-theme="executive"] .plan-title {
-	font-weight: 600;
-}
-
-.plan-environment[data-plan-theme="executive"] .plan-prose :where(h2) {
-	border-bottom: 1px solid var(--plan-line);
-	padding-bottom: 0.45em;
-}
-
-.plan-environment[data-plan-theme="midnight"] .plan-prose :where(h2) {
-	border-left: 3px solid var(--plan-accent);
-	padding-left: 0.75rem;
-}
-
-.plan-environment[data-plan-theme="terminal"] :is(.plan-title, .plan-prose h2) {
-	letter-spacing: 0.035em;
-	text-transform: uppercase;
-}
-
-.plan-environment[data-plan-theme="nocturne"] .plan-title {
-	font-size: clamp(2rem, 5vw, 3.2rem);
-	font-weight: 500;
-	letter-spacing: -0.035em;
 }
 
 .plan-html-viewer {
@@ -807,55 +622,6 @@ html {
 	display: grid;
 	place-content: center;
 	text-align: center;
-}
-
-.theme-swatch {
-	box-shadow:
-		0 0 0 1px rgb(0 0 0 / 10%),
-		0 1px 2px rgb(0 0 0 / 8%);
-}
-
-.theme-swatch[data-theme-swatch="hostplan"] {
-	background: linear-gradient(135deg, #000 0 64%, #5ed6d0 64%);
-	box-shadow: 0 0 0 1px rgb(255 255 255 / 10%);
-}
-
-.theme-swatch[data-theme-swatch="midnight"] {
-	background: linear-gradient(135deg, #111a2d 0 68%, #7ba9ff 68%);
-	box-shadow: 0 0 0 1px rgb(255 255 255 / 10%);
-}
-
-.theme-swatch[data-theme-swatch="terminal"] {
-	background: linear-gradient(135deg, #101512 0 68%, #79d492 68%);
-	box-shadow: 0 0 0 1px rgb(255 255 255 / 10%);
-}
-
-.theme-swatch[data-theme-swatch="nocturne"] {
-	background: linear-gradient(135deg, #1e171f 0 68%, #e39cb1 68%);
-	box-shadow: 0 0 0 1px rgb(255 255 255 / 10%);
-}
-
-.theme-swatch[data-theme-swatch="working-draft"] {
-	background: linear-gradient(135deg, #f3f1ea 0 68%, #171715 68%);
-}
-
-.theme-swatch[data-theme-swatch="office-memo"] {
-	background: linear-gradient(135deg, #eee5cb 0 68%, #872f25 68%);
-}
-
-.theme-swatch[data-theme-swatch="editorial"] {
-	background: linear-gradient(135deg, #f8f4eb 0 68%, #8e422f 68%);
-}
-
-.theme-swatch[data-theme-swatch="technical-brief"] {
-	background:
-		linear-gradient(rgb(25 99 115 / 15%) 1px, transparent 1px),
-		linear-gradient(90deg, rgb(25 99 115 / 15%) 1px, #eef5f6 1px);
-	background-size: 6px 6px;
-}
-
-.theme-swatch[data-theme-swatch="executive"] {
-	background: linear-gradient(135deg, #fbfbf8 0 68%, #176c5b 68%);
 }
 
 /* ---------------------------------------------------------------------------
@@ -965,15 +731,9 @@ html {
 	line-height: 1.6;
 }
 
-.plan-environment[data-plan-theme="hostplan"] .prose pre.shiki {
+.plan-environment .prose pre.shiki {
 	line-height: 1.25rem;
 	padding: 0.875rem 1rem;
-}
-
-.plan-environment[data-plan-scheme="dark"] .shiki span {
-	/* biome-ignore lint/complexity/noImportantStyles: Shiki writes each light token
-	   as an inline color, so the selected dark token must override that inline value. */
-	color: var(--shiki-dark) !important;
 }
 
 .prose :where(code):not(:where(pre code)) {
@@ -996,7 +756,7 @@ html {
 	white-space: nowrap;
 }
 
-.plan-environment[data-plan-theme="hostplan"] .prose :where(table) {
+.plan-environment .prose :where(table) {
 	font-size: 0.8125rem;
 	font-variant-numeric: tabular-nums;
 	line-height: 1.25rem;
@@ -1004,7 +764,7 @@ html {
 	margin-top: 1.5rem;
 }
 
-.plan-environment[data-plan-theme="hostplan"] .prose :where(thead th) {
+.plan-environment .prose :where(thead th) {
 	color: var(--plan-faint);
 	font-size: 0.6875rem;
 	font-weight: 600;
@@ -1013,34 +773,63 @@ html {
 	text-transform: uppercase;
 }
 
-.plan-environment[data-plan-theme="hostplan"] .prose :where(tbody td) {
+.plan-environment .prose :where(tbody td) {
 	padding: 0.75rem 1rem;
 }
 
-.plan-environment[data-plan-theme="hostplan"]
-	.prose
-	:where(thead th:first-child, tbody td:first-child) {
+.plan-environment .prose :where(thead th:first-child, tbody td:first-child) {
 	padding-left: 0;
 }
 
-.plan-environment[data-plan-theme="hostplan"]
-	.prose
-	:where(thead th:last-child, tbody td:last-child) {
+.plan-environment .prose :where(thead th:last-child, tbody td:last-child) {
 	padding-right: 0;
 }
 
 @media (max-width: 640px) {
-	.plan-environment:not([data-plan-theme="hostplan"]) {
-		--plan-padding: 1.25rem;
-		--plan-radius: 4px;
+	.plan-environment .hostplan-shell {
+		padding-block: 1.5rem 5rem;
+		padding-inline: 1rem;
 	}
 
-	.plan-environment[data-plan-theme="hostplan"] .plan-title {
-		font-size: 1.375rem;
+	.plan-environment .hostplan-shell-header {
+		margin-bottom: 3rem;
+		min-height: 0;
 	}
 
-	.plan-environment[data-plan-theme="editorial"] .plan-title {
+	.plan-environment .plan-document-header {
+		margin-bottom: 3rem;
+	}
+
+	.plan-environment .plan-title {
 		font-size: 2rem;
+		letter-spacing: -0.035em;
+		line-height: 2.5rem;
+		max-width: none;
+	}
+
+	.plan-environment .plan-prose :where(h1, h2) {
+		font-size: 1.5rem;
+		line-height: 2rem;
+		margin-top: 3rem;
+	}
+
+	.plan-environment .hostplan-open-in {
+		bottom: 1rem;
+		left: 1rem;
+		right: 1rem;
+	}
+
+	.plan-environment .plan-open-in-control {
+		width: 100%;
+	}
+
+	.plan-environment .plan-open-in-main {
+		flex: 1;
+	}
+
+	.plan-environment .plan-open-in-menu {
+		max-width: 100%;
+		width: 16rem;
 	}
 }
 
@@ -1055,7 +844,7 @@ html {
 		display: contents;
 	}
 
-	.hostplan-shell {
+	.plan-environment .hostplan-shell {
 		max-width: none;
 		min-height: 0;
 		padding: 0;

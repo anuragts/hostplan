@@ -134,7 +134,7 @@ export function pgPlanStore(db: SupabaseClient, userId?: string): PlanStore {
 					format: input.format,
 					visibility,
 					status: input.status ?? DEFAULT_STATUS,
-					theme: input.theme ?? DEFAULT_PLAN_THEME,
+					theme: DEFAULT_PLAN_THEME,
 					depends_on: input.dependsOn ?? null,
 					code: code ?? null,
 					storage_path: path,
@@ -205,7 +205,7 @@ export function pgPlanStore(db: SupabaseClient, userId?: string): PlanStore {
 					code,
 					...(patch.title === undefined ? {} : { title: patch.title }),
 					...(patch.status === undefined ? {} : { status: patch.status }),
-					...(patch.theme === undefined ? {} : { theme: patch.theme }),
+					theme: DEFAULT_PLAN_THEME,
 					...(patch.dependsOn === undefined ? {} : { depends_on: patch.dependsOn }),
 				})
 				.eq("id", id)

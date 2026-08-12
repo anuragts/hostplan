@@ -1,13 +1,12 @@
 "use client";
 
-import { DEFAULT_PLAN_THEME } from "@hostplan/core/theme";
 import { PlanEnvironment } from "@/components/plan-document";
 import { Shell } from "@/components/shell";
 import { Button } from "@/components/ui/button";
 
 export default function PlanError({ reset }: { error: Error; reset: () => void }) {
 	return (
-		<PlanEnvironment id="plan-error" theme={DEFAULT_PLAN_THEME}>
+		<PlanEnvironment id="plan-error">
 			<Shell crumbs={[{ label: "could not load plan" }]}>
 				<div className="mx-auto max-w-[76ch] py-16 text-center">
 					<h1 className="text-balance font-semibold text-2xl text-ink tracking-tight">

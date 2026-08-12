@@ -1,26 +1,10 @@
-import { PLAN_THEME_IDS, PLAN_THEMES, type PlanThemeId, planTheme } from "@hostplan/core/theme";
 import type { ReactNode } from "react";
-import { planThemeStorageKey } from "@/lib/plan-theme-storage";
 
 export const planDocumentId = (id: string) => `plan-document-${id}`;
 
-export function PlanEnvironment({
-	id,
-	theme,
-	children,
-}: {
-	id: string;
-	theme: PlanThemeId;
-	children: ReactNode;
-}) {
+export function PlanEnvironment({ id, children }: { id: string; children: ReactNode }) {
 	return (
-		<div
-			id={planDocumentId(id)}
-			data-plan-theme={theme}
-			data-plan-scheme={planTheme(theme).scheme}
-			className="plan-environment"
-			suppressHydrationWarning
-		>
+		<div id={planDocumentId(id)} className="plan-environment">
 			{children}
 		</div>
 	);
@@ -28,21 +12,4 @@ export function PlanEnvironment({
 
 export function PlanDocument({ children }: { children: ReactNode }) {
 	return <section className="plan-document">{children}</section>;
-}
-
-/**
- * The environment root is already parsed when this inline script runs, so a
- * personal reader override lands before first paint rather than flashing from
- * the author theme after hydration.
- */
-export function PlanThemeBootstrap({ id }: { id: string }) {
-	const schemes = Object.fromEntries(PLAN_THEMES.map((theme) => [theme.id, theme.scheme]));
-	const script = `try{const raw=localStorage.getItem(${JSON.stringify(planThemeStorageKey(id))});if(raw){const value=JSON.parse(raw);if(value&&value.mode==="personal"&&${JSON.stringify(PLAN_THEME_IDS)}.includes(value.theme)){const node=document.getElementById(${JSON.stringify(planDocumentId(id))});if(node){node.dataset.planTheme=value.theme;node.dataset.planScheme=${JSON.stringify(schemes)}[value.theme]}}}}catch{}`;
-	return (
-		<script
-			// Static ids and a closed theme registry are the only values embedded.
-			// biome-ignore lint/security/noDangerouslySetInnerHtml: pre-paint local preference bootstrap
-			dangerouslySetInnerHTML={{ __html: script }}
-		/>
-	);
 }

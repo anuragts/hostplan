@@ -1,10 +1,8 @@
 import {
 	canRead,
 	isId,
-	isPlanTheme,
 	isStatus,
 	normalizeCode,
-	PLAN_THEME_IDS,
 	shareUrls,
 	validateCustomHtml,
 } from "@hostplan/core";
@@ -75,7 +73,6 @@ export async function PATCH(request: Request, { params }: Params) {
 		rotateCode?: boolean;
 		title?: string;
 		status?: string;
-		theme?: string;
 		content?: string;
 		dependsOn?: string | null;
 	};
@@ -87,13 +84,6 @@ export async function PATCH(request: Request, { params }: Params) {
 	if (body.status !== undefined && !isStatus(body.status)) {
 		return Response.json({ error: `\`${body.status}\` is not a status` }, { status: 400 });
 	}
-	if (body.theme !== undefined && !isPlanTheme(body.theme)) {
-		return Response.json(
-			{ error: `theme must be one of ${PLAN_THEME_IDS.join(", ")}` },
-			{ status: 400 },
-		);
-	}
-
 	const store = planStoreFor(viewer);
 	if (typeof body.content === "string") {
 		const existing = await store.get(id);
@@ -116,7 +106,6 @@ export async function PATCH(request: Request, { params }: Params) {
 		...(body.rotateCode === true ? { rotateCode: true } : {}),
 		...(body.title === undefined ? {} : { title: body.title }),
 		...(isStatus(body.status) ? { status: body.status } : {}),
-		...(isPlanTheme(body.theme) ? { theme: body.theme } : {}),
 		...(typeof body.content === "string" ? { content: body.content } : {}),
 		// `null` detaches a plan from its stack; a string re-chains it.
 		...(body.dependsOn === null

@@ -13,7 +13,7 @@ import {
 	projectDirName,
 	removePlan,
 } from "../src/store";
-import { isPlanTheme, normalizePlanTheme, PLAN_THEME_IDS, PLAN_THEMES } from "../src/theme";
+import { normalizePlanTheme } from "../src/theme";
 
 describe("slugify", () => {
 	test("makes branch names filesystem safe", () => {
@@ -60,25 +60,11 @@ describe("ids", () => {
 	});
 });
 
-describe("plan themes", () => {
-	test("ships a closed registry and a safe backwards-compatible default", () => {
-		expect(PLAN_THEME_IDS).toEqual([
-			"hostplan",
-			"midnight",
-			"terminal",
-			"nocturne",
-			"working-draft",
-			"office-memo",
-			"editorial",
-			"technical-brief",
-			"executive",
-		]);
-		expect(isPlanTheme("editorial")).toBe(true);
-		expect(PLAN_THEMES.filter((theme) => theme.scheme === "dark").map((theme) => theme.id)).toEqual(
-			["hostplan", "midnight", "terminal", "nocturne"],
-		);
-		expect(isPlanTheme("custom-css")).toBe(false);
+describe("plan presentation", () => {
+	test("normalizes retired metadata to the base reader", () => {
+		expect(normalizePlanTheme("editorial")).toBe("hostplan");
 		expect(normalizePlanTheme("custom-css")).toBe("hostplan");
+		expect(normalizePlanTheme(undefined)).toBe("hostplan");
 	});
 });
 
@@ -112,10 +98,10 @@ describe("serialization round-trip", () => {
 		expect(reparsed.data.author).toBe("anurag");
 	});
 
-	test("source theme is extracted as owned metadata rather than passed through", () => {
+	test("retired source themes are discarded rather than passed through", () => {
 		const parsed = readSourceFrontmatter("---\ntheme: editorial\nauthor: anurag\n---\nbody\n");
-		expect(parsed.theme).toBe("editorial");
 		expect(parsed.data).toEqual({ author: "anurag" });
+		expect("theme" in parsed).toBe(false);
 	});
 
 	test("old and hand-edited files resolve to the default theme", () => {

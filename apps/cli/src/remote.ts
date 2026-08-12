@@ -1,11 +1,4 @@
-import type {
-	PlanMeta,
-	PlanStatus,
-	PlanThemeId,
-	Remote,
-	StoredPlan,
-	Visibility,
-} from "@hostplan/core";
+import type { PlanMeta, PlanStatus, Remote, StoredPlan, Visibility } from "@hostplan/core";
 import { resolveRemote } from "@hostplan/core";
 import { CliError } from "./output";
 
@@ -25,7 +18,6 @@ export interface PushInput {
 	id?: string;
 	code?: string;
 	status?: PlanStatus;
-	theme?: PlanThemeId;
 	dependsOn?: string;
 }
 
@@ -34,7 +26,6 @@ export interface PatchInput {
 	content?: string;
 	dependsOn?: string | null;
 	title?: string;
-	theme?: PlanThemeId;
 }
 
 const TIMEOUT_MS = 20_000;

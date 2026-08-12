@@ -15,7 +15,7 @@ export function CopyId({ id }: { id: string }) {
 					setTimeout(() => setCopied(false), 1200);
 				});
 			}}
-			className="plan-copy-id rounded border border-line bg-surface-raised px-2 py-0.5 font-mono text-xs text-ink-muted transition-colors hover:border-ink-faint hover:text-ink"
+			className="plan-copy-id relative min-h-8 rounded-full bg-surface-raised px-2.5 font-mono text-xs text-ink-muted shadow-[0_0_0_1px_rgba(255,255,255,0.08)] outline-none transition-[background-color,box-shadow,color,scale] duration-150 ease-out after:absolute after:-inset-1 hover:text-ink hover:shadow-[0_0_0_1px_rgba(255,255,255,0.13)] focus-visible:ring-2 focus-visible:ring-brand/40 active:scale-[0.96]"
 			title="Copy plan id"
 		>
 			{copied ? "copied" : id}

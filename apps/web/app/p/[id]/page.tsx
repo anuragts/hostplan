@@ -1,6 +1,5 @@
 import {
 	canRead,
-	DEFAULT_PLAN_THEME,
 	displayPath,
 	isId,
 	normalizeCode,
@@ -17,9 +16,9 @@ import { CodeGate } from "@/components/code-gate";
 import { CopyId } from "@/components/copy-id";
 import { CustomHtmlBadge } from "@/components/custom-html-badge";
 import { HtmlPlanFrame } from "@/components/html-plan-frame";
+import { MermaidRenderer } from "@/components/mermaid-renderer";
 import { OpenIn } from "@/components/open-in";
-import { PlanDocument, PlanEnvironment, PlanThemeBootstrap } from "@/components/plan-document";
-import { PlanThemeControl } from "@/components/plan-theme-control";
+import { PlanDocument, PlanEnvironment } from "@/components/plan-document";
 import { Shell } from "@/components/shell";
 import { ProseSkeleton } from "@/components/skeletons";
 import { StatusBadge } from "@/components/status-badge";
@@ -89,14 +88,19 @@ async function PlanBody({ plan }: { plan: StoredPlan }) {
 		);
 	}
 	const html = await renderPlanBody(`${meta.id}:${meta.updated}`, body);
+	const containerId = `plan-body-${meta.id}`;
 	return (
-		<article
-			className="plan-prose prose max-w-none prose-pre:bg-transparent prose-pre:p-0"
-			// The pipeline runs server-side and drops raw HTML, so nothing from a plan
-			// reaches the DOM as markup. HTML plans use the sandboxed iframe above.
-			// biome-ignore lint/security/noDangerouslySetInnerHtml: markdown is sanitized by construction
-			dangerouslySetInnerHTML={{ __html: html }}
-		/>
+		<>
+			<article
+				id={containerId}
+				className="plan-prose prose max-w-none prose-pre:bg-transparent prose-pre:p-0"
+				// The pipeline runs server-side and drops raw HTML, so nothing from a plan
+				// reaches the DOM as markup. HTML plans use the sandboxed iframe above.
+				// biome-ignore lint/security/noDangerouslySetInnerHtml: markdown is sanitized by construction
+				dangerouslySetInnerHTML={{ __html: html }}
+			/>
+			<MermaidRenderer containerId={containerId} />
+		</>
 	);
 }
 
@@ -131,11 +135,7 @@ export default async function PlanPage({
 		// `plan.body` is never referenced on this path, so the content is absent
 		// from the response rather than hidden in it.
 		return (
-			<PlanEnvironment
-				id={meta.id}
-				theme={meta.format === "html" ? DEFAULT_PLAN_THEME : meta.theme}
-			>
-				{meta.format === "md" && <PlanThemeBootstrap id={meta.id} />}
+			<PlanEnvironment id={meta.id}>
 				<Shell crumbs={[{ label: "private" }]}>
 					<CodeGate
 						id={id}
@@ -173,23 +173,23 @@ export default async function PlanPage({
 		: [{ label: meta.project }, { label: meta.branch }];
 
 	return (
-		<PlanEnvironment id={meta.id} theme={meta.format === "html" ? DEFAULT_PLAN_THEME : meta.theme}>
-			{meta.format === "md" && !isOwner && <PlanThemeBootstrap id={meta.id} />}
-			<Shell crumbs={crumbs}>
-				<div className="mb-4 flex justify-end print:hidden">
-					{meta.format === "html" ? (
-						<CustomHtmlBadge />
-					) : (
-						<PlanThemeControl id={meta.id} authorTheme={meta.theme} isOwner={isOwner} />
-					)}
-				</div>
-
+		<PlanEnvironment id={meta.id}>
+			<Shell
+				crumbs={crumbs}
+				action={
+					meta.format === "html" ? (
+						<div className="plan-reader-toolbar print:hidden">
+							<CustomHtmlBadge />
+						</div>
+					) : undefined
+				}
+			>
 				{/* Room at the bottom so the floating button never covers the last lines. */}
-				<div className="plan-page-content pb-24">
+				<main className="plan-page-content pb-24" data-plan-format={meta.format}>
 					<PlanDocument>
 						<header className="plan-document-header">
 							<h1 className="plan-title">{meta.title}</h1>
-							<div className="plan-meta">
+							<aside className="plan-meta" aria-label="Plan details">
 								<CopyId id={meta.id} />
 								{/* The owner can move the plan through its lifecycle from here;
 							    everyone else sees where it got to. */}
@@ -210,15 +210,17 @@ export default async function PlanPage({
 										</a>
 									</span>
 								)}
-								<span title={absoluteTime(meta.updated)}>updated {relativeTime(meta.updated)}</span>
+								<span className="plan-meta-updated" title={absoluteTime(meta.updated)}>
+									updated {relativeTime(meta.updated)}
+								</span>
 								{/* Where the plan sits on disk is the owner's business only. */}
 								{isOwner && !isRemoteStore() && (
 									<>
 										<span className="plan-meta-divider">|</span>
-										<span className="font-mono">{displayPath(plan.path)}</span>
+										<span className="plan-meta-path font-mono">{displayPath(plan.path)}</span>
 									</>
 								)}
-							</div>
+							</aside>
 						</header>
 
 						<div className="plan-document-body">
@@ -237,7 +239,7 @@ export default async function PlanPage({
 							)}
 						</div>
 					</PlanDocument>
-				</div>
+				</main>
 
 				<OpenIn
 					targets={buildOpenTargets({

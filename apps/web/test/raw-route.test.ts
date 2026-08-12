@@ -26,14 +26,20 @@ const plan: StoredPlan = {
 let storedPlan: StoredPlan | undefined = plan;
 let viewer: Viewer = { kind: "anonymous" };
 
+const mockedStore = () => ({
+	get: async () => storedPlan,
+});
+
 mock.module("@/lib/store", () => ({
-	adminPlanStore: () => ({
-		get: async () => storedPlan,
-	}),
+	adminPlanStore: mockedStore,
+	planStoreFor: mockedStore,
+	planStore: mockedStore,
+	isRemoteStore: () => false,
 }));
 
 mock.module("@/lib/current-viewer", () => ({
 	currentViewer: async () => viewer,
+	unauthorized: () => Response.json({ error: "unauthorized" }, { status: 401 }),
 }));
 
 const { GET } = await import("../app/api/raw/[id]/route");

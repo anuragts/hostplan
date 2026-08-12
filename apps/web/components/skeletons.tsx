@@ -1,3 +1,4 @@
+import { PlanDocument, PlanEnvironment } from "@/components/plan-document";
 import { Shell } from "@/components/shell";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -76,21 +77,25 @@ export function ProseSkeleton() {
 /** The plan page: header block, then the prose placeholder. */
 export function PlanPageSkeleton() {
 	return (
-		<Shell crumbs={[]}>
-			<div className="mb-4 flex justify-end">
-				<Skeleton className="h-10 w-32 rounded-lg" />
-			</div>
-			<div className="mx-auto max-w-[76ch] pb-24">
-				<div className="mb-10 border-b border-line pb-6">
-					<Skeleton className="h-7 w-3/5" />
-					<div className="mt-4 flex gap-3">
-						<Skeleton className="h-5 w-16" />
-						<Skeleton className="h-5 w-20" />
-						<Skeleton className="h-5 w-24" />
-					</div>
-				</div>
-				<ProseSkeleton />
-			</div>
-		</Shell>
+		<PlanEnvironment id="plan-loading">
+			<Shell crumbs={[]}>
+				<main className="plan-page-content pb-24">
+					<PlanDocument>
+						<header className="plan-document-header">
+							<Skeleton className="h-10 w-4/5" />
+							<div className="plan-meta" aria-hidden>
+								<Skeleton className="h-8 w-20" />
+								<Skeleton className="h-5 w-16" />
+								<Skeleton className="h-5 w-20" />
+								<Skeleton className="h-7 w-24" />
+							</div>
+						</header>
+						<div className="plan-document-body">
+							<ProseSkeleton />
+						</div>
+					</PlanDocument>
+				</main>
+			</Shell>
+		</PlanEnvironment>
 	);
 }

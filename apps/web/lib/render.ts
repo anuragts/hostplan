@@ -44,6 +44,55 @@ const LANGS: RehypeShikiOptions["langs"] = [
 /** Identical fences recur across revisions of a plan; highlight each once. */
 const fenceCache: NonNullable<RehypeShikiOptions["cache"]> = new Map();
 
+interface HastNode {
+	type: string;
+	tagName?: string;
+	properties?: Record<string, unknown>;
+	children?: HastNode[];
+	value?: string;
+}
+
+function hasClass(node: HastNode, className: string): boolean {
+	const value = node.properties?.className;
+	if (Array.isArray(value)) return value.includes(className);
+	return typeof value === "string" && value.split(/\s+/).includes(className);
+}
+
+/**
+ * Mermaid owns its own parsing and SVG output in the browser. Pull its fences
+ * out before Shiki sees them so the server emits a reserved diagram surface,
+ * not a highlighted block of Mermaid source.
+ */
+function rehypeMermaidBlocks() {
+	return (tree: HastNode) => {
+		const visit = (parent: HastNode) => {
+			for (const [index, node] of (parent.children ?? []).entries()) {
+				const code = node.tagName === "pre" ? node.children?.[0] : undefined;
+				if (code?.tagName === "code" && hasClass(code, "language-mermaid")) {
+					const source = (code.children ?? []).map((child) => child.value ?? "").join("");
+					(parent.children as HastNode[])[index] = {
+						type: "element",
+						tagName: "div",
+						properties: {
+							className: ["plan-mermaid"],
+							dataMermaidState: "loading",
+							ariaBusy: "true",
+							ariaLabel: "Plan diagram",
+							role: "img",
+							tabIndex: 0,
+						},
+						children: [{ type: "text", value: source }],
+					};
+					continue;
+				}
+				visit(node);
+			}
+		};
+
+		visit(tree);
+	};
+}
+
 /**
  * Raw HTML in markdown is intentionally dropped — `remark-rehype` ignores it
  * unless `allowDangerousHtml` is set, which keeps a plan from injecting script
@@ -55,11 +104,9 @@ const processor = unified()
 	.use(remarkGfm)
 	.use(remarkRehype)
 	.use(rehypeSlug)
+	.use(rehypeMermaidBlocks)
 	.use(rehypeShiki, {
-		themes: {
-			light: "github-light",
-			dark: "github-dark",
-		},
+		theme: "github-dark",
 		langs: LANGS,
 		// A fence in some language nobody loaded is still readable as plain text;
 		// it is not a reason to fail the whole page.

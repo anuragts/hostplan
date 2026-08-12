@@ -1,12 +1,4 @@
-import {
-	isCode,
-	isId,
-	isPlanTheme,
-	isStatus,
-	PLAN_THEME_IDS,
-	shareUrls,
-	validateCustomHtml,
-} from "@hostplan/core";
+import { isCode, isId, isStatus, shareUrls, validateCustomHtml } from "@hostplan/core";
 import { currentViewer, unauthorized } from "@/lib/current-viewer";
 import { origin as siteOrigin } from "@/lib/origin";
 import { captureServerEvent } from "@/lib/server-analytics";
@@ -49,7 +41,6 @@ interface CreateBody {
 	id?: string;
 	code?: string;
 	status?: string;
-	theme?: string;
 	dependsOn?: string;
 	source?: string;
 	cwd?: string;
@@ -70,12 +61,6 @@ export async function POST(request: Request) {
 	if (!content || !title || !project || !branch) {
 		return Response.json(
 			{ error: "content, title, project and branch are required" },
-			{ status: 400 },
-		);
-	}
-	if (body.theme !== undefined && !isPlanTheme(body.theme)) {
-		return Response.json(
-			{ error: `theme must be one of ${PLAN_THEME_IDS.join(", ")}` },
 			{ status: 400 },
 		);
 	}
@@ -101,7 +86,6 @@ export async function POST(request: Request) {
 		format,
 		visibility: body.visibility === "public" ? "public" : "private",
 		...(isStatus(body.status) ? { status: body.status } : {}),
-		...(isPlanTheme(body.theme) ? { theme: body.theme } : {}),
 		...(typeof body.dependsOn === "string" && isId(body.dependsOn)
 			? { dependsOn: body.dependsOn }
 			: {}),

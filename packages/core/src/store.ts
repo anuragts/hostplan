@@ -15,7 +15,7 @@ import {
 import { ensureDir, plansRoot } from "./paths";
 import { slugify } from "./slug";
 import { DEFAULT_STATUS, type PlanStatus } from "./status";
-import { DEFAULT_PLAN_THEME, type PlanThemeId } from "./theme";
+import { DEFAULT_PLAN_THEME } from "./theme";
 
 /**
  * Directory names that would be shadowed by, or shadow, a web route. A project
@@ -60,8 +60,6 @@ export interface AddPlanInput {
 	code?: string;
 	/** Starting status; new plans are drafts unless the caller says otherwise. */
 	status?: PlanStatus;
-	/** Curated document theme; defaults to the original Hostplan presentation. */
-	theme?: PlanThemeId;
 	/** Id of the plan this one waits on — the link that forms a stack. */
 	dependsOn?: string;
 	source?: string;
@@ -234,7 +232,7 @@ export async function addPlan(input: AddPlanInput): Promise<StoredPlan> {
 		updated: now,
 		visibility,
 		status: input.status ?? DEFAULT_STATUS,
-		theme: input.theme ?? DEFAULT_PLAN_THEME,
+		theme: DEFAULT_PLAN_THEME,
 		...(input.dependsOn === undefined ? {} : { dependsOn: input.dependsOn }),
 		// Public plans carry no code — there would be nothing for it to gate.
 		...(visibility === "private" ? { code: input.code ?? newCode() } : {}),
@@ -262,7 +260,6 @@ export interface UpdatePlanPatch {
 	rotateCode?: boolean;
 	title?: string;
 	status?: PlanStatus;
-	theme?: PlanThemeId;
 	/** New dependency, or `null` to detach the plan from its stack. */
 	dependsOn?: string | null;
 	/** Replace the body — a revision of the same plan, not a new one. */
@@ -296,7 +293,7 @@ export async function updatePlan(
 		...plan.meta,
 		...(patch.title === undefined ? {} : { title: patch.title }),
 		...(patch.status === undefined ? {} : { status: patch.status }),
-		...(patch.theme === undefined ? {} : { theme: patch.theme }),
+		theme: DEFAULT_PLAN_THEME,
 		visibility,
 		updated: new Date().toISOString(),
 	};

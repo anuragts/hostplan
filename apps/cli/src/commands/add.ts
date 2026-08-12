@@ -7,10 +7,8 @@ import {
 	detectScope,
 	displayPath,
 	formatFromPath,
-	isPlanTheme,
 	isStatus,
 	PLAN_STATUSES,
-	PLAN_THEME_IDS,
 	type PlanFormat,
 	type PlanMeta,
 	type PlanStatus,
@@ -47,7 +45,6 @@ export interface AddOptions {
 	/** Plan id this one waits on — chains it into a stack. */
 	after?: string;
 	status?: string;
-	theme?: string;
 }
 
 function parseFormat(value: string | undefined, fallback: PlanFormat): PlanFormat {
@@ -123,11 +120,6 @@ export async function storeOnePlan(
 	const project = options.project ?? scope.project;
 	const branch = options.branch ?? scope.branch;
 	const status = parseStatus(options.status);
-	const sourceTheme = "theme" in parsed ? parsed.theme : undefined;
-	const requestedTheme = options.theme ?? sourceTheme;
-	if (requestedTheme !== undefined && !isPlanTheme(requestedTheme)) {
-		die(`--theme must be one of ${PLAN_THEME_IDS.join(", ")}, got \`${String(requestedTheme)}\``);
-	}
 
 	const input: AddPlanInput = {
 		content: parsed.content,
@@ -139,7 +131,6 @@ export async function storeOnePlan(
 		visibility: options.public === true ? "public" : "private",
 		cwd: scope.root,
 		...(status === undefined ? {} : { status }),
-		...(requestedTheme === undefined ? {} : { theme: requestedTheme }),
 		...(dependsOn === undefined ? {} : { dependsOn }),
 		...(source.path === undefined ? {} : { source: source.path }),
 		...(Object.keys(parsed.data).length === 0 ? {} : { extraFrontmatter: parsed.data }),
@@ -163,7 +154,6 @@ export async function storeOnePlan(
 				id: plan.meta.id,
 				...(plan.meta.code === undefined ? {} : { code: plan.meta.code }),
 				...(status === undefined ? {} : { status }),
-				theme: plan.meta.theme,
 				...(dependsOn === undefined ? {} : { dependsOn }),
 			});
 		} catch (error) {

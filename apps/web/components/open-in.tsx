@@ -95,7 +95,7 @@ export function OpenIn({ targets }: { targets: OpenTarget[] }) {
 				<div
 					role="menu"
 					aria-label="Open this plan in"
-					className="plan-open-in-menu absolute right-0 bottom-full mb-2 w-64 overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-black/50 shadow-xl"
+					className="plan-open-in-menu absolute right-0 bottom-full mb-2 w-64 overflow-hidden rounded-xl bg-surface-raised p-1.5 text-ink shadow-[0_0_0_1px_rgba(255,255,255,0.1),0_16px_48px_-20px_rgba(0,0,0,0.8)]"
 				>
 					{targets.map((target) => (
 						<button
@@ -103,14 +103,14 @@ export function OpenIn({ targets }: { targets: OpenTarget[] }) {
 							type="button"
 							role="menuitem"
 							onClick={() => launch(target)}
-							className="plan-open-in-item flex w-full items-center gap-3 px-3 py-2.5 text-left transition-colors hover:bg-neutral-100"
+							className="plan-open-in-item flex min-h-11 w-full items-center gap-3 rounded-lg px-3 py-2 text-left outline-none transition-[background-color,color] duration-150 ease-out hover:bg-white/[0.06] focus-visible:bg-white/[0.06] focus-visible:ring-2 focus-visible:ring-brand/40"
 						>
 							<ProviderIcon id={target.id} />
 							<span className="min-w-0 flex-1">
-								<span className="plan-open-in-label block truncate text-neutral-900 text-sm">
+								<span className="plan-open-in-label block truncate text-ink text-sm">
 									{target.label}
 								</span>
-								<span className="plan-open-in-hint block truncate text-neutral-500 text-xs">
+								<span className="plan-open-in-hint block truncate text-ink-faint text-xs">
 									{target.hint}
 								</span>
 							</span>
@@ -120,11 +120,11 @@ export function OpenIn({ targets }: { targets: OpenTarget[] }) {
 				</div>
 			)}
 
-			<div className="plan-open-in-control flex items-stretch overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-black/40 shadow-lg">
+			<div className="plan-open-in-control flex items-stretch overflow-hidden rounded-xl bg-surface-raised shadow-[0_0_0_1px_rgba(255,255,255,0.1),0_12px_36px_-18px_rgba(0,0,0,0.8)] transition-[box-shadow] duration-150 ease-out hover:shadow-[0_0_0_1px_rgba(255,255,255,0.16),0_16px_40px_-18px_rgba(0,0,0,0.85)]">
 				<button
 					type="button"
 					onClick={() => launch(selected)}
-					className="plan-open-in-main flex items-center gap-2 px-4 py-2.5 font-medium text-neutral-900 text-sm transition-[background-color,color,scale] duration-150 ease-out hover:bg-neutral-100 active:scale-[0.96]"
+					className="plan-open-in-main flex min-h-11 items-center gap-2 pl-4 pr-3.5 font-medium text-ink text-sm outline-none transition-[background-color,color,scale] duration-150 ease-out hover:bg-white/[0.06] focus-visible:bg-white/[0.06] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand/40 active:scale-[0.96]"
 				>
 					<ProviderIcon id={selected.id} />
 					Open in {selected.label}
@@ -135,7 +135,7 @@ export function OpenIn({ targets }: { targets: OpenTarget[] }) {
 					aria-haspopup="menu"
 					aria-expanded={menuOpen}
 					aria-label="Choose a different app"
-					className="plan-open-in-caret flex items-center border-neutral-200 border-l px-2.5 text-neutral-500 transition-[background-color,color,scale] duration-150 ease-out hover:bg-neutral-100 hover:text-neutral-900 active:scale-[0.96]"
+					className="plan-open-in-caret flex min-h-11 items-center border-white/10 border-l px-2.5 text-ink-faint outline-none transition-[background-color,color,scale] duration-150 ease-out hover:bg-white/[0.06] hover:text-ink focus-visible:bg-white/[0.06] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand/40 active:scale-[0.96]"
 				>
 					<Chevron pointUp={menuOpen} />
 				</button>

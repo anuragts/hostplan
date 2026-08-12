@@ -66,15 +66,13 @@ hsp next                     # the first plan that's not done and not blocked
 hsp check <id> 2 3           # tick the plan's checkboxes off
 hsp update <id> PLAN.md      # revise in place — same id, same link
 hsp search rate limiting     # full-text, across every project
-hsp theme <id> editorial     # give the shared document a distinct voice
 ```
 
 Project and branch are detected from git, so there's nothing to configure.
 
-Plans can use curated document themes such as Working Draft, Office Memo,
-Editorial, Technical Brief, and Executive. The author theme is stored with the
-plan and follows its existing URL; readers can still keep an optional
-per-plan appearance override in their own browser.
+Fenced `mermaid` blocks render as accessible dark diagrams, including Mermaid
+flowcharts and `block` diagrams. They stay plain text in the stored
+Markdown and become SVG only in the browser.
 
 For plans that need a visual layout, Hostplan also supports static custom HTML
 with a versioned component kit for cards, stats, lists, badges, grids, callouts,

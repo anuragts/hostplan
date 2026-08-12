@@ -11,14 +11,11 @@ let added: AddPlanInput | undefined;
 let patched: UpdatePlanPatch | undefined;
 let currentFormat: PlanFormat = "md";
 
-function stored(
-	theme: StoredPlan["meta"]["theme"],
-	format: PlanFormat = currentFormat,
-): StoredPlan {
+function stored(format: PlanFormat = currentFormat): StoredPlan {
 	return {
 		meta: {
 			id: "a3f9c2",
-			title: "Themed plan",
+			title: "Plan",
 			project: "hostplan",
 			branch: "main",
 			format,
@@ -26,10 +23,10 @@ function stored(
 			updated: "2026-07-30T00:00:00.000Z",
 			visibility: "private",
 			status: "draft",
-			theme,
+			theme: "hostplan",
 			code: "KRWT",
 		},
-		body: "# Themed plan\n",
+		body: "# Plan\n",
 		path: "/tmp/a3f9c2.md",
 		projectDir: "hostplan",
 		branchDir: "main",
@@ -39,13 +36,13 @@ function stored(
 const store = {
 	add: async (input: AddPlanInput) => {
 		added = input;
-		return stored(input.theme ?? "hostplan", input.format);
+		return stored(input.format);
 	},
 	update: async (_id: string, patch: UpdatePlanPatch) => {
 		patched = patch;
-		return stored(patch.theme ?? "hostplan");
+		return stored();
 	},
-	get: async () => stored("hostplan"),
+	get: async () => stored(),
 	list: async () => [],
 	remove: async () => undefined,
 };
@@ -58,6 +55,8 @@ mock.module("@/lib/current-viewer", () => ({
 mock.module("@/lib/store", () => ({
 	planStoreFor: () => store,
 	adminPlanStore: () => store,
+	planStore: () => store,
+	isRemoteStore: () => false,
 }));
 
 mock.module("@/lib/server-analytics", () => ({
@@ -74,26 +73,7 @@ beforeEach(() => {
 	currentFormat = "md";
 });
 
-describe("plan theme API mutations", () => {
-	test("POST validates and stores a built-in theme", async () => {
-		const response = await POST(
-			new Request("https://plans.host-plan.com/api/plans", {
-				method: "POST",
-				headers: { "content-type": "application/json" },
-				body: JSON.stringify({
-					content: "# Themed plan",
-					title: "Themed plan",
-					project: "hostplan",
-					branch: "main",
-					theme: "editorial",
-				}),
-			}),
-		);
-
-		expect(response.status).toBe(201);
-		expect(added?.theme).toBe("editorial");
-	});
-
+describe("plan content API mutations", () => {
 	test("accepts valid custom HTML and rejects invalid HTML before storage", async () => {
 		const valid = await POST(
 			new Request("https://plans.host-plan.com/api/plans", {
@@ -154,31 +134,17 @@ describe("plan theme API mutations", () => {
 		expect(patched?.status).toBe("approved");
 	});
 
-	test("PATCH validates and stores a built-in theme", async () => {
-		const response = await PATCH(
-			new Request("https://plans.host-plan.com/api/plans/a3f9c2", {
-				method: "PATCH",
-				headers: { "content-type": "application/json" },
-				body: JSON.stringify({ theme: "technical-brief" }),
-			}),
-			context,
-		);
-
-		expect(response.status).toBe(200);
-		expect(patched?.theme).toBe("technical-brief");
-	});
-
-	test("rejects arbitrary themes before either store mutation", async () => {
+	test("ignores retired theme input instead of mutating presentation", async () => {
 		const create = await POST(
 			new Request("https://plans.host-plan.com/api/plans", {
 				method: "POST",
 				headers: { "content-type": "application/json" },
 				body: JSON.stringify({
-					content: "# Themed plan",
-					title: "Themed plan",
+					content: "# Plan",
+					title: "Plan",
 					project: "hostplan",
 					branch: "main",
-					theme: "custom-css",
+					theme: "editorial",
 				}),
 			}),
 		);
@@ -186,14 +152,14 @@ describe("plan theme API mutations", () => {
 			new Request("https://plans.host-plan.com/api/plans/a3f9c2", {
 				method: "PATCH",
 				headers: { "content-type": "application/json" },
-				body: JSON.stringify({ theme: "custom-css" }),
+				body: JSON.stringify({ theme: "editorial" }),
 			}),
 			context,
 		);
 
-		expect(create.status).toBe(400);
-		expect(update.status).toBe(400);
-		expect(added).toBeUndefined();
-		expect(patched).toBeUndefined();
+		expect(create.status).toBe(201);
+		expect(update.status).toBe(200);
+		expect(added).not.toHaveProperty("theme");
+		expect(patched).not.toHaveProperty("theme");
 	});
 });

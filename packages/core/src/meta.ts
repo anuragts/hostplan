@@ -24,7 +24,7 @@ export interface PlanMeta {
 	visibility: Visibility;
 	/** Where the plan is in its life. New plans start as drafts. */
 	status: PlanStatus;
-	/** Curated document presentation shared with every reader. */
+	/** Compatibility marker for the single base reader. */
 	theme: PlanThemeId;
 	/**
 	 * Id of the plan this one waits on. A plan is blocked until its dependency
@@ -168,7 +168,6 @@ export function readSourceFrontmatter(raw: string): {
 	data: Record<string, unknown>;
 	content: string;
 	title?: string;
-	theme?: unknown;
 } {
 	let parsed: matter.GrayMatterFile<string>;
 	try {
@@ -185,7 +184,6 @@ export function readSourceFrontmatter(raw: string): {
 	const base = {
 		data,
 		content: parsed.content,
-		...(parsed.data.theme === undefined ? {} : { theme: parsed.data.theme }),
 	};
 	return typeof title === "string" && title.length > 0 ? { ...base, title } : base;
 }

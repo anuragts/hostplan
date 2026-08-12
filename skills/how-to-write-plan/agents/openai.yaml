@@ -1,0 +1,4 @@
+interface:
+  display_name: "How to Write Plans"
+  short_description: "Write readable technical architecture plans"
+  default_prompt: "Use $how-to-write-plan to draft a clear technical architecture plan."

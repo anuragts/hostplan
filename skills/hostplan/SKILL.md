@@ -7,8 +7,8 @@ description: >-
   agent will pick up; whenever you are asked to "save this plan", "share this
   plan", "give me a link to the plan"; and whenever the user refers to a plan
   you did not write — "the plan from earlier", "what did the other agent plan",
-  a plan id, or a hostplan URL (http://localhost:7433/p/<id> or
-  https://plans.host-plan.com/p/<id>). Also use it before starting
+  a plan id, or a hostplan URL (http://localhost:7433/p/{id} or
+  https://plans.host-plan.com/p/{id}). Also use it before starting
   implementation work on a branch, to check whether a plan already exists and
   whether it is approved; when splitting a large piece of work into ordered
   steps (plan stacks); when marking progress on a plan (status, checkboxes);
@@ -21,6 +21,12 @@ description: >-
 directory. Plans are bucketed by **project → branch**, both read from git
 automatically — so `hsp list` in a repo shows the plans for that repo and
 branch with no arguments.
+
+## Writing the plan
+
+Before writing or revising any plan, read and follow
+[how-to-write-plan](../how-to-write-plan/SKILL.md). It defines the required
+line length, structure, tables, diagrams, callouts, and phase separators.
 
 ## Storing a plan
 

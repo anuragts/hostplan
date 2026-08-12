@@ -77,15 +77,20 @@ export function ProseSkeleton() {
 export function PlanPageSkeleton() {
 	return (
 		<Shell crumbs={[]}>
-			<div className="mb-8 border-b border-line pb-6">
-				<Skeleton className="h-8 w-3/5" />
-				<div className="mt-4 flex gap-3">
-					<Skeleton className="h-5 w-16" />
-					<Skeleton className="h-5 w-20" />
-					<Skeleton className="h-5 w-24" />
-				</div>
+			<div className="mb-4 flex justify-end">
+				<Skeleton className="h-10 w-32 rounded-lg" />
 			</div>
-			<ProseSkeleton />
+			<div className="mx-auto max-w-[76ch] pb-24">
+				<div className="mb-10 border-b border-line pb-6">
+					<Skeleton className="h-7 w-3/5" />
+					<div className="mt-4 flex gap-3">
+						<Skeleton className="h-5 w-16" />
+						<Skeleton className="h-5 w-20" />
+						<Skeleton className="h-5 w-24" />
+					</div>
+				</div>
+				<ProseSkeleton />
+			</div>
 		</Shell>
 	);
 }

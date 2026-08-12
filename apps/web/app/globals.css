@@ -15,9 +15,9 @@
 --------------------------------------------------------------------------- */
 
 @theme {
-	--color-surface: oklch(0.17 0.006 285);
-	--color-surface-raised: oklch(0.21 0.007 285);
-	--color-line: oklch(0.29 0.008 285);
+	--color-surface: #000;
+	--color-surface-raised: oklch(0.16 0.006 285);
+	--color-line: oklch(0.24 0.008 285);
 	--color-ink: oklch(0.93 0.004 285);
 	--color-ink-muted: oklch(0.68 0.008 285);
 	--color-ink-faint: oklch(0.54 0.009 285);
@@ -130,19 +130,19 @@ html {
 --------------------------------------------------------------------------- */
 
 :where(.plan-environment, .plan-theme-menu) {
-	--plan-canvas: var(--color-surface);
+	--plan-canvas: #000;
 	--plan-paper: transparent;
-	--plan-panel: var(--color-surface-raised);
-	--plan-ink: var(--color-ink);
-	--plan-muted: var(--color-ink-muted);
-	--plan-faint: var(--color-ink-faint);
-	--plan-line: var(--color-line);
+	--plan-panel: #111113;
+	--plan-ink: #f1f1f2;
+	--plan-muted: #b4b4b9;
+	--plan-faint: #77777f;
+	--plan-line: #252529;
 	--plan-accent: var(--color-brand);
-	--plan-code-bg: var(--color-surface-raised);
+	--plan-code-bg: #101012;
 	--plan-heading-font: var(--font-sans);
 	--plan-body-font: var(--font-sans);
 	--plan-code-font: var(--font-mono);
-	--plan-measure: none;
+	--plan-measure: 76ch;
 	--plan-radius: 0;
 	--plan-padding: 0;
 	--plan-shadow: none;
@@ -483,6 +483,10 @@ html {
 	padding-bottom: 1.5rem;
 }
 
+.plan-environment[data-plan-theme="hostplan"] .plan-document-header {
+	margin-bottom: 2.5rem;
+}
+
 .plan-title {
 	color: var(--plan-ink);
 	font-family: var(--plan-heading-font);
@@ -491,6 +495,13 @@ html {
 	letter-spacing: -0.025em;
 	line-height: 1.15;
 	text-wrap: balance;
+}
+
+.plan-environment[data-plan-theme="hostplan"] .plan-title {
+	font-size: clamp(1.5rem, 2.5vw, 1.75rem);
+	font-weight: 600;
+	letter-spacing: -0.022em;
+	line-height: 1.25;
 }
 
 .plan-meta {
@@ -570,6 +581,11 @@ html {
 	line-height: 1.75;
 }
 
+.plan-environment[data-plan-theme="hostplan"] .plan-prose {
+	font-size: 0.9375rem;
+	line-height: 1.6;
+}
+
 .plan-prose :where(h1, h2, h3, h4) {
 	color: var(--plan-ink);
 	font-family: var(--plan-heading-font);
@@ -577,8 +593,51 @@ html {
 	text-wrap: balance;
 }
 
+.plan-environment[data-plan-theme="hostplan"] .plan-prose :where(h1, h2) {
+	font-size: 1.5rem;
+	font-weight: 600;
+	line-height: 2rem;
+	margin-bottom: 1rem;
+	margin-top: 3rem;
+}
+
+.plan-environment[data-plan-theme="hostplan"] .plan-prose :where(h3) {
+	font-size: 1.125rem;
+	font-weight: 600;
+	line-height: 1.5rem;
+	margin-bottom: 0.75rem;
+	margin-top: 2rem;
+}
+
+.plan-environment[data-plan-theme="hostplan"] .plan-prose :where(h4) {
+	font-size: 1rem;
+	font-weight: 600;
+	line-height: 1.5rem;
+	margin-bottom: 0.5rem;
+	margin-top: 1.5rem;
+}
+
 .plan-prose :where(p, li, blockquote, figcaption) {
 	text-wrap: pretty;
+}
+
+.plan-environment[data-plan-theme="hostplan"] .plan-prose :where(p) {
+	margin-bottom: 1rem;
+	margin-top: 1rem;
+}
+
+.plan-environment[data-plan-theme="hostplan"] .plan-prose :where(ul, ol) {
+	margin-bottom: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.plan-environment[data-plan-theme="hostplan"] .plan-prose :where(li) {
+	margin-bottom: 0.5rem;
+	margin-top: 0.5rem;
+}
+
+.plan-environment[data-plan-theme="hostplan"] .plan-prose :where(strong) {
+	font-weight: 600;
 }
 
 .plan-prose :where(a) {
@@ -592,6 +651,11 @@ html {
 	color: var(--plan-muted);
 }
 
+.plan-environment[data-plan-theme="hostplan"] .plan-prose :where(blockquote) {
+	font-style: normal;
+	font-weight: 400;
+}
+
 .plan-prose :where(hr) {
 	border-color: var(--plan-line);
 }
@@ -603,6 +667,26 @@ html {
 
 .plan-environment[data-plan-scheme="dark"] .plan-prose :where(img) {
 	outline-color: rgb(255 255 255 / 10%);
+}
+
+.plan-empty-state {
+	border-block: 1px solid var(--plan-line);
+	padding-block: 2rem;
+}
+
+.plan-empty-title {
+	color: var(--plan-ink);
+	font-size: 0.9375rem;
+	font-weight: 600;
+	line-height: 1.5rem;
+}
+
+.plan-empty-copy {
+	color: var(--plan-muted);
+	font-size: 0.875rem;
+	line-height: 1.5rem;
+	margin-top: 0.5rem;
+	text-wrap: pretty;
 }
 
 .plan-environment[data-plan-theme="working-draft"] .plan-title,
@@ -732,7 +816,7 @@ html {
 }
 
 .theme-swatch[data-theme-swatch="hostplan"] {
-	background: linear-gradient(135deg, #1a191d 0 64%, #5ed6d0 64%);
+	background: linear-gradient(135deg, #000 0 64%, #5ed6d0 64%);
 	box-shadow: 0 0 0 1px rgb(255 255 255 / 10%);
 }
 
@@ -881,6 +965,11 @@ html {
 	line-height: 1.6;
 }
 
+.plan-environment[data-plan-theme="hostplan"] .prose pre.shiki {
+	line-height: 1.25rem;
+	padding: 0.875rem 1rem;
+}
+
 .plan-environment[data-plan-scheme="dark"] .shiki span {
 	/* biome-ignore lint/complexity/noImportantStyles: Shiki writes each light token
 	   as an inline color, so the selected dark token must override that inline value. */
@@ -907,14 +996,47 @@ html {
 	white-space: nowrap;
 }
 
+.plan-environment[data-plan-theme="hostplan"] .prose :where(table) {
+	font-size: 0.8125rem;
+	font-variant-numeric: tabular-nums;
+	line-height: 1.25rem;
+	margin-bottom: 2rem;
+	margin-top: 1.5rem;
+}
+
+.plan-environment[data-plan-theme="hostplan"] .prose :where(thead th) {
+	color: var(--plan-faint);
+	font-size: 0.6875rem;
+	font-weight: 600;
+	letter-spacing: 0.06em;
+	padding: 0.75rem 1rem;
+	text-transform: uppercase;
+}
+
+.plan-environment[data-plan-theme="hostplan"] .prose :where(tbody td) {
+	padding: 0.75rem 1rem;
+}
+
+.plan-environment[data-plan-theme="hostplan"]
+	.prose
+	:where(thead th:first-child, tbody td:first-child) {
+	padding-left: 0;
+}
+
+.plan-environment[data-plan-theme="hostplan"]
+	.prose
+	:where(thead th:last-child, tbody td:last-child) {
+	padding-right: 0;
+}
+
 @media (max-width: 640px) {
 	.plan-environment:not([data-plan-theme="hostplan"]) {
 		--plan-padding: 1.25rem;
 		--plan-radius: 4px;
 	}
 
-	.plan-title {
-		font-size: 1.5rem;
+	.plan-environment[data-plan-theme="hostplan"] .plan-title {
+		font-size: 1.375rem;
 	}
 
 	.plan-environment[data-plan-theme="editorial"] .plan-title {

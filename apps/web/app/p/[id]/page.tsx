@@ -79,10 +79,16 @@ export async function generateMetadata({
  */
 async function PlanBody({ plan }: { plan: StoredPlan }) {
 	const { meta } = plan;
-	const html = await renderPlanBody(
-		`${meta.id}:${meta.updated}`,
-		stripLeadingTitle(plan.body, meta.title),
-	);
+	const body = stripLeadingTitle(plan.body, meta.title);
+	if (body.trim().length === 0) {
+		return (
+			<div className="plan-empty-state" role="status">
+				<p className="plan-empty-title">No details yet</p>
+				<p className="plan-empty-copy">This plan exists, but its author has not added a body.</p>
+			</div>
+		);
+	}
+	const html = await renderPlanBody(`${meta.id}:${meta.updated}`, body);
 	return (
 		<article
 			className="plan-prose prose max-w-none prose-pre:bg-transparent prose-pre:p-0"

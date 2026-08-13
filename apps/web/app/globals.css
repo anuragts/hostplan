@@ -245,13 +245,24 @@ html {
 
 .plan-environment
 	.plan-meta
-	:is(.plan-status-badge, .plan-status-control, .plan-visibility-badge, .plan-dependency) {
+	:is(
+		.plan-copy-id,
+		.plan-status-badge,
+		.plan-status-control,
+		.plan-visibility-badge,
+		.plan-dependency
+	) {
+	align-items: center;
 	background: color-mix(in oklch, var(--plan-panel) 72%, transparent);
 	border-color: transparent;
-	border-radius: 9999px;
+	border-radius: 0.5rem;
 	box-shadow: 0 0 0 1px rgb(255 255 255 / 8%);
 	display: inline-flex;
+	height: 1.75rem;
+	justify-content: center;
+	line-height: 1;
 	min-height: 1.75rem;
+	padding-block: 0;
 	padding-inline: 0.625rem;
 }
 
@@ -540,10 +551,10 @@ html {
 
 .plan-mermaid[data-mermaid-state="rendered"] svg {
 	display: block;
-	height: 100%;
+	height: 84%;
 	max-height: 100%;
 	max-width: 100%;
-	width: 100%;
+	width: 84%;
 }
 
 .plan-mermaid[data-mermaid-state="error"] {

@@ -4,6 +4,14 @@ import type { NextConfig } from "next";
 const repoRoot = fileURLToPath(new URL("../..", import.meta.url));
 
 const nextConfig: NextConfig = {
+	async headers() {
+		return [
+			{
+				source: "/power2026/:path*",
+				headers: [{ key: "Access-Control-Allow-Origin", value: "*" }],
+			},
+		];
+	},
 	// `tsconfig.json` aliases core to source so the npm tarball stays self-contained.
 	// Shiki is deliberately *not* external: left to runtime resolution its
 	// grammars load as separate module reads on every cold start.

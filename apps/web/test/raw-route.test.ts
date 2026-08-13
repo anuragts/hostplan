@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, mock, test } from "bun:test";
 import { CUSTOM_HTML_SKELETON, type StoredPlan } from "@hostplan/core";
+import { markTrustedHtml } from "../lib/trusted-html";
 import type { Viewer } from "../lib/viewer";
 
 const plan: StoredPlan = {
@@ -144,5 +145,26 @@ describe("custom HTML render route", () => {
 		expect((await renderGET(request(), context)).status).toBe(404);
 		storedPlan = plan;
 		expect((await renderGET(request("?code=krwt"), context)).status).toBe(404);
+	});
+
+	test("uses the active sandbox only for server-marked trusted HTML", async () => {
+		const source =
+			"<!doctype html><html><head><title>Site</title></head><body><script>window.ready = true</script></body></html>";
+		storedPlan = {
+			...plan,
+			meta: { ...plan.meta, format: "html" },
+			body: markTrustedHtml(source),
+			path: "/plans/a3f9c2.html",
+		};
+
+		const response = await renderGET(request("?code=krwt"), context);
+		const body = await response.text();
+		expect(response.status).toBe(200);
+		expect(response.headers.get("content-security-policy")).toContain(
+			"sandbox allow-scripts allow-popups",
+		);
+		expect(response.headers.get("content-security-policy")).not.toContain("allow-same-origin");
+		expect(body).toContain("<script>");
+		expect(body).not.toContain("hostplan-trusted-html-v1");
 	});
 });

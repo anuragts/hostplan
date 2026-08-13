@@ -11,6 +11,7 @@ import { origin as siteOrigin } from "@/lib/origin";
 import { ownsPlan } from "@/lib/plan-access";
 import { clientKey, codeAttemptKey, consumeAttempt } from "@/lib/rate-limit";
 import { adminPlanStore, planStoreFor } from "@/lib/store";
+import { canPublishTrustedHtml, markTrustedHtml, stripTrustedHtmlMarker } from "@/lib/trusted-html";
 import { canBrowse } from "@/lib/viewer";
 
 export const dynamic = "force-dynamic";
@@ -58,7 +59,7 @@ export async function GET(request: Request, { params }: Params) {
 	return Response.json({
 		...meta,
 		...(isOwner ? shareUrls(origin, plan.meta) : { url: `${origin}/p/${plan.meta.id}` }),
-		body: plan.body,
+		body: plan.meta.format === "html" ? stripTrustedHtmlMarker(plan.body) : plan.body,
 	});
 }
 
@@ -75,6 +76,7 @@ export async function PATCH(request: Request, { params }: Params) {
 		status?: string;
 		content?: string;
 		dependsOn?: string | null;
+		trustedHtml?: boolean;
 	};
 	try {
 		body = (await request.json()) as typeof body;
@@ -85,16 +87,28 @@ export async function PATCH(request: Request, { params }: Params) {
 		return Response.json({ error: `\`${body.status}\` is not a status` }, { status: 400 });
 	}
 	const store = planStoreFor(viewer);
+	let storedContent = body.content;
 	if (typeof body.content === "string") {
 		const existing = await store.get(id);
 		if (existing === undefined) return notFound();
 		if (existing.meta.format === "html") {
-			const validation = validateCustomHtml(body.content);
-			if (!validation.valid) {
-				return Response.json(
-					{ error: "invalid custom HTML", issues: validation.errors },
-					{ status: 422 },
-				);
+			if (body.trustedHtml === true) {
+				if (!canPublishTrustedHtml(viewer)) {
+					return Response.json(
+						{ error: "trusted HTML is not enabled for this account" },
+						{ status: 403 },
+					);
+				}
+				storedContent = markTrustedHtml(body.content);
+			} else {
+				storedContent = stripTrustedHtmlMarker(body.content);
+				const validation = validateCustomHtml(storedContent);
+				if (!validation.valid) {
+					return Response.json(
+						{ error: "invalid custom HTML", issues: validation.errors },
+						{ status: 422 },
+					);
+				}
 			}
 		}
 	}
@@ -106,7 +120,7 @@ export async function PATCH(request: Request, { params }: Params) {
 		...(body.rotateCode === true ? { rotateCode: true } : {}),
 		...(body.title === undefined ? {} : { title: body.title }),
 		...(isStatus(body.status) ? { status: body.status } : {}),
-		...(typeof body.content === "string" ? { content: body.content } : {}),
+		...(typeof storedContent === "string" ? { content: storedContent } : {}),
 		// `null` detaches a plan from its stack; a string re-chains it.
 		...(body.dependsOn === null
 			? { dependsOn: null }

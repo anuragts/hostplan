@@ -16,6 +16,7 @@ export {
 	CUSTOM_HTML_RESPONSE_HEADERS,
 	hasCustomHtmlProfile,
 	renderCustomHtml,
+	TRUSTED_HTML_RESPONSE_HEADERS,
 } from "./render";
 export {
 	type CustomHtmlIssue,

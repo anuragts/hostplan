@@ -31,6 +31,7 @@ import { buildOpenTargets } from "@/lib/providers";
 import { clientKey, codeAttemptKey, consumeAttempt } from "@/lib/rate-limit";
 import { renderPlanBody, stripLeadingTitle } from "@/lib/render";
 import { isRemoteStore, planStore } from "@/lib/store";
+import { isTrustedHtml } from "@/lib/trusted-html";
 
 export const dynamic = "force-dynamic";
 
@@ -118,6 +119,7 @@ export default async function PlanPage({
 	if (plan === undefined) notFound();
 
 	const { meta } = plan;
+	const trustedHtml = meta.format === "html" && isTrustedHtml(plan.body);
 	const supplied = (await searchParams).code;
 	const code = normalizeCode(supplied);
 	const isOwner = ownsPlan(plan, viewer);
@@ -228,6 +230,7 @@ export default async function PlanPage({
 								<HtmlPlanFrame
 									src={`/api/render/${meta.id}${code === undefined ? "" : `?code=${code}`}`}
 									title={meta.title}
+									trusted={trustedHtml}
 								/>
 							) : (
 								// Streamed: the header above is already useful, and holding it back

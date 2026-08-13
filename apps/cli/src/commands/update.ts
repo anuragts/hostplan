@@ -16,6 +16,7 @@ export interface UpdateOptions extends ScopeOptions {
 	content?: string;
 	title?: string;
 	json?: boolean;
+	trustedHtml?: boolean;
 }
 
 /**
@@ -41,7 +42,12 @@ export async function updateCommand(
 	} else {
 		return die("nothing to update with — pass a plan file or --content");
 	}
-	if (plan.meta.format === "html") assertValidCustomHtml(raw);
+	if (options.trustedHtml === true && plan.meta.format !== "html") {
+		die("--trusted-html can only be used with HTML plans");
+	}
+	if (plan.meta.format === "html" && options.trustedHtml !== true) {
+		assertValidCustomHtml(raw);
+	}
 
 	// Keep only the body; hostplan's own frontmatter is about to be rewritten.
 	const content = plan.meta.format === "md" ? readSourceFrontmatter(raw).content : raw;
@@ -61,6 +67,7 @@ export async function updateCommand(
 	await syncPatch(plan.meta.id, {
 		content,
 		...(options.title === undefined ? {} : { title: options.title }),
+		...(options.trustedHtml === true ? { trustedHtml: true } : {}),
 	});
 
 	if (options.json === true) {

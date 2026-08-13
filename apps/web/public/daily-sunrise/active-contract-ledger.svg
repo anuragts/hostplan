@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
+  <title id="title">Active-contract ledger</title>
+  <desc id="desc">A five-stage path from outcome and authority through checkpoint and evidence to a stop rule.</desc>
+  <metadata>Original Hostplan artwork created for Daily Sunrise on 2026-08-13.</metadata>
+  <rect width="1200" height="675" fill="#0a0a0a"/>
+  <circle cx="1070" cy="90" r="210" fill="#70d7d1" opacity=".06"/>
+  <circle cx="90" cy="620" r="250" fill="#70d7d1" opacity=".04"/>
+  <text x="80" y="92" fill="#70d7d1" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="18" letter-spacing="3">RESUME CONTRACT</text>
+  <text x="80" y="145" fill="#f5f5f7" font-family="ui-sans-serif, system-ui, sans-serif" font-size="40" font-weight="600">Context returns. Authority is revalidated.</text>
+  <path d="M170 353H1030" stroke="#2d2d31" stroke-width="4" stroke-linecap="round"/>
+  <g font-family="ui-sans-serif, system-ui, sans-serif" text-anchor="middle">
+    <g transform="translate(170 353)">
+      <circle r="58" fill="#151517" stroke="#70d7d1" stroke-width="3"/>
+      <text y="7" fill="#70d7d1" font-size="24" font-weight="700">01</text>
+      <text y="105" fill="#f5f5f7" font-size="22" font-weight="600">Outcome</text>
+      <text y="134" fill="#9b9ba1" font-size="16">What success means</text>
+    </g>
+    <g transform="translate(385 353)">
+      <circle r="58" fill="#151517" stroke="#70d7d1" stroke-width="3"/>
+      <text y="7" fill="#70d7d1" font-size="24" font-weight="700">02</text>
+      <text y="105" fill="#f5f5f7" font-size="22" font-weight="600">Authority</text>
+      <text y="134" fill="#9b9ba1" font-size="16">What may change</text>
+    </g>
+    <g transform="translate(600 353)">
+      <circle r="58" fill="#151517" stroke="#70d7d1" stroke-width="3"/>
+      <text y="7" fill="#70d7d1" font-size="24" font-weight="700">03</text>
+      <text y="105" fill="#f5f5f7" font-size="22" font-weight="600">Checkpoint</text>
+      <text y="134" fill="#9b9ba1" font-size="16">What is true now</text>
+    </g>
+    <g transform="translate(815 353)">
+      <circle r="58" fill="#151517" stroke="#70d7d1" stroke-width="3"/>
+      <text y="7" fill="#70d7d1" font-size="24" font-weight="700">04</text>
+      <text y="105" fill="#f5f5f7" font-size="22" font-weight="600">Evidence</text>
+      <text y="134" fill="#9b9ba1" font-size="16">What proves it</text>
+    </g>
+    <g transform="translate(1030 353)">
+      <circle r="58" fill="#151517" stroke="#e2bb5f" stroke-width="3"/>
+      <text y="7" fill="#e2bb5f" font-size="24" font-weight="700">05</text>
+      <text y="105" fill="#f5f5f7" font-size="22" font-weight="600">Stop rule</text>
+      <text y="134" fill="#9b9ba1" font-size="16">When a human decides</text>
+    </g>
+  </g>
+  <rect x="80" y="580" width="1040" height="1" fill="#2d2d31"/>
+  <text x="80" y="622" fill="#9b9ba1" font-family="ui-sans-serif, system-ui, sans-serif" font-size="17">Store all five fields together. Re-observe before continuing.</text>
+</svg>

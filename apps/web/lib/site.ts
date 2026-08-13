@@ -6,6 +6,8 @@ export const SITE_DESCRIPTION =
 	"Store, share, resume, and hand off coding-agent plans with stable, machine-readable URLs.";
 export const REPOSITORY_URL = "https://github.com/anuragts/hostplan";
 export const SITE_UPDATED = "2026-08-06";
+export const DAILY_SUNRISE_PATH =
+	"/examples/hostplans-daily-sunrise/2026-08-13-active-contract-ledger";
 
 export const HOME_JSON_LD = {
 	"@context": "https://schema.org",
@@ -59,6 +61,7 @@ export const PUBLIC_ROUTES = [
 	"/examples/plan-lifecycle",
 	"/examples/plan-stack",
 	"/examples/agent-handoff",
+	DAILY_SUNRISE_PATH,
 	"/compare/plan-md-vs-hostplan",
 	"/about",
 ] as const;
@@ -80,7 +83,7 @@ export function pageMetadata({
 	return {
 		title,
 		description,
-		alternates: { canonical },
+		alternates: { canonical, types: { "application/rss+xml": `${SITE_URL}/feed.xml` } },
 		openGraph: {
 			type: "article",
 			url: canonical,

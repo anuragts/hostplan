@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ContentPage, ContentSection } from "@/components/content-page";
+import { DAILY_SUNRISE_ARTICLE } from "@/features/hostplans-daily-sunrise";
 import { EXAMPLES } from "@/lib/examples";
 import { pageMetadata } from "@/lib/site";
 
@@ -27,13 +28,33 @@ export default function ExamplesPage() {
 				["Share a plan", "/share-coding-agent-plans"],
 			]}
 		>
+			<ContentSection title="Daily Sunrise field guide">
+				<Link
+					href={DAILY_SUNRISE_ARTICLE.path}
+					className="block rounded-xl bg-surface-raised p-5 shadow-[0_0_0_1px_rgba(255,255,255,0.08)] transition-[box-shadow,scale] duration-150 ease-out hover:shadow-[0_0_0_1px_rgba(255,255,255,0.13)] active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+				>
+					<div className="flex flex-wrap items-center gap-2">
+						<h3 className="font-medium text-ink">{DAILY_SUNRISE_ARTICLE.shortTitle}</h3>
+						<time
+							className="rounded-full bg-surface px-2 py-1 font-mono text-brand text-xs"
+							dateTime={DAILY_SUNRISE_ARTICLE.published}
+						>
+							August 13, 2026
+						</time>
+					</div>
+					<p className="mt-2 text-pretty text-ink-muted text-sm leading-6">
+						{DAILY_SUNRISE_ARTICLE.description}
+					</p>
+				</Link>
+			</ContentSection>
+
 			<ContentSection title="Choose a workflow">
 				<div className="grid gap-4">
 					{Object.entries(EXAMPLES).map(([id, example]) => (
 						<Link
 							key={id}
 							href={`/examples/${id}`}
-							className="rounded-xl bg-surface-raised p-5 shadow-[0_0_0_1px_rgba(255,255,255,0.08)] transition-[box-shadow,scale] duration-150 ease-out hover:shadow-[0_0_0_1px_rgba(255,255,255,0.13)] active:scale-[0.96]"
+							className="rounded-xl bg-surface-raised p-5 shadow-[0_0_0_1px_rgba(255,255,255,0.08)] transition-[box-shadow,scale] duration-150 ease-out hover:shadow-[0_0_0_1px_rgba(255,255,255,0.13)] active:scale-[0.96] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
 						>
 							<h3 className="font-medium text-ink">{example.shortTitle}</h3>
 							<p className="mt-2 text-pretty text-ink-muted text-sm leading-6">

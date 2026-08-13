@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { GET as feed } from "../app/feed.xml/route";
 import { GET as llms } from "../app/llms.txt/route";
 import robots from "../app/robots";
 import sitemap from "../app/sitemap";
@@ -32,6 +33,15 @@ describe("SEO discovery routes", () => {
 		expect(body).toContain(`${SITE_URL}/coding-agent-plans`);
 		expect(body).toContain("Live customer plan pages");
 		expect(body).not.toContain("?code=");
+	});
+
+	test("RSS exposes the canonical Daily Sunrise article without private data", async () => {
+		const response = feed();
+		const body = await response.text();
+		expect(response.headers.get("content-type")).toBe("application/rss+xml; charset=utf-8");
+		expect(body).toContain("2026-08-13-active-contract-ledger");
+		expect(body).not.toContain("?code=");
+		expect(body).not.toContain("/p/");
 	});
 
 	test("page metadata uses one canonical URL and matching social URLs", () => {

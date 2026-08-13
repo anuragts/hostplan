@@ -22,6 +22,7 @@ const SAFE_PUBLIC_PATHS = new Set([
 	"/examples/plan-lifecycle",
 	"/examples/plan-stack",
 	"/examples/agent-handoff",
+	"/examples/hostplans-daily-sunrise/2026-08-13-active-contract-ledger",
 	"/compare/plan-md-vs-hostplan",
 	"/about",
 	"/login",

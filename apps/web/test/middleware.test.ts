@@ -87,6 +87,15 @@ describe("plan middleware", () => {
 		}
 	});
 
+	test("serves trusted document assets without an account session", () => {
+		process.env.HOSTPLAN_ACCOUNTS = "1";
+		const path = "/power2026/assets/fonts/inter-latin.woff2";
+		const response = middleware(request(path, { accept: "font/woff2" }));
+
+		expect(response.headers.get("location")).toBeNull();
+		expect(isPublicRoute(path)).toBe(true);
+	});
+
 	test("does not treat unknown content-shaped paths as public", () => {
 		process.env.HOSTPLAN_ACCOUNTS = "1";
 		const response = middleware(request("/integrations/unverified-agent", { accept: "text/html" }));

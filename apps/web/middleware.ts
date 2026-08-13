@@ -10,9 +10,14 @@ const PUBLIC_SYSTEM_ROUTES = new Set([
 	"/opengraph-image",
 	"/74bd004c41f144310fb8cad8cefb4191.txt",
 ]);
+const PUBLIC_ASSET_PREFIXES = ["/power2026/"];
 
 export function isPublicRoute(pathname: string): boolean {
-	return PUBLIC_ROUTE_SET.has(pathname) || PUBLIC_SYSTEM_ROUTES.has(pathname);
+	return (
+		PUBLIC_ROUTE_SET.has(pathname) ||
+		PUBLIC_SYSTEM_ROUTES.has(pathname) ||
+		PUBLIC_ASSET_PREFIXES.some((prefix) => pathname.startsWith(prefix))
+	);
 }
 
 /**

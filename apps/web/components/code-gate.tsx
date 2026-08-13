@@ -27,22 +27,24 @@ export function CodeGate({
 			</p>
 
 			<form method="get" className="mt-8 flex flex-col items-center gap-3">
-				<CodeInput length={CODE_LENGTH} disabled={throttled} />
-				{wrong && !throttled && (
-					<p className="text-red-400 text-xs">That code doesn&rsquo;t match this plan.</p>
-				)}
-				{throttled && (
-					<p className="text-red-400 text-xs">
-						Too many attempts. Try again in {retryAfterSeconds}s.
-					</p>
-				)}
-				<button
-					type="submit"
+				<CodeInput
+					length={CODE_LENGTH}
 					disabled={throttled}
-					className="plan-code-gate-submit rounded-lg bg-brand px-5 py-2.5 font-medium text-sm text-surface transition-[opacity,scale] duration-150 ease-out hover:opacity-90 active:scale-[0.96] disabled:opacity-50"
-				>
-					Open plan
-				</button>
+					invalid={wrong && !throttled}
+					describedBy={wrong || throttled ? "plan-code-error" : undefined}
+				/>
+				<div className="min-h-4" aria-live="polite">
+					{wrong && !throttled && (
+						<p id="plan-code-error" className="text-red-400 text-xs">
+							That code doesn&rsquo;t match this plan.
+						</p>
+					)}
+					{throttled && (
+						<p id="plan-code-error" className="text-red-400 text-xs tabular-nums">
+							Too many attempts. Try again in {retryAfterSeconds}s.
+						</p>
+					)}
+				</div>
 			</form>
 
 			<p className="plan-code-gate-copy mt-8 text-ink-faint text-xs">

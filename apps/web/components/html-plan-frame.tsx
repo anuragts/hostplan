@@ -3,7 +3,15 @@
 import { ExternalLink } from "lucide-react";
 import { useState } from "react";
 
-export function HtmlPlanFrame({ src, title }: { src: string; title: string }) {
+export function HtmlPlanFrame({
+	src,
+	title,
+	trusted = false,
+}: {
+	src: string;
+	title: string;
+	trusted?: boolean;
+}) {
 	const [state, setState] = useState<"loading" | "ready" | "error">("loading");
 
 	return (
@@ -46,7 +54,7 @@ export function HtmlPlanFrame({ src, title }: { src: string; title: string }) {
 				<iframe
 					src={src}
 					title={title}
-					sandbox=""
+					sandbox={trusted ? "allow-scripts allow-popups" : ""}
 					referrerPolicy="no-referrer"
 					onLoad={() => setState("ready")}
 					onError={() => setState("error")}

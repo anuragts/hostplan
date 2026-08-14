@@ -3,6 +3,7 @@ import { currentViewer, unauthorized } from "@/lib/current-viewer";
 import { origin as siteOrigin } from "@/lib/origin";
 import { captureServerEvent } from "@/lib/server-analytics";
 import { planStoreFor } from "@/lib/store";
+import { canPublishTrustedHtml, markTrustedHtml, stripTrustedHtmlMarker } from "@/lib/trusted-html";
 import { canBrowse } from "@/lib/viewer";
 
 export const dynamic = "force-dynamic";
@@ -44,6 +45,7 @@ interface CreateBody {
 	dependsOn?: string;
 	source?: string;
 	cwd?: string;
+	trustedHtml?: boolean;
 }
 
 export async function POST(request: Request) {
@@ -65,13 +67,25 @@ export async function POST(request: Request) {
 		);
 	}
 	const format = body.format === "html" ? "html" : "md";
+	let storedContent = content;
 	if (format === "html") {
-		const validation = validateCustomHtml(content);
-		if (!validation.valid) {
-			return Response.json(
-				{ error: "invalid custom HTML", issues: validation.errors },
-				{ status: 422 },
-			);
+		if (body.trustedHtml === true) {
+			if (!canPublishTrustedHtml(viewer)) {
+				return Response.json(
+					{ error: "trusted HTML is not enabled for this account" },
+					{ status: 403 },
+				);
+			}
+			storedContent = markTrustedHtml(content);
+		} else {
+			storedContent = stripTrustedHtmlMarker(content);
+			const validation = validateCustomHtml(storedContent);
+			if (!validation.valid) {
+				return Response.json(
+					{ error: "invalid custom HTML", issues: validation.errors },
+					{ status: 422 },
+				);
+			}
 		}
 	}
 
@@ -79,7 +93,7 @@ export async function POST(request: Request) {
 	const plan = await planStoreFor(viewer).add({
 		...(typeof id === "string" && isId(id) ? { id } : {}),
 		...(typeof code === "string" && isCode(code) ? { code } : {}),
-		content,
+		content: storedContent,
 		title,
 		project,
 		branch,

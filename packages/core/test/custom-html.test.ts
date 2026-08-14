@@ -5,6 +5,7 @@ import {
 	CUSTOM_HTML_RESPONSE_HEADERS,
 	CUSTOM_HTML_SKELETON,
 	renderCustomHtml,
+	TRUSTED_HTML_RESPONSE_HEADERS,
 	validateCustomHtml,
 } from "../src/custom-html";
 
@@ -114,5 +115,13 @@ describe("custom HTML profile", () => {
 		expect(policy).toContain("script-src 'none'");
 		expect(policy).toContain("connect-src 'none'");
 		expect(policy).toContain("form-action 'none'");
+	});
+
+	test("keeps trusted HTML in an opaque origin while enabling active content", () => {
+		const policy = TRUSTED_HTML_RESPONSE_HEADERS["content-security-policy"];
+		expect(policy).toContain("sandbox allow-scripts allow-popups");
+		expect(policy).toContain("script-src 'unsafe-inline' https:");
+		expect(policy).toContain("img-src https: data: blob:");
+		expect(policy).not.toContain("allow-same-origin");
 	});
 });

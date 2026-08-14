@@ -1,6 +1,7 @@
 import { CUSTOM_HTML_RESPONSE_HEADERS } from "@hostplan/core";
 import { PLAN_REPRESENTATION_VARY } from "@/lib/plan-content-negotiation";
 import { resolvePlanRouteAccess } from "@/lib/plan-route-access";
+import { stripTrustedHtmlMarker } from "@/lib/trusted-html";
 
 export const dynamic = "force-dynamic";
 
@@ -17,7 +18,8 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 	const contentType =
 		plan.meta.format === "html" ? "text/html; charset=utf-8" : "text/markdown; charset=utf-8";
 
-	return new Response(plan.body, {
+	const body = plan.meta.format === "html" ? stripTrustedHtmlMarker(plan.body) : plan.body;
+	return new Response(body, {
 		headers: {
 			"content-type": contentType,
 			...(plan.meta.format === "html" ? CUSTOM_HTML_RESPONSE_HEADERS : {}),

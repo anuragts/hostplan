@@ -12,7 +12,8 @@
 			"!**/dist",
 			"!**/node_modules",
 			"!apps/web/components/ui",
-			"!apps/web/lib/utils.ts"
+			"!apps/web/lib/utils.ts",
+			"!apps/web/public/power2026"
 		]
 	},
 	"formatter": {

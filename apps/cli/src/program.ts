@@ -37,6 +37,7 @@ export function buildProgram(): Command {
 		.option("-f, --format <format>", "md or html; inferred from the file extension")
 		.option("--public", "anyone with the link can read it")
 		.option("--private", "readable only with the 4-letter code (default)")
+		.option("--trusted-html", "allow active HTML when the deployment authorizes this account")
 		.option(
 			"--after <ref>",
 			"chain this plan after another — it stays blocked until that one is done",
@@ -130,6 +131,7 @@ export function buildProgram(): Command {
 		.option("-b, --branch <name>", "scope for `latest`")
 		.option("-a, --all", "resolve `latest` across every project")
 		.option("--json", "print as JSON")
+		.option("--trusted-html", "allow active HTML when the deployment authorizes this account")
 		.action(updateCommand);
 
 	program

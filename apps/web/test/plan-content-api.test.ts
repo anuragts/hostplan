@@ -6,10 +6,12 @@ import {
 	type StoredPlan,
 	type UpdatePlanPatch,
 } from "@hostplan/core";
+import type { Viewer } from "../lib/viewer";
 
 let added: AddPlanInput | undefined;
 let patched: UpdatePlanPatch | undefined;
 let currentFormat: PlanFormat = "md";
+let viewer: Viewer = { kind: "local" };
 
 function stored(format: PlanFormat = currentFormat): StoredPlan {
 	return {
@@ -48,7 +50,7 @@ const store = {
 };
 
 mock.module("@/lib/current-viewer", () => ({
-	currentViewer: async () => ({ kind: "local" as const }),
+	currentViewer: async () => viewer,
 	unauthorized: () => Response.json({ error: "unauthorized" }, { status: 401 }),
 }));
 
@@ -71,6 +73,7 @@ beforeEach(() => {
 	added = undefined;
 	patched = undefined;
 	currentFormat = "md";
+	viewer = { kind: "local" };
 });
 
 describe("plan content API mutations", () => {
@@ -106,6 +109,56 @@ describe("plan content API mutations", () => {
 			}),
 		);
 		expect(invalid.status).toBe(422);
+		expect(added).toBeUndefined();
+	});
+
+	test("allows trusted HTML only for an authorized publisher", async () => {
+		viewer = {
+			kind: "user",
+			userId: "user-a",
+			email: "anuragsharma011011@gmail.com",
+			db: {} as never,
+		};
+		const trusted = await POST(
+			new Request("https://plans.host-plan.com/api/plans", {
+				method: "POST",
+				headers: { "content-type": "application/json" },
+				body: JSON.stringify({
+					content: "<!doctype html><script>window.ready = true</script>",
+					title: "Trusted site",
+					project: "hostplan",
+					branch: "main",
+					format: "html",
+					trustedHtml: true,
+				}),
+			}),
+		);
+		expect(trusted.status).toBe(201);
+		expect(added?.content).toContain("hostplan-trusted-html-v1");
+		expect(added?.content).toContain("<script>");
+
+		added = undefined;
+		viewer = {
+			kind: "user",
+			userId: "user-b",
+			email: "other@example.com",
+			db: {} as never,
+		};
+		const rejected = await POST(
+			new Request("https://plans.host-plan.com/api/plans", {
+				method: "POST",
+				headers: { "content-type": "application/json" },
+				body: JSON.stringify({
+					content: "<!doctype html><script>window.ready = true</script>",
+					title: "Rejected site",
+					project: "hostplan",
+					branch: "main",
+					format: "html",
+					trustedHtml: true,
+				}),
+			}),
+		);
+		expect(rejected.status).toBe(403);
 		expect(added).toBeUndefined();
 	});
 

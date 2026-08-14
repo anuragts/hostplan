@@ -42,6 +42,7 @@ export interface AddOptions {
 	/** commander sets this false for --private, true for --public */
 	public?: boolean;
 	private?: boolean;
+	trustedHtml?: boolean;
 	/** Plan id this one waits on — chains it into a stack. */
 	after?: string;
 	status?: string;
@@ -101,7 +102,12 @@ export async function storeOnePlan(
 	dependsOn?: string,
 ): Promise<StoredResult> {
 	const source = await readSource(file, options);
-	if (source.format === "html") assertValidCustomHtml(source.raw);
+	if (options.trustedHtml === true && source.format !== "html") {
+		die("--trusted-html can only be used with HTML plans");
+	}
+	if (source.format === "html" && options.trustedHtml !== true) {
+		assertValidCustomHtml(source.raw);
+	}
 
 	// Markdown sources may carry their own frontmatter; keep the parts we don't own.
 	const parsed =
@@ -155,6 +161,7 @@ export async function storeOnePlan(
 				...(plan.meta.code === undefined ? {} : { code: plan.meta.code }),
 				...(status === undefined ? {} : { status }),
 				...(dependsOn === undefined ? {} : { dependsOn }),
+				...(options.trustedHtml === true ? { trustedHtml: true } : {}),
 			});
 		} catch (error) {
 			warn(`stored locally but not pushed — ${(error as Error).message}`);

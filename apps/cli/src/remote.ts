@@ -19,6 +19,7 @@ export interface PushInput {
 	code?: string;
 	status?: PlanStatus;
 	dependsOn?: string;
+	trustedHtml?: boolean;
 }
 
 export interface PatchInput {
@@ -26,6 +27,7 @@ export interface PatchInput {
 	content?: string;
 	dependsOn?: string | null;
 	title?: string;
+	trustedHtml?: boolean;
 }
 
 const TIMEOUT_MS = 20_000;

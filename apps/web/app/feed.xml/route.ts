@@ -1,8 +1,5 @@
-import {
-	DAILY_SUNRISE_ARTICLE,
-	DAILY_SUNRISE_ARTICLE_URL,
-} from "@/features/hostplans-daily-sunrise";
-import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
+import { DAILY_SUNRISE_ARTICLES } from "@/features/hostplans-daily-sunrise";
+import { absoluteUrl, SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 
 function escapeXml(value: string): string {
 	return value
@@ -14,6 +11,16 @@ function escapeXml(value: string): string {
 }
 
 export function GET() {
+	const items = DAILY_SUNRISE_ARTICLES.map((article) => {
+		const url = absoluteUrl(article.path);
+		return `    <item>
+      <title>${escapeXml(article.title)}</title>
+      <link>${url}</link>
+      <guid isPermaLink="true">${url}</guid>
+      <pubDate>${new Date(`${article.published}T00:00:00.000Z`).toUTCString()}</pubDate>
+      <description>${escapeXml(article.description)}</description>
+    </item>`;
+	}).join("\n");
 	const body = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
@@ -21,15 +28,9 @@ export function GET() {
     <link>${SITE_URL}</link>
     <description>${escapeXml(SITE_DESCRIPTION)}</description>
     <language>en</language>
-    <lastBuildDate>${new Date(`${DAILY_SUNRISE_ARTICLE.updated}T00:00:00.000Z`).toUTCString()}</lastBuildDate>
+    <lastBuildDate>${new Date(`${DAILY_SUNRISE_ARTICLES[0].updated}T00:00:00.000Z`).toUTCString()}</lastBuildDate>
     <atom:link href="${SITE_URL}/feed.xml" rel="self" type="application/rss+xml" />
-    <item>
-      <title>${escapeXml(DAILY_SUNRISE_ARTICLE.title)}</title>
-      <link>${DAILY_SUNRISE_ARTICLE_URL}</link>
-      <guid isPermaLink="true">${DAILY_SUNRISE_ARTICLE_URL}</guid>
-      <pubDate>${new Date(`${DAILY_SUNRISE_ARTICLE.published}T00:00:00.000Z`).toUTCString()}</pubDate>
-      <description>${escapeXml(DAILY_SUNRISE_ARTICLE.description)}</description>
-    </item>
+${items}
   </channel>
 </rss>`;
 

@@ -35,10 +35,11 @@ describe("SEO discovery routes", () => {
 		expect(body).not.toContain("?code=");
 	});
 
-	test("RSS exposes the canonical Daily Sunrise article without private data", async () => {
+	test("RSS exposes canonical Daily Sunrise articles without private data", async () => {
 		const response = feed();
 		const body = await response.text();
 		expect(response.headers.get("content-type")).toBe("application/rss+xml; charset=utf-8");
+		expect(body).toContain("2026-08-14-cross-session-handoff");
 		expect(body).toContain("2026-08-13-active-contract-ledger");
 		expect(body).not.toContain("?code=");
 		expect(body).not.toContain("/p/");

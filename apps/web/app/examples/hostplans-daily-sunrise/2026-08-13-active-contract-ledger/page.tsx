@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { DAILY_SUNRISE_ARTICLE, DailySunriseArticle } from "@/features/hostplans-daily-sunrise";
+import { ACTIVE_CONTRACT_ARTICLE, DailySunriseArticle } from "@/features/hostplans-daily-sunrise";
 import { pageMetadata, SITE_URL } from "@/lib/site";
 
 const baseMetadata = pageMetadata({
-	title: DAILY_SUNRISE_ARTICLE.title,
-	description: DAILY_SUNRISE_ARTICLE.description,
-	path: DAILY_SUNRISE_ARTICLE.path,
+	title: ACTIVE_CONTRACT_ARTICLE.title,
+	description: ACTIVE_CONTRACT_ARTICLE.description,
+	path: ACTIVE_CONTRACT_ARTICLE.path,
 });
 
 export const metadata: Metadata = {
@@ -13,11 +13,11 @@ export const metadata: Metadata = {
 	openGraph: {
 		...baseMetadata.openGraph,
 		type: "article",
-		publishedTime: `${DAILY_SUNRISE_ARTICLE.published}T00:00:00.000Z`,
-		modifiedTime: `${DAILY_SUNRISE_ARTICLE.updated}T00:00:00.000Z`,
+		publishedTime: `${ACTIVE_CONTRACT_ARTICLE.published}T00:00:00.000Z`,
+		modifiedTime: `${ACTIVE_CONTRACT_ARTICLE.updated}T00:00:00.000Z`,
 		images: [
 			{
-				url: `${SITE_URL}${DAILY_SUNRISE_ARTICLE.imagePath}`,
+				url: `${SITE_URL}${ACTIVE_CONTRACT_ARTICLE.imagePath}`,
 				width: 1200,
 				height: 675,
 				alt: "The five fields of an active-contract ledger for resumable coding-agent work.",
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
 	},
 	twitter: {
 		...baseMetadata.twitter,
-		images: [`${SITE_URL}${DAILY_SUNRISE_ARTICLE.imagePath}`],
+		images: [`${SITE_URL}${ACTIVE_CONTRACT_ARTICLE.imagePath}`],
 	},
 };
 

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { JsonLd } from "@/components/json-ld";
 import { MarketingShell } from "@/components/marketing-shell";
 import { REPOSITORY_URL, SITE_URL } from "@/lib/site";
-import { DAILY_SUNRISE_ARTICLE, DAILY_SUNRISE_ARTICLE_URL } from "./content";
+import { ACTIVE_CONTRACT_ARTICLE, ACTIVE_CONTRACT_ARTICLE_URL } from "./content";
 
 const ledgerRows = [
 	["Outcome", "One observable result, including what is deliberately out of scope."],
@@ -20,15 +20,15 @@ export function DailySunriseArticle() {
 				value={{
 					"@context": "https://schema.org",
 					"@type": "TechArticle",
-					headline: DAILY_SUNRISE_ARTICLE.title,
-					description: DAILY_SUNRISE_ARTICLE.description,
-					datePublished: DAILY_SUNRISE_ARTICLE.published,
-					dateModified: DAILY_SUNRISE_ARTICLE.updated,
-					mainEntityOfPage: DAILY_SUNRISE_ARTICLE_URL,
-					image: `${SITE_URL}${DAILY_SUNRISE_ARTICLE.imagePath}`,
+					headline: ACTIVE_CONTRACT_ARTICLE.title,
+					description: ACTIVE_CONTRACT_ARTICLE.description,
+					datePublished: ACTIVE_CONTRACT_ARTICLE.published,
+					dateModified: ACTIVE_CONTRACT_ARTICLE.updated,
+					mainEntityOfPage: ACTIVE_CONTRACT_ARTICLE_URL,
+					image: `${SITE_URL}${ACTIVE_CONTRACT_ARTICLE.imagePath}`,
 					author: { "@type": "Organization", name: "Hostplan project", url: REPOSITORY_URL },
 					publisher: { "@type": "Organization", name: "Hostplan project", url: SITE_URL },
-					citation: DAILY_SUNRISE_ARTICLE.sources.map((source) => source.url),
+					citation: ACTIVE_CONTRACT_ARTICLE.sources.map((source) => source.url),
 				}}
 			/>
 			<article className="mx-auto w-full max-w-4xl px-4 pt-16 sm:px-6 sm:pt-20">
@@ -49,15 +49,15 @@ export function DailySunriseArticle() {
 						Daily Sunrise · field guide
 					</p>
 					<h1 className="mt-4 max-w-3xl text-balance font-semibold text-4xl text-ink leading-[1.1] tracking-tight sm:text-5xl">
-						{DAILY_SUNRISE_ARTICLE.title}
+						{ACTIVE_CONTRACT_ARTICLE.title}
 					</h1>
 					<p className="mt-6 max-w-2xl text-pretty text-ink-muted text-lg leading-7">
-						{DAILY_SUNRISE_ARTICLE.description}
+						{ACTIVE_CONTRACT_ARTICLE.description}
 					</p>
 					<div className="mt-6 flex flex-wrap gap-x-3 gap-y-2 text-ink-faint text-xs">
 						<span>Maintained by the Hostplan project</span>
 						<span aria-hidden="true">·</span>
-						<time dateTime={DAILY_SUNRISE_ARTICLE.updated}>Updated August 13, 2026</time>
+						<time dateTime={ACTIVE_CONTRACT_ARTICLE.updated}>Updated August 13, 2026</time>
 					</div>
 				</header>
 
@@ -82,12 +82,12 @@ export function DailySunriseArticle() {
 
 				<figure className="mt-12 overflow-hidden rounded-2xl bg-surface-raised shadow-[0_0_0_1px_rgba(255,255,255,0.08)]">
 					<Image
-						src={DAILY_SUNRISE_ARTICLE.imagePath}
+						src={ACTIVE_CONTRACT_ARTICLE.imagePath}
 						alt="Five-part active-contract ledger flowing from outcome and authority through checkpoint and evidence to a stop rule."
 						width={1200}
 						height={675}
 						sizes="(max-width: 896px) 100vw, 896px"
-						className="aspect-video h-auto w-full"
+						className="aspect-video h-auto w-full -outline-offset-1 outline outline-1 outline-black/10 dark:outline-white/10"
 						priority
 					/>
 					<figcaption className="border-line border-t px-4 py-3 text-ink-faint text-xs leading-5 sm:px-6">
@@ -221,7 +221,7 @@ export function DailySunriseArticle() {
 							Primary sources
 						</h2>
 						<ul className="mt-5 space-y-4">
-							{DAILY_SUNRISE_ARTICLE.sources.map((source) => (
+							{ACTIVE_CONTRACT_ARTICLE.sources.map((source) => (
 								<li key={source.url} className="border-line border-l-2 pl-4">
 									<a
 										className="rounded-sm font-medium text-ink underline decoration-line underline-offset-4 hover:decoration-ink focus-visible:outline-2 focus-visible:outline-brand"

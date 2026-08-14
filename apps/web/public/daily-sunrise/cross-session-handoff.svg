@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" role="img" aria-labelledby="title description">
+  <title id="title">Durable cross-session handoff</title>
+  <desc id="description">A short message from session A points to a durable Hostplan artifact. Session B verifies the artifact before acting.</desc>
+  <rect width="1200" height="675" rx="32" fill="#111113"/>
+  <text x="72" y="82" fill="#f5f5f7" font-family="ui-sans-serif, system-ui, sans-serif" font-size="26" font-weight="650">Message routes attention. The plan carries truth.</text>
+  <text x="72" y="116" fill="#8f8f98" font-family="ui-monospace, SFMono-Regular, monospace" font-size="15">HOSTPLAN · CROSS-SESSION HANDOFF</text>
+
+  <g transform="translate(72 190)">
+    <rect width="250" height="310" rx="24" fill="#18181b" stroke="#34343a" stroke-width="2"/>
+    <circle cx="48" cy="52" r="20" fill="#70d7d1" opacity="0.16"/>
+    <text x="48" y="59" fill="#70d7d1" font-family="ui-monospace, SFMono-Regular, monospace" font-size="18" font-weight="700" text-anchor="middle">A</text>
+    <text x="80" y="59" fill="#f5f5f7" font-family="ui-sans-serif, system-ui, sans-serif" font-size="19" font-weight="600">Session A</text>
+    <rect x="24" y="94" width="202" height="132" rx="16" fill="#0d0d0f"/>
+    <text x="42" y="124" fill="#8f8f98" font-family="ui-monospace, SFMono-Regular, monospace" font-size="13">HANDOFF</text>
+    <text x="42" y="153" fill="#f5f5f7" font-family="ui-sans-serif, system-ui, sans-serif" font-size="15">Plan: /p/&lt;id&gt;</text>
+    <text x="42" y="180" fill="#f5f5f7" font-family="ui-sans-serif, system-ui, sans-serif" font-size="15">State: blocked</text>
+    <text x="42" y="207" fill="#f5f5f7" font-family="ui-sans-serif, system-ui, sans-serif" font-size="15">Next: verify PR</text>
+    <text x="24" y="270" fill="#8f8f98" font-family="ui-sans-serif, system-ui, sans-serif" font-size="14">Small, inspectable pointer</text>
+  </g>
+
+  <g transform="translate(429 166)">
+    <rect width="342" height="358" rx="28" fill="#18181b" stroke="#70d7d1" stroke-width="3"/>
+    <rect x="28" y="28" width="286" height="56" rx="14" fill="#70d7d1" opacity="0.12"/>
+    <text x="52" y="63" fill="#70d7d1" font-family="ui-monospace, SFMono-Regular, monospace" font-size="17" font-weight="700">CANONICAL HOSTPLAN</text>
+    <text x="28" y="132" fill="#f5f5f7" font-family="ui-sans-serif, system-ui, sans-serif" font-size="22" font-weight="650">Durable handoff state</text>
+    <g fill="#8f8f98" font-family="ui-sans-serif, system-ui, sans-serif" font-size="16">
+      <text x="52" y="184">Outcome + authority</text>
+      <text x="52" y="228">Verified checkpoint</text>
+      <text x="52" y="272">Evidence + open decision</text>
+      <text x="52" y="316">One next safe action</text>
+    </g>
+    <g fill="#70d7d1">
+      <circle cx="30" cy="178" r="5"/>
+      <circle cx="30" cy="222" r="5"/>
+      <circle cx="30" cy="266" r="5"/>
+      <circle cx="30" cy="310" r="5"/>
+    </g>
+  </g>
+
+  <g transform="translate(878 190)">
+    <rect width="250" height="310" rx="24" fill="#18181b" stroke="#34343a" stroke-width="2"/>
+    <circle cx="48" cy="52" r="20" fill="#70d7d1" opacity="0.16"/>
+    <text x="48" y="59" fill="#70d7d1" font-family="ui-monospace, SFMono-Regular, monospace" font-size="18" font-weight="700" text-anchor="middle">B</text>
+    <text x="80" y="59" fill="#f5f5f7" font-family="ui-sans-serif, system-ui, sans-serif" font-size="19" font-weight="600">Session B</text>
+    <g font-family="ui-sans-serif, system-ui, sans-serif" font-size="15">
+      <rect x="24" y="98" width="202" height="46" rx="12" fill="#0d0d0f"/>
+      <text x="44" y="127" fill="#f5f5f7">1 · Open the plan</text>
+      <rect x="24" y="158" width="202" height="46" rx="12" fill="#0d0d0f"/>
+      <text x="44" y="187" fill="#f5f5f7">2 · Verify state</text>
+      <rect x="24" y="218" width="202" height="46" rx="12" fill="#0d0d0f"/>
+      <text x="44" y="247" fill="#f5f5f7">3 · Act once</text>
+    </g>
+    <text x="24" y="292" fill="#8f8f98" font-family="ui-sans-serif, system-ui, sans-serif" font-size="14">No blind continuation</text>
+  </g>
+
+  <path d="M334 345H401" stroke="#70d7d1" stroke-width="4" stroke-linecap="round"/>
+  <path d="M389 333L401 345L389 357" fill="none" stroke="#70d7d1" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M799 345H866" stroke="#70d7d1" stroke-width="4" stroke-linecap="round"/>
+  <path d="M854 333L866 345L854 357" fill="none" stroke="#70d7d1" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <text x="600" y="607" fill="#8f8f98" font-family="ui-sans-serif, system-ui, sans-serif" font-size="16" text-anchor="middle">A delivered message proves reachability—not freshness, authority, or completion.</text>
+</svg>

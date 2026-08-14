@@ -7,26 +7,7 @@ export type AcquisitionSource =
 	| "other-referral"
 	| "direct";
 
-const SAFE_PUBLIC_PATHS = new Set([
-	"/",
-	"/coding-agent-plans",
-	"/share-coding-agent-plans",
-	"/agent-plan-handoff",
-	"/integrations/codex",
-	"/integrations/claude-code",
-	"/integrations/cursor",
-	"/docs/cli",
-	"/docs/agent-setup",
-	"/examples",
-	"/examples/custom-html",
-	"/examples/plan-lifecycle",
-	"/examples/plan-stack",
-	"/examples/agent-handoff",
-	"/examples/hostplans-daily-sunrise/2026-08-13-active-contract-ledger",
-	"/compare/plan-md-vs-hostplan",
-	"/about",
-	"/login",
-]);
+const SAFE_PUBLIC_PATHS = new Set([...PUBLIC_ROUTES, "/login"]);
 
 /** Prevent plan ids, project names, branches, and account routes entering analytics. */
 export function analyticsPath(pathname: string): string {
@@ -82,3 +63,5 @@ export function acquisitionSource(referrer: string, utmSource?: string): Acquisi
 		return "other-referral";
 	}
 }
+
+import { PUBLIC_ROUTES } from "@/lib/site";

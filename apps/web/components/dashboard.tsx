@@ -163,7 +163,7 @@ export function Dashboard({ email, plans }: { email: string; plans: StoredPlan[]
 			crumbs={[]}
 			action={
 				<form action="/api/auth/signout" method="post">
-					<Button type="submit" variant="ghost" size="sm" className="text-ink-faint">
+					<Button type="submit" variant="ghost" size="sm" className="cursor-pointer text-ink-faint">
 						Sign out
 					</Button>
 				</form>

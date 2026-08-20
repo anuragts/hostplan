@@ -302,18 +302,18 @@ html {
 	max-width: var(--plan-measure);
 }
 
-/* The article stays narrow enough to read while supporting metadata gets a
-   quiet, scannable line of its own. */
+/* Let shared plans use the available viewport while retaining calm,
+   responsive page gutters. */
 .plan-environment .hostplan-shell {
-	max-width: 75rem;
+	max-width: none;
 	padding-block: 2rem 6rem;
 	padding-inline: clamp(1.25rem, 4vw, 3rem);
 }
 
 .plan-environment .hostplan-shell-header {
 	margin-bottom: 5rem;
-	margin-inline: auto;
-	max-width: 45rem;
+	margin-inline: 0;
+	max-width: none;
 	min-height: 2.5rem;
 }
 
@@ -332,22 +332,22 @@ html {
 }
 
 .plan-environment .plan-document {
-	margin-inline: auto;
-	max-width: 45rem;
+	margin-inline: 0;
+	max-width: none;
 	width: 100%;
 }
 
 .plan-environment .plan-document-header {
 	border: 0;
 	margin: 0 0 4rem;
-	max-width: 45rem;
+	max-width: none;
 	padding: 0;
 	width: 100%;
 }
 
 .plan-environment .plan-document-body {
 	margin: 0;
-	max-width: 45rem;
+	max-width: none;
 	min-width: 0;
 }
 

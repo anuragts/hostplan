@@ -24,12 +24,13 @@ import { ProseSkeleton } from "@/components/skeletons";
 import { StatusBadge } from "@/components/status-badge";
 import { StatusControl } from "@/components/status-control";
 import { VisibilityBadge } from "@/components/visibility-badge";
+import { getPlanReaderData, PlanReaderRail, PlanReaderSummary } from "@/features/plan-reader";
 import { currentViewer } from "@/lib/current-viewer";
 import { absoluteTime, relativeTime } from "@/lib/format";
 import { ownsPlan } from "@/lib/plan-access";
 import { buildOpenTargets } from "@/lib/providers";
 import { clientKey, codeAttemptKey, consumeAttempt } from "@/lib/rate-limit";
-import { renderPlanBody, stripLeadingTitle } from "@/lib/render";
+import { renderPlanBody } from "@/lib/render";
 import { isRemoteStore, planStore } from "@/lib/store";
 import { isTrustedHtml } from "@/lib/trusted-html";
 
@@ -77,9 +78,7 @@ export async function generateMetadata({
  * `updated` moves whenever the body does, so it is both the cache key and the
  * invalidation — a revision renders once and is then served from memory.
  */
-async function PlanBody({ plan }: { plan: StoredPlan }) {
-	const { meta } = plan;
-	const body = stripLeadingTitle(plan.body, meta.title);
+async function PlanBody({ id, updated, body }: { id: string; updated: string; body: string }) {
 	if (body.trim().length === 0) {
 		return (
 			<div className="plan-empty-state" role="status">
@@ -88,8 +87,8 @@ async function PlanBody({ plan }: { plan: StoredPlan }) {
 			</div>
 		);
 	}
-	const html = await renderPlanBody(`${meta.id}:${meta.updated}`, body);
-	const containerId = `plan-body-${meta.id}`;
+	const html = await renderPlanBody(`${id}:${updated}`, body);
+	const containerId = `plan-body-${id}`;
 	return (
 		<>
 			<article
@@ -173,6 +172,18 @@ export default async function PlanPage({
 				},
 			]
 		: [{ label: meta.project }, { label: meta.branch }];
+	const readerData = meta.format === "md" ? getPlanReaderData(plan.body, meta.title) : undefined;
+	const openTargets = buildOpenTargets({
+		planUrl: url,
+		// Local paths are the owner's alone. Everyone else opens the shared URL.
+		...(isOwner && !isRemoteStore()
+			? {
+					planPath: plan.path,
+					...(meta.cwd === undefined ? {} : { cwd: meta.cwd }),
+					...(meta.source === undefined ? {} : { source: meta.source }),
+				}
+			: {}),
+	});
 
 	return (
 		<PlanEnvironment id={meta.id}>
@@ -186,78 +197,69 @@ export default async function PlanPage({
 					) : undefined
 				}
 			>
-				{/* Room at the bottom so the floating button never covers the last lines. */}
+				{/* Mobile and HTML plans keep a floating action, so reserve its last line. */}
 				<main className="plan-page-content pb-24" data-plan-format={meta.format}>
 					<PlanDocument>
-						<header className="plan-document-header">
-							<h1 className="plan-title">{meta.title}</h1>
-							<aside className="plan-meta" aria-label="Plan details">
-								<CopyId id={meta.id} />
-								{/* The owner can move the plan through its lifecycle from here;
-							    everyone else sees where it got to. */}
-								{isOwner ? (
-									<StatusControl id={meta.id} status={meta.status} />
-								) : (
-									<StatusBadge status={meta.status} />
-								)}
-								<VisibilityBadge meta={meta} isOwner={isOwner} />
-								{meta.dependsOn !== undefined && (
-									<span
-										data-blocked={blocked}
-										className={`plan-dependency rounded border px-2 py-0.5 font-mono text-xs ${blocked ? "border-amber-500/40 text-amber-400" : "border-line text-ink-faint"}`}
-									>
-										{blocked ? "blocked · waits on " : "follows "}
-										<a href={`/p/${meta.dependsOn}`} className="underline underline-offset-2">
-											{meta.dependsOn}
-										</a>
+						<div className="plan-reader-main">
+							<header className="plan-document-header">
+								<h1 className="plan-title">{meta.title}</h1>
+								<aside className="plan-meta" aria-label="Plan details">
+									<CopyId id={meta.id} />
+									{/* The owner can move the plan through its lifecycle from here;
+								    everyone else sees where it got to. */}
+									{isOwner ? (
+										<StatusControl id={meta.id} status={meta.status} />
+									) : (
+										<StatusBadge status={meta.status} />
+									)}
+									<VisibilityBadge meta={meta} isOwner={isOwner} />
+									{meta.dependsOn !== undefined && (
+										<span
+											data-blocked={blocked}
+											className={`plan-dependency rounded border px-2 py-0.5 font-mono text-xs ${blocked ? "border-amber-500/40 text-amber-400" : "border-line text-ink-faint"}`}
+										>
+											{blocked ? "blocked · waits on " : "follows "}
+											<a href={`/p/${meta.dependsOn}`} className="underline underline-offset-2">
+												{meta.dependsOn}
+											</a>
+										</span>
+									)}
+									<span className="plan-meta-updated" title={absoluteTime(meta.updated)}>
+										updated {relativeTime(meta.updated)}
 									</span>
-								)}
-								<span className="plan-meta-updated" title={absoluteTime(meta.updated)}>
-									updated {relativeTime(meta.updated)}
-								</span>
-								{/* Where the plan sits on disk is the owner's business only. */}
-								{isOwner && !isRemoteStore() && (
-									<>
-										<span className="plan-meta-divider">|</span>
-										<span className="plan-meta-path font-mono">{displayPath(plan.path)}</span>
-									</>
-								)}
-							</aside>
-						</header>
+									{/* Where the plan sits on disk is the owner's business only. */}
+									{isOwner && !isRemoteStore() && (
+										<>
+											<span className="plan-meta-divider">|</span>
+											<span className="plan-meta-path font-mono">{displayPath(plan.path)}</span>
+										</>
+									)}
+								</aside>
+								{readerData !== undefined && <PlanReaderSummary data={readerData} />}
+							</header>
 
-						<div className="plan-document-body">
-							{meta.format === "html" ? (
-								<HtmlPlanFrame
-									src={`/api/render/${meta.id}${code === undefined ? "" : `?code=${code}`}`}
-									title={meta.title}
-									trusted={trustedHtml}
-								/>
-							) : (
-								// Streamed: the header above is already useful, and holding it back
-								// until the markdown is highlighted is what makes a cold open feel
-								// like a blank page.
-								<Suspense fallback={<ProseSkeleton />}>
-									<PlanBody plan={plan} />
-								</Suspense>
-							)}
+							<div className="plan-document-body">
+								{readerData === undefined ? (
+									<HtmlPlanFrame
+										src={`/api/render/${meta.id}${code === undefined ? "" : `?code=${code}`}`}
+										title={meta.title}
+										trusted={trustedHtml}
+									/>
+								) : (
+									// The reader chrome is immediate; code highlighting can stream in later.
+									<Suspense fallback={<ProseSkeleton />}>
+										<PlanBody id={meta.id} updated={meta.updated} body={readerData.body} />
+									</Suspense>
+								)}
+							</div>
 						</div>
+						{readerData !== undefined && (
+							<PlanReaderRail data={readerData} targets={openTargets} planId={meta.id} />
+						)}
 					</PlanDocument>
 				</main>
 
-				<OpenIn
-					targets={buildOpenTargets({
-						planUrl: url,
-						// Local paths are the owner's alone — for anyone else the prompts
-						// point at this page instead.
-						...(isOwner && !isRemoteStore()
-							? {
-									planPath: plan.path,
-									...(meta.cwd === undefined ? {} : { cwd: meta.cwd }),
-									...(meta.source === undefined ? {} : { source: meta.source }),
-								}
-							: {}),
-					})}
-				/>
+				{readerData === undefined && <OpenIn targets={openTargets} />}
 			</Shell>
 		</PlanEnvironment>
 	);

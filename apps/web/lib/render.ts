@@ -164,7 +164,7 @@ export function stripLeadingTitle(body: string, title: string): string {
 	let index = 0;
 	while (index < lines.length && lines[index]?.trim() === "") index++;
 
-	const heading = lines[index]?.match(/^#\s+(.+?)\s*#*\s*$/)?.[1]?.trim();
+	const heading = lines[index]?.match(/^#{1,6}\s+(.+?)\s*#*\s*$/)?.[1]?.trim();
 	if (heading === undefined || heading !== title.trim()) return body;
 
 	return lines.slice(index + 1).join("\n");

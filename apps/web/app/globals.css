@@ -144,7 +144,9 @@ html {
 	--plan-heading-font: var(--font-sans);
 	--plan-body-font: var(--font-sans);
 	--plan-code-font: var(--font-mono);
-	--plan-measure: 45rem;
+	--plan-measure: 68ch;
+	--plan-visual-measure: 56rem;
+	--plan-rail-measure: 15rem;
 	--plan-radius: 0;
 	--plan-padding: 0;
 	--plan-shadow: none;
@@ -296,14 +298,7 @@ html {
 	color: oklch(0.84 0.08 195);
 }
 
-.plan-document-body,
-.plan-document-header {
-	margin-inline: auto;
-	max-width: var(--plan-measure);
-}
-
-/* Let shared plans use the available viewport while retaining calm,
-   responsive page gutters. */
+/* The shell owns the viewport. The document keeps a readable internal grid. */
 .plan-environment .hostplan-shell {
 	max-width: none;
 	padding-block: 2rem 6rem;
@@ -311,7 +306,7 @@ html {
 }
 
 .plan-environment .hostplan-shell-header {
-	margin-bottom: 5rem;
+	margin-bottom: 3.5rem;
 	margin-inline: 0;
 	max-width: none;
 	min-height: 2.5rem;
@@ -337,6 +332,10 @@ html {
 	width: 100%;
 }
 
+.plan-environment .plan-reader-main {
+	min-width: 0;
+}
+
 .plan-environment .plan-document-header {
 	border: 0;
 	margin: 0 0 4rem;
@@ -349,6 +348,91 @@ html {
 	margin: 0;
 	max-width: none;
 	min-width: 0;
+}
+
+.plan-environment .plan-page-content[data-plan-format="md"] .plan-document {
+	margin-inline: auto;
+	max-width: var(--plan-visual-measure);
+}
+
+.plan-environment .plan-page-content[data-plan-format="md"] .plan-document-header {
+	margin-bottom: 3rem;
+	max-width: var(--plan-measure);
+}
+
+.plan-environment .plan-page-content[data-plan-format="md"] .plan-document-body {
+	max-width: var(--plan-visual-measure);
+}
+
+.plan-reader-summary {
+	border-top: 1px solid var(--plan-line);
+	margin-top: 1.5rem;
+	padding-top: 1rem;
+}
+
+.plan-reader-stats {
+	align-items: center;
+	color: var(--plan-muted);
+	display: flex;
+	flex-wrap: wrap;
+	font-size: 0.75rem;
+	font-variant-numeric: tabular-nums;
+	gap: 0.5rem 1.25rem;
+	line-height: 1.25rem;
+}
+
+.plan-reader-stats > span {
+	position: relative;
+}
+
+.plan-reader-stats > span + span::before {
+	background: var(--plan-line);
+	border-radius: 999px;
+	content: "";
+	height: 0.25rem;
+	left: -0.75rem;
+	position: absolute;
+	top: 0.5rem;
+	width: 0.25rem;
+}
+
+.plan-reader-progress {
+	background: var(--plan-line);
+	border-radius: 999px;
+	height: 0.25rem;
+	margin-top: 0.75rem;
+	max-width: 24rem;
+	overflow: hidden;
+}
+
+.plan-reader-progress > span {
+	background: color-mix(in oklch, var(--plan-accent) 72%, white);
+	border-radius: inherit;
+	display: block;
+	height: 100%;
+}
+
+.plan-reader-rail {
+	height: 0;
+}
+
+.plan-outline {
+	display: none;
+}
+
+.plan-reader-open-in {
+	bottom: 1rem;
+	left: 1rem;
+	position: fixed;
+	right: 1rem;
+}
+
+.plan-reader-open-in .plan-open-in-control {
+	width: 100%;
+}
+
+.plan-reader-open-in .plan-open-in-main {
+	flex: 1;
 }
 
 .plan-prose {
@@ -378,12 +462,18 @@ html {
 	color: var(--plan-body-ink);
 	font-size: 1rem;
 	line-height: 1.6;
+	overflow-x: clip;
+}
+
+.plan-environment .plan-prose > :not(.plan-mermaid, table, pre) {
+	max-width: var(--plan-measure);
 }
 
 .plan-prose :where(h1, h2, h3, h4) {
 	color: var(--plan-ink);
 	font-family: var(--plan-heading-font);
 	letter-spacing: -0.02em;
+	scroll-margin-top: 2rem;
 	text-wrap: balance;
 }
 
@@ -398,8 +488,8 @@ html {
 }
 
 .plan-environment .plan-prose :where(h3) {
-	border-bottom: 1px solid color-mix(in oklch, var(--plan-accent) 24%, transparent);
-	color: color-mix(in oklch, var(--plan-accent) 80%, white);
+	border-bottom: 1px solid var(--plan-line);
+	color: var(--plan-ink);
 	font-size: 1.25rem;
 	font-weight: 600;
 	line-height: 1.75rem;
@@ -509,7 +599,7 @@ html {
 	box-shadow: inset 0 1px rgb(255 255 255 / 3%);
 	box-sizing: border-box;
 	display: grid;
-	height: clamp(22rem, 70vw, 36rem);
+	height: clamp(23.25rem, 50vw, 28.5rem);
 	justify-items: center;
 	margin-block: 2rem;
 	overflow: auto;
@@ -551,10 +641,11 @@ html {
 
 .plan-mermaid[data-mermaid-state="rendered"] svg {
 	display: block;
-	height: 84%;
+	height: auto;
 	max-height: 100%;
-	max-width: 100%;
-	width: 84%;
+	max-width: none;
+	min-width: 42rem;
+	width: 100%;
 }
 
 .plan-mermaid[data-mermaid-state="error"] {
@@ -768,16 +859,17 @@ html {
 }
 
 .plan-environment .prose :where(table) {
-	font-size: 0.8125rem;
+	font-size: 0.875rem;
 	font-variant-numeric: tabular-nums;
-	line-height: 1.25rem;
+	line-height: 1.5rem;
 	margin-bottom: 2rem;
 	margin-top: 1.5rem;
+	width: 100%;
 }
 
 .plan-environment .prose :where(thead th) {
 	color: var(--plan-faint);
-	font-size: 0.6875rem;
+	font-size: 0.75rem;
 	font-weight: 600;
 	letter-spacing: 0.06em;
 	padding: 0.75rem 1rem;
@@ -794,6 +886,106 @@ html {
 
 .plan-environment .prose :where(thead th:last-child, tbody td:last-child) {
 	padding-right: 0;
+}
+
+@media (min-width: 1360px) {
+	.plan-environment .plan-page-content[data-plan-format="md"] .plan-document {
+		align-items: start;
+		column-gap: 4rem;
+		display: grid;
+		grid-template-columns: minmax(0, var(--plan-visual-measure)) var(--plan-rail-measure);
+		max-width: calc(var(--plan-visual-measure) + var(--plan-rail-measure) + 4rem);
+	}
+
+	.plan-environment .plan-reader-rail {
+		align-self: start;
+		display: flex;
+		flex-direction: column;
+		gap: 1.5rem;
+		height: auto;
+		max-height: calc(100dvh - 4rem);
+		min-width: 0;
+		position: sticky;
+		top: 2rem;
+	}
+
+	.plan-environment .plan-outline {
+		display: flex;
+		flex: 1;
+		flex-direction: column;
+		min-height: 0;
+	}
+
+	.plan-outline-label {
+		color: var(--plan-muted);
+		font-size: 0.6875rem;
+		font-weight: 600;
+		letter-spacing: 0.08em;
+		line-height: 1rem;
+		padding-inline: 0.75rem;
+		text-transform: uppercase;
+	}
+
+	.plan-outline-list {
+		border-left: 1px solid var(--plan-line);
+		list-style: none;
+		margin: 0.75rem 0 0;
+		overflow-y: auto;
+		padding: 0 0.5rem;
+		scrollbar-gutter: stable;
+	}
+
+	.plan-outline-list a {
+		align-items: center;
+		border-radius: 0.5rem;
+		color: var(--plan-faint);
+		display: flex;
+		font-size: 0.8125rem;
+		line-height: 1.125rem;
+		min-height: 2.5rem;
+		padding: 0.375rem 0.625rem;
+		text-decoration: none;
+		text-wrap: pretty;
+		transition-property: background-color, color;
+		transition-duration: 150ms;
+		transition-timing-function: ease-out;
+	}
+
+	.plan-outline-list a:hover {
+		background: rgb(255 255 255 / 4%);
+		color: var(--plan-body-ink);
+	}
+
+	.plan-outline-list a:focus-visible {
+		outline: 2px solid color-mix(in oklch, var(--plan-accent) 55%, transparent);
+		outline-offset: -2px;
+	}
+
+	.plan-outline-list a[aria-current="location"] {
+		background: rgb(255 255 255 / 5%);
+		color: var(--plan-ink);
+	}
+
+	.plan-outline-more {
+		color: var(--plan-faint);
+		font-size: 0.75rem;
+		line-height: 1rem;
+		margin-top: 0.75rem;
+		padding-inline: 0.75rem;
+	}
+
+	.plan-reader-open-in {
+		bottom: auto;
+		left: auto;
+		position: relative;
+		right: auto;
+		width: 100%;
+		z-index: 1;
+	}
+
+	.plan-reader-open-in .plan-open-in-menu {
+		width: 100%;
+	}
 }
 
 @media (max-width: 640px) {

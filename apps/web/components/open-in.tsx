@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { ProviderIcon } from "@/components/provider-icon";
 import { captureAnalyticsEvent } from "@/lib/client-analytics";
 import type { OpenTarget, ProviderId } from "@/lib/providers";
+import { cn } from "@/lib/utils";
 
 const STORAGE_KEY = "hostplan:open-in";
 
@@ -47,7 +48,13 @@ function Check() {
  * different one. Choosing from the menu launches immediately and is remembered,
  * so the common path stays a single click.
  */
-export function OpenIn({ targets }: { targets: OpenTarget[] }) {
+export function OpenIn({
+	targets,
+	embedded = false,
+}: {
+	targets: OpenTarget[];
+	embedded?: boolean;
+}) {
 	const fallback = targets[0];
 	const [selectedId, setSelectedId] = useState<ProviderId | undefined>(fallback?.id);
 	const [menuOpen, setMenuOpen] = useState(false);
@@ -90,7 +97,13 @@ export function OpenIn({ targets }: { targets: OpenTarget[] }) {
 	}
 
 	return (
-		<div ref={root} className="hostplan-open-in fixed right-6 bottom-6 z-50">
+		<div
+			ref={root}
+			className={cn(
+				"hostplan-open-in z-50",
+				embedded ? "plan-reader-open-in relative" : "fixed right-6 bottom-6",
+			)}
+		>
 			{menuOpen && (
 				<div
 					role="menu"

@@ -79,20 +79,45 @@ export function PlanPageSkeleton() {
 	return (
 		<PlanEnvironment id="plan-loading">
 			<Shell crumbs={[]}>
-				<main className="plan-page-content pb-24">
+				<main className="plan-page-content pb-24" data-plan-format="md">
 					<PlanDocument>
-						<header className="plan-document-header">
-							<Skeleton className="h-10 w-4/5" />
-							<div className="plan-meta" aria-hidden>
-								<Skeleton className="h-8 w-20" />
-								<Skeleton className="h-5 w-16" />
-								<Skeleton className="h-5 w-20" />
-								<Skeleton className="h-7 w-24" />
+						<div className="plan-reader-main">
+							<header className="plan-document-header">
+								<Skeleton className="h-10 w-4/5" />
+								<div className="plan-meta" aria-hidden>
+									<Skeleton className="h-8 w-20" />
+									<Skeleton className="h-5 w-16" />
+									<Skeleton className="h-5 w-20" />
+									<Skeleton className="h-7 w-24" />
+								</div>
+								<div className="plan-reader-summary" aria-hidden>
+									<div className="flex gap-4">
+										<Skeleton className="h-3 w-16" />
+										<Skeleton className="h-3 w-20" />
+										<Skeleton className="h-3 w-32" />
+									</div>
+									<Skeleton className="mt-3 h-1 w-80 max-w-full" />
+								</div>
+							</header>
+							<div className="plan-document-body">
+								<ProseSkeleton />
 							</div>
-						</header>
-						<div className="plan-document-body">
-							<ProseSkeleton />
 						</div>
+						<aside className="plan-reader-rail print:hidden" aria-hidden>
+							<div className="plan-outline space-y-3 px-3">
+								<Skeleton className="h-3 w-20" />
+								{Array.from({ length: 6 }, (_, index) => (
+									<Skeleton
+										// biome-ignore lint/suspicious/noArrayIndexKey: fixed outline placeholders
+										key={index}
+										className="h-8 w-full"
+									/>
+								))}
+							</div>
+							<div className="plan-reader-open-in relative">
+								<Skeleton className="h-11 w-full rounded-xl" />
+							</div>
+						</aside>
 					</PlanDocument>
 				</main>
 			</Shell>

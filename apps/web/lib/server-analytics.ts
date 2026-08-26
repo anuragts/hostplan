@@ -13,8 +13,7 @@ const sea = seaProjectKey
 	? createServerAnalytics({
 			projectKey: seaProjectKey,
 			endpoint:
-				process.env.NEXT_PUBLIC_SEA_COLLECTOR_URL ??
-				"https://sea-worker.zshlabs.com/v1/collect",
+				process.env.NEXT_PUBLIC_SEA_COLLECTOR_URL ?? "https://sea-worker.zshlabs.com/v1/collect",
 		})
 	: undefined;
 

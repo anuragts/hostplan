@@ -6,6 +6,7 @@ const PUBLIC_ROUTE_SET = new Set<string>(PUBLIC_ROUTES);
 const PUBLIC_SYSTEM_ROUTES = new Set([
 	"/robots.txt",
 	"/sitemap.xml",
+	"/feed.xml",
 	"/llms.txt",
 	"/opengraph-image",
 	"/74bd004c41f144310fb8cad8cefb4191.txt",

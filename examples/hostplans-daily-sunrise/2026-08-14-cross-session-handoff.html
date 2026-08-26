@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en" data-hp-mode="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="hostplan-profile" content="custom-html-v1">
+  <title>Cross-session coding-agent handoff protocol</title>
+  <style>
+    :root {
+      --hp-accent: #70d7d1;
+      --hp-page-max: 72rem;
+    }
+
+    body {
+      background: #0a0a0a;
+      color: #f5f5f7;
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      margin: 0;
+    }
+
+    a { color: var(--hp-accent); }
+    code { overflow-wrap: anywhere; }
+    .measure { max-width: 66ch; }
+    .handoff-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+    .handoff-grid p { color: #aaaab1; font-size: 0.875rem; line-height: 1.5; }
+    .flow { height: auto; max-width: 100%; }
+    .sources time { color: #aaaab1; font-variant-numeric: tabular-nums; }
+
+    @media (max-width: 760px) {
+      .handoff-grid { grid-template-columns: 1fr; }
+    }
+
+    @media print {
+      body { background: white; color: black; }
+      a { color: black; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none; transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="hp-page hp-stack">
+    <header class="hp-stack">
+      <p class="hp-kicker">Hostplan Daily Sunrise · August 14, 2026</p>
+      <h1>Hand off agent work without making the message the source of truth</h1>
+      <p class="hp-lede measure">
+        Send a small wake-up message, then recover scope, state, authority, and
+        evidence from one canonical Hostplan.
+      </p>
+      <div class="hp-cluster">
+        <span class="hp-badge" data-tone="info">Answer-first field guide</span>
+        <span class="hp-badge" data-tone="neutral">Updated 2026-08-14</span>
+      </div>
+    </header>
+
+    <section class="hp-callout" data-tone="info" aria-labelledby="answer">
+      <h2 id="answer">Use the message as an interrupt, not the artifact</h2>
+      <p class="measure">
+        A cross-session message should identify the canonical plan, current
+        state, fresh delta, next action, and stop condition. The receiver opens
+        the plan, verifies the workspace and authority, then acknowledges one
+        action before editing.
+      </p>
+    </section>
+
+    <section class="hp-section hp-stack" aria-labelledby="flow-title">
+      <h2 id="flow-title">The message routes attention</h2>
+      <svg class="flow" viewBox="0 0 1120 360" width="1120" height="360"
+        role="img" aria-labelledby="diagram-title diagram-description">
+        <title id="diagram-title">Durable cross-session handoff</title>
+        <desc id="diagram-description">
+          Session A sends a short pointer to a durable plan. Session B verifies
+          the plan before acting.
+        </desc>
+        <rect width="1120" height="360" rx="24" fill="#111113"/>
+        <g font-family="ui-sans-serif, system-ui, sans-serif">
+          <rect x="48" y="72" width="244" height="216" rx="20"
+            fill="#18181b" stroke="#34343a" stroke-width="2"/>
+          <text x="76" y="116" fill="#f5f5f7" font-size="20"
+            font-weight="650">Session A</text>
+          <text x="76" y="158" fill="#70d7d1" font-size="15">HANDOFF</text>
+          <text x="76" y="194" fill="#aaaab1" font-size="15">Plan + state</text>
+          <text x="76" y="224" fill="#aaaab1" font-size="15">Delta + next</text>
+          <text x="76" y="254" fill="#aaaab1" font-size="15">Stop condition</text>
+
+          <rect x="394" y="48" width="332" height="264" rx="24"
+            fill="#18181b" stroke="#70d7d1" stroke-width="3"/>
+          <text x="426" y="96" fill="#70d7d1" font-size="15"
+            font-weight="700">CANONICAL HOSTPLAN</text>
+          <text x="426" y="146" fill="#f5f5f7" font-size="21"
+            font-weight="650">Durable project state</text>
+          <text x="426" y="192" fill="#aaaab1" font-size="15">Outcome + authority</text>
+          <text x="426" y="226" fill="#aaaab1" font-size="15">Checkpoint + evidence</text>
+          <text x="426" y="260" fill="#aaaab1" font-size="15">One next safe action</text>
+
+          <rect x="828" y="72" width="244" height="216" rx="20"
+            fill="#18181b" stroke="#34343a" stroke-width="2"/>
+          <text x="856" y="116" fill="#f5f5f7" font-size="20"
+            font-weight="650">Session B</text>
+          <text x="856" y="164" fill="#aaaab1" font-size="15">1 · Open plan</text>
+          <text x="856" y="202" fill="#aaaab1" font-size="15">2 · Verify state</text>
+          <text x="856" y="240" fill="#aaaab1" font-size="15">3 · Act once</text>
+        </g>
+        <path d="M312 180H374" stroke="#70d7d1" stroke-width="4"
+          stroke-linecap="round"/>
+        <path d="M358 166L374 180L358 194" fill="none" stroke="#70d7d1"
+          stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M746 180H808" stroke="#70d7d1" stroke-width="4"
+          stroke-linecap="round"/>
+        <path d="M792 166L808 180L792 194" fill="none" stroke="#70d7d1"
+          stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <p class="hp-caption">
+        Original Hostplan diagram. Explicit dimensions reserve the final layout.
+      </p>
+    </section>
+
+    <section class="hp-section hp-stack" aria-labelledby="fields">
+      <h2 id="fields">The five-line envelope</h2>
+      <div class="hp-grid handoff-grid">
+        <article class="hp-card">
+          <header class="hp-card-header"><h3 class="hp-card-title">Pointer</h3></header>
+          <div class="hp-card-body"><p>Canonical plan URL or id.</p></div>
+        </article>
+        <article class="hp-card">
+          <header class="hp-card-header"><h3 class="hp-card-title">State</h3></header>
+          <div class="hp-card-body"><p>Status and verified UTC time.</p></div>
+        </article>
+        <article class="hp-card">
+          <header class="hp-card-header"><h3 class="hp-card-title">Delta</h3></header>
+          <div class="hp-card-body"><p>Only what changed.</p></div>
+        </article>
+        <article class="hp-card">
+          <header class="hp-card-header"><h3 class="hp-card-title">Next</h3></header>
+          <div class="hp-card-body"><p>One scoped action.</p></div>
+        </article>
+        <article class="hp-card">
+          <header class="hp-card-header"><h3 class="hp-card-title">Stop</h3></header>
+          <div class="hp-card-body"><p>The human decision gate.</p></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="hp-section hp-stack" aria-labelledby="message">
+      <h2 id="message">Copyable message</h2>
+      <pre class="hp-code"><code>HANDOFF
+Plan: https://plans.host-plan.com/p/&lt;id&gt;
+State: blocked · verified 2026-08-14T11:40:00Z
+Delta: CI is green; one review thread remains open.
+Next: read the plan, verify the PR head, then answer that thread.
+Stop: ask before changing scope, dependencies, or deployment state.</code></pre>
+    </section>
+
+    <section class="hp-section hp-stack" aria-labelledby="protocol">
+      <h2 id="protocol">Receiver protocol</h2>
+      <ol class="hp-steps">
+        <li class="hp-step">
+          <strong>Resolve the pointer.</strong>
+          Confirm the plan belongs to the intended project and branch.
+        </li>
+        <li class="hp-step">
+          <strong>Re-observe state.</strong>
+          Compare the checkpoint with the workspace, PR, and external systems.
+        </li>
+        <li class="hp-step">
+          <strong>Revalidate authority.</strong>
+          Confirm the receiving session may use the named tools and data.
+        </li>
+        <li class="hp-step">
+          <strong>Acknowledge one action.</strong>
+          Reply with the verified checkpoint before editing.
+        </li>
+      </ol>
+    </section>
+
+    <section class="hp-section hp-stack sources" aria-labelledby="sources">
+      <h2 id="sources">Primary sources</h2>
+      <ul class="hp-list">
+        <li class="hp-list-item">
+          <div class="hp-list-main">
+            <a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.232">
+              Claude Code v2.1.232
+            </a>
+            <p>Adds named cross-session mentions and direct SendMessage delivery.</p>
+          </div>
+          <time datetime="2026-08-13T23:29:59Z">Published Aug 13</time>
+        </li>
+        <li class="hp-list-item">
+          <div class="hp-list-main">
+            <a href="https://code.claude.com/docs/en/sessions">
+              Claude Code session management
+            </a>
+            <p>Documents named, resumable, worktree-aware sessions.</p>
+          </div>
+          <time datetime="2026-08-14">Checked Aug 14</time>
+        </li>
+        <li class="hp-list-item">
+          <div class="hp-list-main">
+            <a href="https://code.claude.com/docs/en/remote-control">
+              Claude Code Remote Control
+            </a>
+            <p>Explains how remote clients continue a local environment.</p>
+          </div>
+          <time datetime="2026-08-14">Checked Aug 14</time>
+        </li>
+        <li class="hp-list-item">
+          <div class="hp-list-main">
+            <a href="https://github.blog/changelog/2026-01-26-introducing-the-agents-tab-in-your-repository/">
+              GitHub Agents tab
+            </a>
+            <p>Documents continuing a Copilot agent session in the CLI.</p>
+          </div>
+          <time datetime="2026-01-26">Published Jan 26</time>
+        </li>
+      </ul>
+    </section>
+
+    <aside class="hp-callout" data-tone="warning">
+      <strong>Privacy boundary</strong>
+      <p>
+        Keep private share codes, credentials, customer data, query strings,
+        and raw authenticated URLs out of handoff messages and logs.
+      </p>
+    </aside>
+
+    <footer class="hp-section">
+      <p>
+        Continue with Hostplan's
+        <a href="https://plans.host-plan.com/agent-plan-handoff">
+          coding-agent handoff guide
+        </a>.
+      </p>
+    </footer>
+  </main>
+</body>
+</html>

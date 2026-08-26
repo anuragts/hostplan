@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en" data-hp-mode="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="hostplan-profile" content="custom-html-v1">
+  <title>Active-contract ledger for resumable coding-agent work</title>
+  <style>
+    :root {
+      --hp-accent: #70d7d1;
+      --hp-page-max: 72rem;
+    }
+
+    body {
+      background: #0a0a0a;
+      color: #f5f5f7;
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      margin: 0;
+    }
+
+    a { color: var(--hp-accent); }
+    code { overflow-wrap: anywhere; }
+    .measure { max-width: 66ch; }
+    .ledger { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+    .ledger strong { display: block; margin-bottom: 0.5rem; }
+    .ledger span { color: #aaaab1; font-size: 0.875rem; line-height: 1.5; }
+    .diagram { height: auto; max-width: 100%; }
+    .sources time { color: #aaaab1; font-variant-numeric: tabular-nums; }
+
+    @media (max-width: 760px) {
+      .ledger { grid-template-columns: 1fr; }
+    }
+
+    @media print {
+      body { background: white; color: black; }
+      a { color: black; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none; transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="hp-page hp-stack">
+    <header class="hp-stack">
+      <p class="hp-kicker">Hostplan Daily Sunrise · August 13, 2026</p>
+      <h1>Use an active-contract ledger to resume agent work safely</h1>
+      <p class="hp-lede measure">
+        A resumed session restores conversation. A five-field ledger restores
+        the current outcome, authority, checkpoint, evidence, and stop rule.
+      </p>
+      <div class="hp-cluster">
+        <span class="hp-badge" data-tone="info">Answer-first field guide</span>
+        <span class="hp-badge" data-tone="neutral">Updated 2026-08-13</span>
+      </div>
+    </header>
+
+    <section class="hp-callout" data-tone="info" aria-labelledby="answer">
+      <h2 id="answer">The operating rule</h2>
+      <p class="measure">
+        Resume for continuity, then re-read and revalidate the active contract
+        before acting. A session can remember an old permission or checkpoint;
+        the ledger makes both visible and reviewable.
+      </p>
+    </section>
+
+    <section class="hp-section hp-stack" aria-labelledby="flow">
+      <h2 id="flow">The contract travels as one unit</h2>
+      <svg class="diagram" viewBox="0 0 1120 360" width="1120" height="360"
+        role="img" aria-labelledby="diagram-title diagram-description">
+        <title id="diagram-title">Five fields in an active-contract ledger</title>
+        <desc id="diagram-description">
+          Outcome, authority, checkpoint, evidence, and stop rule connected in order.
+        </desc>
+        <rect width="1120" height="360" rx="24" fill="#111113"/>
+        <path d="M120 170H1000" stroke="#34343a" stroke-width="4" stroke-linecap="round"/>
+        <g font-family="ui-sans-serif, system-ui, sans-serif" text-anchor="middle">
+          <g transform="translate(120 170)">
+            <circle r="46" fill="#18181b" stroke="#70d7d1" stroke-width="3"/>
+            <text y="7" fill="#70d7d1" font-size="22" font-weight="700">01</text>
+            <text y="82" fill="#f5f5f7" font-size="18">Outcome</text>
+          </g>
+          <g transform="translate(340 170)">
+            <circle r="46" fill="#18181b" stroke="#70d7d1" stroke-width="3"/>
+            <text y="7" fill="#70d7d1" font-size="22" font-weight="700">02</text>
+            <text y="82" fill="#f5f5f7" font-size="18">Authority</text>
+          </g>
+          <g transform="translate(560 170)">
+            <circle r="46" fill="#18181b" stroke="#70d7d1" stroke-width="3"/>
+            <text y="7" fill="#70d7d1" font-size="22" font-weight="700">03</text>
+            <text y="82" fill="#f5f5f7" font-size="18">Checkpoint</text>
+          </g>
+          <g transform="translate(780 170)">
+            <circle r="46" fill="#18181b" stroke="#70d7d1" stroke-width="3"/>
+            <text y="7" fill="#70d7d1" font-size="22" font-weight="700">04</text>
+            <text y="82" fill="#f5f5f7" font-size="18">Evidence</text>
+          </g>
+          <g transform="translate(1000 170)">
+            <circle r="46" fill="#18181b" stroke="#e2bb5f" stroke-width="3"/>
+            <text y="7" fill="#e2bb5f" font-size="22" font-weight="700">05</text>
+            <text y="82" fill="#f5f5f7" font-size="18">Stop rule</text>
+          </g>
+        </g>
+      </svg>
+      <p class="hp-caption">
+        Original Hostplan diagram. Explicit dimensions reserve the final layout.
+      </p>
+    </section>
+
+    <section class="hp-section hp-stack" aria-labelledby="ledger">
+      <h2 id="ledger">The five-field ledger</h2>
+      <div class="hp-grid ledger">
+        <article class="hp-card">
+          <header class="hp-card-header"><h3 class="hp-card-title">Outcome</h3></header>
+          <div class="hp-card-body"><span>One observable result and explicit exclusions.</span></div>
+        </article>
+        <article class="hp-card">
+          <header class="hp-card-header"><h3 class="hp-card-title">Authority</h3></header>
+          <div class="hp-card-body"><span>Allowed systems, data, tools, and actions.</span></div>
+        </article>
+        <article class="hp-card">
+          <header class="hp-card-header"><h3 class="hp-card-title">Checkpoint</h3></header>
+          <div class="hp-card-body"><span>Last verified state and next safe action.</span></div>
+        </article>
+        <article class="hp-card">
+          <header class="hp-card-header"><h3 class="hp-card-title">Evidence</h3></header>
+          <div class="hp-card-body"><span>Sources, commands, receipts, and failures.</span></div>
+        </article>
+        <article class="hp-card">
+          <header class="hp-card-header"><h3 class="hp-card-title">Stop rule</h3></header>
+          <div class="hp-card-body"><span>When another retry becomes a human decision.</span></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="hp-section hp-stack" aria-labelledby="workflow">
+      <h2 id="workflow">Resume workflow</h2>
+      <ol class="hp-steps">
+        <li class="hp-step">
+          <strong>Restore context.</strong>
+          Resume the intended session or open the canonical Hostplan URL.
+        </li>
+        <li class="hp-step">
+          <strong>Re-observe.</strong>
+          Check branch head, workspace state, external systems, and reviews.
+        </li>
+        <li class="hp-step">
+          <strong>Revalidate authority.</strong>
+          Confirm that the ledger still describes the permitted work.
+        </li>
+        <li class="hp-step">
+          <strong>Continue one step.</strong>
+          Take the next safe action, attach evidence, and update the checkpoint.
+        </li>
+      </ol>
+    </section>
+
+    <section class="hp-section hp-stack" aria-labelledby="example">
+      <h2 id="example">Copyable example</h2>
+      <pre class="hp-code"><code>## Active contract
+
+- Outcome: Patch the authorized parser and prove the regression is closed.
+- Authority: repo A only; workspace write; no production access.
+- Checkpoint: failing fixture reproduced at commit abc123.
+- Evidence: issue link, failing command, verification receipt.
+- Stop rule: ask before schema, dependency, network, or destructive changes.</code></pre>
+    </section>
+
+    <section class="hp-section hp-stack sources" aria-labelledby="sources">
+      <h2 id="sources">Primary sources</h2>
+      <ul class="hp-list">
+        <li class="hp-list-item">
+          <div class="hp-list-main">
+            <a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.229">
+              Claude Code v2.1.229
+            </a>
+            <p>Documents continuing a Remote Control session and hardens long-running work.</p>
+          </div>
+          <time datetime="2026-08-12T20:56:22Z">Published Aug 12</time>
+        </li>
+        <li class="hp-list-item">
+          <div class="hp-list-main">
+            <a href="https://developers.openai.com/codex/changelog">
+              OpenAI Codex changelog
+            </a>
+            <p>Introduces Daybreak and recommends scoped, isolated, least-privilege work.</p>
+          </div>
+          <time datetime="2026-08-10">Published Aug 10</time>
+        </li>
+        <li class="hp-list-item">
+          <div class="hp-list-main">
+            <a href="https://learn.chatgpt.com/docs/cyber-safety">
+              OpenAI Models and Trusted Access
+            </a>
+            <p>Defines authorization boundaries for advanced defensive-security work.</p>
+          </div>
+          <time datetime="2026-08-10">Checked Aug 13</time>
+        </li>
+      </ul>
+    </section>
+
+    <aside class="hp-callout" data-tone="warning">
+      <strong>Privacy boundary</strong>
+      <p>
+        Record coarse authority and evidence references. Never put credentials,
+        private share codes, customer content, or raw authenticated URLs here.
+      </p>
+    </aside>
+  </main>
+</body>
+</html>

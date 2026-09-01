@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { wantsPlanSource } from "@/lib/plan-content-negotiation";
+import { SESSION_COOKIE } from "@/lib/session-cookie";
 import { PUBLIC_ROUTES } from "@/lib/site";
 
 const PUBLIC_ROUTE_SET = new Set<string>(PUBLIC_ROUTES);
@@ -56,8 +57,13 @@ export function middleware(request: NextRequest) {
 	// route cannot accidentally become public.
 	if (isPublicRoute(request.nextUrl.pathname)) return NextResponse.next();
 
-	// No accounts configured means running locally, where everything is open.
-	if (process.env.HOSTPLAN_ACCOUNTS !== "1") return NextResponse.next();
+	const accounts = process.env.HOSTPLAN_ACCOUNTS === "1";
+	const ownerAuth = (process.env.HSP_TOKEN?.length ?? 0) > 0;
+	const remoteStore = process.env.SUPABASE_URL !== undefined;
+	// Only a true local-filesystem instance is open. Bucket-backed deployments
+	// never silently become an unauthenticated owner when accounts are off.
+	if (!accounts && !ownerAuth && !remoteStore) return NextResponse.next();
+	if (ownerAuth && request.cookies.has(SESSION_COOKIE)) return NextResponse.next();
 	if (hasSupabaseSession(request)) return NextResponse.next();
 
 	const login = new URL("/login", request.url);

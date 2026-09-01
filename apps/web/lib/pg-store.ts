@@ -100,7 +100,9 @@ export function pgPlanStore(db: SupabaseClient, userId?: string): PlanStore {
 	}
 
 	async function rowById(id: string): Promise<PlanRow | undefined> {
-		const { data, error } = await db.from("plans").select("*").eq("id", id).maybeSingle();
+		let query = db.from("plans").select("*").eq("id", id);
+		if (userId !== undefined) query = query.eq("user_id", userId);
+		const { data, error } = await query.maybeSingle();
 		// A row hidden by RLS comes back as null, not an error — indistinguishable
 		// from absent, which is the behaviour we want.
 		if (error !== null) throw new Error(`lookup failed: ${error.message}`);
@@ -115,13 +117,6 @@ export function pgPlanStore(db: SupabaseClient, userId?: string): PlanStore {
 			const visibility = input.visibility ?? "private";
 			const code = visibility === "private" ? (input.code ?? newCode()) : undefined;
 			const path = storageKey(userId, input, id);
-
-			const upload = await db.storage.from(BUCKET).upload(path, input.content, {
-				contentType:
-					input.format === "html" ? "text/html; charset=utf-8" : "text/markdown; charset=utf-8",
-				upsert: true,
-			});
-			if (upload.error !== null) throw new Error(`upload failed: ${upload.error.message}`);
 
 			const { data, error } = await db
 				.from("plans")
@@ -143,10 +138,21 @@ export function pgPlanStore(db: SupabaseClient, userId?: string): PlanStore {
 				})
 				.select()
 				.single();
-			if (error !== null) {
-				// Don't leave an orphan object behind if the index insert loses a race.
-				await db.storage.from(BUCKET).remove([path]);
-				throw new Error(`insert failed: ${error.message}`);
+			if (error !== null) throw new Error(`insert failed: ${error.message}`);
+
+			// Claim the unique database id before touching Storage. Retrying an id
+			// can no longer overwrite an existing object's body and then delete it
+			// when the insert loses the uniqueness race.
+			const upload = await db.storage.from(BUCKET).upload(path, input.content, {
+				contentType:
+					input.format === "html" ? "text/html; charset=utf-8" : "text/markdown; charset=utf-8",
+				upsert: false,
+			});
+			if (upload.error !== null) {
+				let cleanup = db.from("plans").delete().eq("id", id);
+				if (userId !== undefined) cleanup = cleanup.eq("user_id", userId);
+				await cleanup;
+				throw new Error(`upload failed: ${upload.error.message}`);
 			}
 			return planFromRow(data as PlanRow, input.content);
 		},
@@ -165,6 +171,7 @@ export function pgPlanStore(db: SupabaseClient, userId?: string): PlanStore {
 
 		async list(filter: PlanFilter = {}): Promise<StoredPlan[]> {
 			let query = db.from("plans").select("*").order("updated_at", { ascending: false });
+			if (userId !== undefined) query = query.eq("user_id", userId);
 			if (filter.project !== undefined) query = query.eq("project", filter.project);
 			if (filter.branch !== undefined) query = query.eq("branch", filter.branch);
 			const { data, error } = await query;
@@ -182,6 +189,7 @@ export function pgPlanStore(db: SupabaseClient, userId?: string): PlanStore {
 			const visibility = patch.visibility ?? (row.visibility as "public" | "private");
 			let code = row.code;
 			if (visibility === "public") code = null;
+			else if (patch.code !== undefined) code = patch.code;
 			else if (patch.rotateCode === true || row.code === null || !isCode(row.code))
 				code = newCode();
 			// Re-privatising issues a fresh code rather than resurrecting the old one:
@@ -198,7 +206,7 @@ export function pgPlanStore(db: SupabaseClient, userId?: string): PlanStore {
 				if (upload.error !== null) throw new Error(`upload failed: ${upload.error.message}`);
 			}
 
-			const { data, error } = await db
+			let query = db
 				.from("plans")
 				.update({
 					visibility,
@@ -208,9 +216,9 @@ export function pgPlanStore(db: SupabaseClient, userId?: string): PlanStore {
 					theme: DEFAULT_PLAN_THEME,
 					...(patch.dependsOn === undefined ? {} : { depends_on: patch.dependsOn }),
 				})
-				.eq("id", id)
-				.select()
-				.single();
+				.eq("id", id);
+			if (userId !== undefined) query = query.eq("user_id", userId);
+			const { data, error } = await query.select().single();
 			if (error !== null) throw new Error(`update failed: ${error.message}`);
 			const updated = data as PlanRow;
 			return planFromRow(updated, patch.content ?? (await download(updated)));
@@ -220,7 +228,9 @@ export function pgPlanStore(db: SupabaseClient, userId?: string): PlanStore {
 			const row = await rowById(id);
 			if (row === undefined) return undefined;
 			const body = await download(row).catch(() => "");
-			const { error } = await db.from("plans").delete().eq("id", id);
+			let query = db.from("plans").delete().eq("id", id);
+			if (userId !== undefined) query = query.eq("user_id", userId);
+			const { error } = await query;
 			if (error !== null) throw new Error(`delete failed: ${error.message}`);
 			await db.storage.from(BUCKET).remove([row.storage_path]);
 			return planFromRow(row, body);

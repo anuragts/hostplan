@@ -1,6 +1,6 @@
 import { currentViewer, hashToken } from "@/lib/current-viewer";
 import { origin } from "@/lib/origin";
-import { newApiToken } from "@/lib/tokens";
+import { newApiToken, tokenCreatedRedirect } from "@/lib/tokens";
 
 export const dynamic = "force-dynamic";
 
@@ -21,7 +21,7 @@ export async function POST(request: Request) {
 	if (error !== null) return Response.redirect(`${site}/settings/tokens?error=1`, 303);
 
 	// Shown once, in the URL fragment so it never reaches the server log.
-	return Response.redirect(`${site}/settings/tokens?created=${encodeURIComponent(token)}`, 303);
+	return Response.redirect(tokenCreatedRedirect(site, token), 303);
 }
 
 export async function DELETE(request: Request) {

@@ -1,5 +1,6 @@
 import {
 	canRead,
+	isCode,
 	isId,
 	isStatus,
 	normalizeCode,
@@ -71,6 +72,7 @@ export async function PATCH(request: Request, { params }: Params) {
 
 	let body: {
 		visibility?: string;
+		code?: string;
 		rotateCode?: boolean;
 		title?: string;
 		status?: string;
@@ -85,6 +87,9 @@ export async function PATCH(request: Request, { params }: Params) {
 	}
 	if (body.status !== undefined && !isStatus(body.status)) {
 		return Response.json({ error: `\`${body.status}\` is not a status` }, { status: 400 });
+	}
+	if (body.code !== undefined && !isCode(body.code)) {
+		return Response.json({ error: "invalid share code" }, { status: 400 });
 	}
 	const store = planStoreFor(viewer);
 	let storedContent = body.content;
@@ -118,6 +123,7 @@ export async function PATCH(request: Request, { params }: Params) {
 			? { visibility: body.visibility }
 			: {}),
 		...(body.rotateCode === true ? { rotateCode: true } : {}),
+		...(body.code === undefined ? {} : { code: body.code }),
 		...(body.title === undefined ? {} : { title: body.title }),
 		...(isStatus(body.status) ? { status: body.status } : {}),
 		...(typeof storedContent === "string" ? { content: storedContent } : {}),

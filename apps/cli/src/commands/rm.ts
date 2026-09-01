@@ -1,5 +1,6 @@
 import { displayPath, removePlan } from "@hostplan/core";
 import { printJson, style } from "../output";
+import { currentRemote, deletePlan } from "../remote";
 import { resolveFilter, resolveRef, type ScopeOptions } from "./shared";
 
 export interface RmOptions extends ScopeOptions {
@@ -8,6 +9,8 @@ export interface RmOptions extends ScopeOptions {
 
 export async function rmCommand(ref: string, options: RmOptions): Promise<void> {
 	const plan = await resolveRef(ref, await resolveFilter(options));
+	const remote = await currentRemote();
+	if (remote !== undefined) await deletePlan(remote, plan.meta.id);
 	await removePlan(plan.meta.id);
 
 	if (options.json === true) {

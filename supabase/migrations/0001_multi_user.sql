@@ -70,15 +70,10 @@ create policy "own plans" on public.plans
   using (auth.uid() = user_id)
   with check (auth.uid() = user_id);
 
--- Public plans are readable by anyone, signed in or not.
-drop policy if exists "public plans are readable" on public.plans;
-create policy "public plans are readable" on public.plans
-  for select to anon, authenticated
-  using (visibility = 'public');
-
 -- Private-plus-code reads are the one case RLS cannot express — "anonymous, but
--- holding the right secret". That path runs service-role in a single route
--- after checking the code, and is the only bypass in the system.
+-- holding the right secret". Public reads use the same deliberately narrow
+-- service-role route. This prevents direct PostgREST queries from exposing
+-- private metadata columns on otherwise public plan rows.
 
 drop policy if exists "own tokens" on public.api_tokens;
 create policy "own tokens" on public.api_tokens

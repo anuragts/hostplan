@@ -1,5 +1,6 @@
-import { displayPath, planUrl, resolvePort, shareUrls, updatePlan } from "@hostplan/core";
+import { displayPath, newCode, planUrl, resolvePort, shareUrls, updatePlan } from "@hostplan/core";
 import { die, printJson, style } from "../output";
+import { currentRemote, patchPlan } from "../remote";
 import { resolveFilter, resolveRef, type ScopeOptions } from "./shared";
 
 export interface VisibilityOptions extends ScopeOptions {
@@ -41,8 +42,19 @@ export async function shareCommand(ref: string, options: VisibilityOptions): Pro
 export function publishCommand(makePublic: boolean) {
 	return async (ref: string, options: VisibilityOptions): Promise<void> => {
 		const plan = await resolveRef(ref, await resolveFilter(options));
+		const visibility = makePublic ? "public" : "private";
+		let code = makePublic ? undefined : newCode();
+		const remote = await currentRemote();
+		if (remote !== undefined) {
+			const remotePlan = await patchPlan(remote, plan.meta.id, {
+				visibility,
+				...(code === undefined ? {} : { code }),
+			});
+			code = remotePlan.code;
+		}
 		const updated = await updatePlan(plan.meta.id, {
-			visibility: makePublic ? "public" : "private",
+			visibility,
+			...(code === undefined ? {} : { code }),
 		});
 		if (updated === undefined) die(`could not update \`${plan.meta.id}\``);
 
@@ -68,7 +80,13 @@ export async function rotateCodeCommand(ref: string, options: VisibilityOptions)
 		die(`\`${plan.meta.id}\` is public — it has no code. Run \`hsp unpublish\` first.`);
 	}
 
-	const updated = await updatePlan(plan.meta.id, { rotateCode: true });
+	let code = newCode();
+	const remote = await currentRemote();
+	if (remote !== undefined) {
+		const remotePlan = await patchPlan(remote, plan.meta.id, { code });
+		code = remotePlan.code ?? code;
+	}
+	const updated = await updatePlan(plan.meta.id, { code });
 	if (updated === undefined) die(`could not update \`${plan.meta.id}\``);
 
 	const links = shareUrls(await origin(), updated.meta);

@@ -256,6 +256,8 @@ export async function addPlan(input: AddPlanInput): Promise<StoredPlan> {
 
 export interface UpdatePlanPatch {
 	visibility?: Visibility;
+	/** Set an already-generated share code when synchronising the same plan. */
+	code?: string;
 	/** Issue a fresh share code, invalidating any link already handed out. */
 	rotateCode?: boolean;
 	title?: string;
@@ -285,9 +287,11 @@ export async function updatePlan(
 	const code =
 		visibility === "public"
 			? undefined
-			: patch.rotateCode === true || plan.meta.code === undefined
-				? newCode()
-				: plan.meta.code;
+			: patch.code !== undefined
+				? patch.code
+				: patch.rotateCode === true || plan.meta.code === undefined
+					? newCode()
+					: plan.meta.code;
 
 	const meta: PlanMeta = {
 		...plan.meta,

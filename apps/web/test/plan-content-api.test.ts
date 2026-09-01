@@ -162,6 +162,38 @@ describe("plan content API mutations", () => {
 		expect(added).toBeUndefined();
 	});
 
+	test("removes every injected trusted marker from untrusted HTML", async () => {
+		const marker = "<!--hostplan-trusted-html-v1-->";
+		const response = await POST(
+			new Request("https://plans.host-plan.com/api/plans", {
+				method: "POST",
+				headers: { "content-type": "application/json" },
+				body: JSON.stringify({
+					content: `${marker}${marker}${marker}${CUSTOM_HTML_SKELETON}`,
+					title: "Marker injection",
+					project: "hostplan",
+					branch: "main",
+					format: "html",
+				}),
+			}),
+		);
+		expect(response.status).toBe(201);
+		expect(added?.content).not.toContain(marker);
+	});
+
+	test("rejects invalid explicit share codes", async () => {
+		const response = await PATCH(
+			new Request("https://plans.host-plan.com/api/plans/a3f9c2", {
+				method: "PATCH",
+				headers: { "content-type": "application/json" },
+				body: JSON.stringify({ code: "not-a-code" }),
+			}),
+			context,
+		);
+		expect(response.status).toBe(400);
+		expect(patched).toBeUndefined();
+	});
+
 	test("validates HTML content updates but not metadata-only updates", async () => {
 		currentFormat = "html";
 		const invalid = await PATCH(

@@ -200,9 +200,11 @@ export const supabasePlanStore: PlanStore = {
 		const code =
 			visibility === "public"
 				? undefined
-				: patch.rotateCode === true || plan.meta.code === undefined
-					? newCode()
-					: plan.meta.code;
+				: patch.code !== undefined
+					? patch.code
+					: patch.rotateCode === true || plan.meta.code === undefined
+						? newCode()
+						: plan.meta.code;
 
 		const meta: PlanMeta = {
 			...plan.meta,

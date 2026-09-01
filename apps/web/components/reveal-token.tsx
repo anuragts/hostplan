@@ -1,10 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 /** Shown once. Only the hash is stored, so there is no second chance to copy it. */
-export function RevealToken({ token }: { token: string }) {
+export function RevealToken() {
+	const [token, setToken] = useState<string>();
 	const [copied, setCopied] = useState(false);
+
+	useEffect(() => {
+		const params = new URLSearchParams(window.location.hash.slice(1));
+		const created = params.get("created");
+		if (created === null) return;
+		setToken(created);
+		// The fragment never reaches the server; remove it after capture so it is
+		// not retained in browser history or copied with the page URL.
+		window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
+	}, []);
+
+	if (token === undefined) return null;
 
 	return (
 		<div className="mb-8 rounded-lg border border-brand/40 bg-surface-raised p-4">

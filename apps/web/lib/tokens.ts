@@ -15,9 +15,14 @@ export function newUserCode(): string {
 	let code = "";
 	for (let i = 0; i < 8; i++) {
 		if (i === 4) code += "-";
-		code += alphabet[randomBytes(1)[0]! % alphabet.length];
+		code += alphabet[randomBytes(1).readUInt8(0) % alphabet.length];
 	}
 	return code;
+}
+
+/** Keeps the one-time secret out of server logs and request history. */
+export function tokenCreatedRedirect(site: string, token: string): string {
+	return `${site}/settings/tokens#created=${encodeURIComponent(token)}`;
 }
 
 export function newDeviceCode(): string {

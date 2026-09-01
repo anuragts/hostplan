@@ -9,9 +9,9 @@ export const dynamic = "force-dynamic";
 export default async function TokensPage({
 	searchParams,
 }: {
-	searchParams: Promise<{ created?: string; error?: string }>;
+	searchParams: Promise<{ error?: string }>;
 }) {
-	const { created, error } = await searchParams;
+	const { error } = await searchParams;
 	const viewer = await currentViewer();
 	if (viewer.kind !== "user") redirect("/login?next=%2Fsettings%2Ftokens");
 
@@ -27,7 +27,7 @@ export default async function TokensPage({
 				subtitle="For agents and CI, which have no browser to approve a sign-in with."
 			/>
 
-			{created !== undefined && <RevealToken token={created} />}
+			<RevealToken />
 			{error !== undefined && (
 				<p className="mb-6 text-red-400 text-sm">Could not create that token.</p>
 			)}

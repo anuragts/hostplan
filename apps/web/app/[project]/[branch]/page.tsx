@@ -3,7 +3,7 @@ import { PageTitle, Row, Shell } from "@/components/shell";
 import { StatusBadge } from "@/components/status-badge";
 import { plural, relativeTime } from "@/lib/format";
 import { requireOwner } from "@/lib/require-owner";
-import { planStore } from "@/lib/store";
+import { planStoreFor } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
 
@@ -16,8 +16,8 @@ export default async function BranchPage({
 	const projectDir = decodeURIComponent(raw.project);
 	const branchDir = decodeURIComponent(raw.branch);
 
-	await requireOwner();
-	const plans = (await planStore().list()).filter(
+	const viewer = await requireOwner();
+	const plans = (await planStoreFor(viewer).list()).filter(
 		(plan) => plan.projectDir === projectDir && plan.branchDir === branchDir,
 	);
 	if (plans.length === 0) notFound();

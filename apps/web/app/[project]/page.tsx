@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { PageTitle, Row, Shell } from "@/components/shell";
 import { plural, relativeTime } from "@/lib/format";
 import { requireOwner } from "@/lib/require-owner";
-import { planStore } from "@/lib/store";
+import { planStoreFor } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
 
@@ -12,8 +12,8 @@ export default async function ProjectPage({ params }: { params: Promise<{ projec
 	const dir = decodeURIComponent(projectDir);
 
 	// Match on the directory name, which is exactly what the URL segment is.
-	await requireOwner();
-	const plans = (await planStore().list()).filter((plan) => plan.projectDir === dir);
+	const viewer = await requireOwner();
+	const plans = (await planStoreFor(viewer).list()).filter((plan) => plan.projectDir === dir);
 	if (plans.length === 0) notFound();
 
 	const name = plans[0]?.meta.project ?? dir;

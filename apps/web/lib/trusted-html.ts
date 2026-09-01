@@ -18,11 +18,11 @@ export function canPublishTrustedHtml(viewer: Viewer): boolean {
 }
 
 export function isTrustedHtml(source: string): boolean {
-	return source.includes(TRUSTED_HTML_MARKER);
+	return /^\s*(?:<!doctype\s+html\s*>\s*)?<!--hostplan-trusted-html-v1-->/i.test(source);
 }
 
 export function stripTrustedHtmlMarker(source: string): string {
-	return source.replace(`${TRUSTED_HTML_MARKER}\n`, "").replace(TRUSTED_HTML_MARKER, "");
+	return source.split(TRUSTED_HTML_MARKER).join("");
 }
 
 export function markTrustedHtml(source: string): string {

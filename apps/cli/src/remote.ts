@@ -23,6 +23,9 @@ export interface PushInput {
 }
 
 export interface PatchInput {
+	visibility?: Visibility;
+	code?: string;
+	rotateCode?: boolean;
 	status?: PlanStatus;
 	content?: string;
 	dependsOn?: string | null;
@@ -80,12 +83,24 @@ export async function push(remote: Remote, input: PushInput): Promise<RemotePlan
 	return (await response.json()) as RemotePlan;
 }
 
-export async function patchPlan(remote: Remote, id: string, patch: PatchInput): Promise<void> {
+export async function patchPlan(
+	remote: Remote,
+	id: string,
+	patch: PatchInput,
+): Promise<RemotePlan> {
 	const response = await call(remote, `/api/plans/${id}`, {
 		method: "PATCH",
 		body: JSON.stringify(patch),
 	});
 	if (!response.ok) await fail(response, "sync");
+	return (await response.json()) as RemotePlan;
+}
+
+/** Delete remotely before local removal so a network failure remains retryable. */
+export async function deletePlan(remote: Remote, id: string): Promise<void> {
+	const response = await call(remote, `/api/plans/${id}`, { method: "DELETE" });
+	if (response.status === 404) return;
+	if (!response.ok) await fail(response, "remove");
 }
 
 export async function fetchPlan(remote: Remote, id: string): Promise<RemotePlan | undefined> {

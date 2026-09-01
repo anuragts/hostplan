@@ -21,6 +21,10 @@ const HEALTH_TIMEOUT_MS = 500;
 const START_TIMEOUT_MS = 30_000;
 const POLL_INTERVAL_MS = 250;
 
+export function nextStartArgs(port: number): string[] {
+	return ["start", "-H", "127.0.0.1", "-p", String(port)];
+}
+
 function sleep(ms: number): Promise<void> {
 	return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -131,7 +135,7 @@ async function build(): Promise<void> {
 async function startDetached(port: number): Promise<void> {
 	await ensureDir(runRoot());
 	const log = openSync(logPath(), "a");
-	const child = spawn(nextBin(), ["start", "-p", String(port)], {
+	const child = spawn(nextBin(), nextStartArgs(port), {
 		cwd: WEB_DIR,
 		detached: true,
 		stdio: ["ignore", log, log],
@@ -215,7 +219,7 @@ export async function runForeground(port: number): Promise<number> {
 	await prepareViewer();
 	if (!isBuilt()) await build();
 	return new Promise((resolve) => {
-		const child = spawn(nextBin(), ["start", "-p", String(port)], {
+		const child = spawn(nextBin(), nextStartArgs(port), {
 			cwd: WEB_DIR,
 			stdio: "inherit",
 			env: { ...process.env, PORT: String(port) },

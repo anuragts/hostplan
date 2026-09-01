@@ -81,6 +81,14 @@ export function runPlanStoreContract(store: PlanStore): void {
 		await store.remove(added.meta.id);
 	});
 
+	test("an explicit code can keep local and remote copies in lockstep", async () => {
+		const added = await store.add(input);
+		const updated = await store.update(added.meta.id, { code: "SYNC" });
+		expect(updated?.meta.code).toBe("SYNC");
+		expect((await store.get(added.meta.id))?.meta.code).toBe("SYNC");
+		await store.remove(added.meta.id);
+	});
+
 	test("list filters by project and branch", async () => {
 		const mine = await store.add(input);
 		const other = await store.add({ ...input, project: "contract-other", branch: "main" });

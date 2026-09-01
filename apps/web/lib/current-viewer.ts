@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import { cache } from "react";
+import { authEnabled, isOwnerRequest, isOwnerSession } from "@/lib/auth";
 import { accountsEnabled, adminClient, userClient } from "@/lib/supabase-clients";
 import type { Viewer } from "@/lib/viewer";
 
@@ -57,7 +58,15 @@ async function viewerFromToken(token: string): Promise<Viewer | undefined> {
 export const currentViewer = cache(async function currentViewer(
 	request?: Request,
 ): Promise<Viewer> {
-	if (!accountsEnabled()) return { kind: "local" };
+	if (!accountsEnabled()) {
+		if (authEnabled()) {
+			const owner = request === undefined ? await isOwnerSession() : await isOwnerRequest(request);
+			return owner ? { kind: "local" } : { kind: "anonymous" };
+		}
+		// A filesystem served by `hsp serve` is intentionally frictionless. A
+		// remote bucket without any credential must fail closed.
+		return process.env.SUPABASE_URL === undefined ? { kind: "local" } : { kind: "anonymous" };
+	}
 
 	const token = request === undefined ? undefined : bearer(request);
 	if (token !== undefined) {

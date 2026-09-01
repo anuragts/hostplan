@@ -4,10 +4,16 @@ import { PUBLIC_ROUTES } from "../lib/site";
 import { isPublicRoute, middleware } from "../middleware";
 
 const originalAccounts = process.env.HOSTPLAN_ACCOUNTS;
+const originalToken = process.env.HSP_TOKEN;
+const originalSupabaseUrl = process.env.SUPABASE_URL;
 
 afterEach(() => {
 	if (originalAccounts === undefined) delete process.env.HOSTPLAN_ACCOUNTS;
 	else process.env.HOSTPLAN_ACCOUNTS = originalAccounts;
+	if (originalToken === undefined) delete process.env.HSP_TOKEN;
+	else process.env.HSP_TOKEN = originalToken;
+	if (originalSupabaseUrl === undefined) delete process.env.SUPABASE_URL;
+	else process.env.SUPABASE_URL = originalSupabaseUrl;
 });
 
 function request(path: string, headers: Record<string, string>): NextRequest {
@@ -51,6 +57,26 @@ describe("plan middleware", () => {
 			"https://plans.host-plan.com/login?next=%2Fsettings%2Ftokens",
 		);
 		expect(response.headers.get("x-robots-tag")).toBe("noindex, nofollow");
+	});
+
+	test("fails closed for a remote bucket when accounts are disabled", () => {
+		delete process.env.HOSTPLAN_ACCOUNTS;
+		delete process.env.HSP_TOKEN;
+		process.env.SUPABASE_URL = "https://example.supabase.co";
+		const response = middleware(request("/private-project", { accept: "text/html" }));
+		expect(response.headers.get("location")).toBe(
+			"https://plans.host-plan.com/login?next=%2Fprivate-project",
+		);
+	});
+
+	test("accepts the legacy owner session on a single-owner deployment", () => {
+		delete process.env.HOSTPLAN_ACCOUNTS;
+		process.env.HSP_TOKEN = "owner-secret";
+		process.env.SUPABASE_URL = "https://example.supabase.co";
+		const response = middleware(
+			request("/private-project", { accept: "text/html", cookie: "hsp_session=present" }),
+		);
+		expect(response.headers.get("location")).toBeNull();
 	});
 
 	test("keeps every intentional public content route anonymous", () => {

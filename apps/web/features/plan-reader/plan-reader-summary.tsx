@@ -1,7 +1,8 @@
+import { describeSeverityCount } from "@/features/review-sections";
 import type { PlanReaderData } from "./types";
 
 export function PlanReaderSummary({ data }: { data: PlanReaderData }) {
-	const { readMinutes, sectionCount, taskProgress } = data;
+	const { readMinutes, sectionCount, taskProgress, review } = data;
 	if (readMinutes === 0 && sectionCount === 0 && taskProgress === undefined) return null;
 
 	return (
@@ -31,6 +32,17 @@ export function PlanReaderSummary({ data }: { data: PlanReaderData }) {
 				>
 					<span style={{ width: `${taskProgress.percentage}%` }} />
 				</div>
+			)}
+			{review !== undefined && (
+				<ul className="plan-review-summary" aria-label="Review findings by severity">
+					{review.map((item) => (
+						<li key={item.id}>
+							<a href={`#${item.id}`} data-severity={item.severity} data-findings={item.count}>
+								{describeSeverityCount(item.severity, item.count)}
+							</a>
+						</li>
+					))}
+				</ul>
 			)}
 		</section>
 	);

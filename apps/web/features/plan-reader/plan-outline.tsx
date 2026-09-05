@@ -69,6 +69,7 @@ export function PlanOutline({
 						<a
 							href={`#${item.id}`}
 							aria-current={activeId === item.id ? "location" : undefined}
+							data-severity={item.severity}
 							onClick={() => setActiveId(item.id)}
 						>
 							{item.text}

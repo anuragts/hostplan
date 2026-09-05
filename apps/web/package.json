@@ -42,6 +42,7 @@
 	"devDependencies": {
 		"@tailwindcss/postcss": "^4.0.0",
 		"@tailwindcss/typography": "^0.5.16",
+		"@types/mdast": "^4.0.4",
 		"@types/react": "^19.0.0",
 		"@types/react-dom": "^19.0.0",
 		"tailwindcss": "^4.0.0"

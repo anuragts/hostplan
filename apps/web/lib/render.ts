@@ -5,6 +5,7 @@ import remarkGfm from "remark-gfm";
 import remarkParse from "remark-parse";
 import remarkRehype from "remark-rehype";
 import { unified } from "unified";
+import { remarkReviewSections } from "@/features/review-sections";
 
 /**
  * Grammars to load into the highlighter.
@@ -102,6 +103,8 @@ function rehypeMermaidBlocks() {
 const processor = unified()
 	.use(remarkParse)
 	.use(remarkGfm)
+	// Groups review findings by severity before the tree becomes HTML.
+	.use(remarkReviewSections)
 	.use(remarkRehype)
 	.use(rehypeSlug)
 	.use(rehypeMermaidBlocks)

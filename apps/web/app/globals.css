@@ -153,6 +153,9 @@ html {
 	--plan-status-success: #77cf8b;
 	--plan-status-info: #70d7d1;
 	--plan-status-blocked: #e2bb5f;
+	--plan-review-blocker: #ef7b74;
+	--plan-review-should-fix: var(--plan-status-blocked);
+	--plan-review-nit: var(--plan-status-success);
 
 	color-scheme: dark;
 }
@@ -591,6 +594,154 @@ html {
 	margin-block: 2.5rem;
 }
 
+/* ---------------------------------------------------------------------------
+   Review sections. A plan that reviews code groups findings under Blockers,
+   Should fix, and Nits; the renderer wraps each group in `.plan-review` with
+   its severity. One rail colour per severity, resolved through --plan-review.
+--------------------------------------------------------------------------- */
+
+[data-severity="blocker"] {
+	--plan-review: var(--plan-review-blocker);
+}
+
+[data-severity="should-fix"] {
+	--plan-review: var(--plan-review-should-fix);
+}
+
+[data-severity="nit"] {
+	--plan-review: var(--plan-review-nit);
+}
+
+.plan-environment .plan-prose > .plan-review {
+	max-width: none;
+}
+
+.plan-environment .plan-prose .plan-review {
+	border-left: 2px solid color-mix(in oklch, var(--plan-review) 60%, transparent);
+	margin-block: 3rem;
+	padding-left: 1.5rem;
+}
+
+.plan-environment .plan-prose .plan-review > :not(.plan-mermaid, table, pre) {
+	max-width: var(--plan-measure);
+}
+
+.plan-environment .plan-prose .plan-review > :last-child {
+	margin-bottom: 0;
+}
+
+/* Nothing to report reads as settled: the rail and count both step back. */
+.plan-environment .plan-prose .plan-review[data-findings="0"] {
+	border-left-color: color-mix(in oklch, var(--plan-review) 28%, transparent);
+}
+
+.plan-environment .plan-prose .plan-review-head {
+	align-items: center;
+	column-gap: 0.75rem;
+	display: flex;
+	flex-wrap: wrap;
+	margin-bottom: 1.5rem;
+	row-gap: 0.5rem;
+}
+
+.plan-environment .plan-prose .plan-review-head > :where(h1, h2, h3, h4) {
+	align-items: center;
+	border-bottom: 0;
+	display: flex;
+	gap: 0.75rem;
+	margin: 0;
+	padding-bottom: 0;
+}
+
+.plan-environment .plan-prose .plan-review-head > :where(h1, h2, h3, h4)::before {
+	background: var(--plan-review);
+	border-radius: 999px;
+	box-shadow: 0 0 0 4px color-mix(in oklch, var(--plan-review) 18%, transparent);
+	content: "";
+	flex: none;
+	height: 0.625rem;
+	width: 0.625rem;
+}
+
+.plan-environment .plan-prose .plan-review-count {
+	border: 1px solid var(--plan-line);
+	border-radius: 999px;
+	color: var(--plan-muted);
+	font-size: 0.75rem;
+	font-variant-numeric: tabular-nums;
+	line-height: 1rem;
+	margin: 0;
+	padding: 0.125rem 0.5rem;
+	white-space: nowrap;
+}
+
+.plan-environment .plan-prose .plan-review[data-findings="0"] .plan-review-count {
+	border-style: dashed;
+	color: var(--plan-faint);
+}
+
+/* Summary chips under the plan header; each links to its section. */
+.plan-review-summary {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	list-style: none;
+	margin: 0.75rem 0 0;
+	padding: 0;
+}
+
+.plan-review-summary a {
+	align-items: center;
+	border: 1px solid var(--plan-line);
+	border-radius: 999px;
+	color: var(--plan-body-ink);
+	display: inline-flex;
+	font-size: 0.75rem;
+	font-variant-numeric: tabular-nums;
+	gap: 0.5rem;
+	line-height: 1rem;
+	min-height: 1.75rem;
+	padding: 0.25rem 0.75rem 0.25rem 0.625rem;
+	text-decoration: none;
+	transition-property: background-color, border-color, color;
+	transition-duration: 150ms;
+	transition-timing-function: ease-out;
+}
+
+.plan-review-summary a::before {
+	background: var(--plan-review);
+	border-radius: 999px;
+	content: "";
+	flex: none;
+	height: 0.5rem;
+	width: 0.5rem;
+}
+
+.plan-review-summary a[data-findings="0"] {
+	color: var(--plan-faint);
+}
+
+.plan-review-summary a[data-findings="0"]::before {
+	opacity: 0.45;
+}
+
+@media (hover: hover) and (pointer: fine) {
+	.plan-review-summary a:hover {
+		background: rgb(255 255 255 / 4%);
+		border-color: color-mix(in oklch, var(--plan-review) 45%, var(--plan-line));
+		color: var(--plan-ink);
+	}
+}
+
+.plan-review-summary a:focus-visible {
+	outline: 2px solid color-mix(in oklch, var(--plan-accent) 55%, transparent);
+	outline-offset: 2px;
+}
+
+.plan-review-summary a:active {
+	background: rgb(255 255 255 / 7%);
+}
+
 .plan-mermaid {
 	align-items: center;
 	background: color-mix(in oklch, var(--plan-panel) 88%, black);
@@ -966,6 +1117,16 @@ html {
 		color: var(--plan-ink);
 	}
 
+	.plan-outline-list a[data-severity]::before {
+		background: var(--plan-review);
+		border-radius: 999px;
+		content: "";
+		flex: none;
+		height: 0.375rem;
+		margin-right: 0.5rem;
+		width: 0.375rem;
+	}
+
 	.plan-outline-more {
 		color: var(--plan-faint);
 		font-size: 0.75rem;
@@ -1014,6 +1175,10 @@ html {
 		font-size: 1.5rem;
 		line-height: 2rem;
 		margin-top: 3rem;
+	}
+
+	.plan-environment .plan-prose .plan-review {
+		padding-left: 1rem;
 	}
 
 	.plan-environment .hostplan-open-in {

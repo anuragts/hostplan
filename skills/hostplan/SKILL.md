@@ -28,6 +28,73 @@ Before writing or revising any plan, read and follow
 [how-to-write-plan](../how-to-write-plan/SKILL.md). It defines the required
 line length, structure, tables, diagrams, callouts, and phase separators.
 
+## Reviewing a PR, branch, or diff
+
+A review is a plan too: store it with `hsp add` and hand back the link. Use
+this shape instead of the implementation-plan shape, because the viewer
+understands it. Each severity heading becomes a section with a coloured rail
+and a findings count, the header shows chips such as "1 blocker · 2 should
+fix · 3 nits" that jump to their section, and the outline marks each one.
+
+```markdown
+# Review: <what was reviewed>
+
+<Branch or PR, size of the diff, whether a PR exists. Two lines.>
+
+## Verdict
+
+<Merge, fix then merge, or do not merge. Name the one finding that
+decides it.>
+
+---
+
+## 🔴 Blockers
+
+None.
+
+---
+
+## 🟡 Should fix
+
+### 1. <Finding, as a sentence>
+
+`path/to/file.ts:123`
+
+<What is wrong. Why it matters. The fix, with code if it is not
+obvious.>
+
+---
+
+## 🟢 Nits
+
+- **<Nit>.** <One or two sentences, with the fix.>
+
+---
+
+## Already good
+
+- <What the author got right, and the line that proves it.>
+```
+
+Rules the viewer relies on:
+
+- The severity headings are exactly `Blockers`, `Should fix`, and `Nits`,
+  at the same depth as `Verdict`. The emoji is optional; the viewer strips
+  it and paints its own marker. `Must fix` is accepted as a blocker.
+- Number findings as headings one level down, with the `file:line` as the
+  first line under each. That heading count is the section's count. A
+  section with only a list counts its list items instead, which is what
+  nits usually are.
+- A section with nothing to report says `None.` and stays in the review.
+  An empty blockers section is the finding a reader most wants to see.
+- Order the sections most severe first. Anything else, such as
+  housekeeping tables or verification results, goes before the severity
+  sections or after `Already good`.
+- After the fixes land, append `## Applied (<date>)` and revise the same
+  plan with `hsp update <id>`. Do not store a second plan.
+
+Title the plan `Review: ...` so it reads as a review in `hsp list`.
+
 ## Storing a plan
 
 After you write a plan to a file:

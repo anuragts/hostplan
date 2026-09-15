@@ -7,8 +7,7 @@ import { type AcquisitionSource, analyticsPath } from "@/lib/acquisition";
 const posthogKey = process.env.NEXT_PUBLIC_POSTHOG_KEY;
 const seaProjectKey = process.env.NEXT_PUBLIC_SEA_PROJECT_KEY;
 const seaEndpoint =
-	process.env.NEXT_PUBLIC_SEA_COLLECTOR_URL ??
-	"https://sea-worker.zshlabs.com/v1/collect";
+	process.env.NEXT_PUBLIC_SEA_COLLECTOR_URL ?? "https://sea-worker.zshlabs.com/v1/collect";
 
 let sea: Analytics | undefined;
 

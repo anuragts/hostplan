@@ -43,5 +43,44 @@ Final context.
 		]);
 		expect(data.readMinutes).toBe(1);
 		expect(data.taskProgress).toEqual({ done: 1, total: 2, percentage: 50 });
+		expect(data.review).toBeUndefined();
+	});
+
+	test("surfaces review severities in the outline and counts them most severe first", () => {
+		const data = getPlanReaderData(
+			`# Review: widget
+
+## Verdict
+
+Fix one thing.
+
+## 🟢 Nits
+
+- Rename it.
+
+## 🟡 Should fix
+
+### 1. Off by one
+
+Detail.
+
+## 🔴 Blockers
+
+None.
+`,
+			"Review: widget",
+		);
+
+		expect(data.outline).toEqual([
+			{ id: "verdict", text: "Verdict", depth: 2 },
+			{ id: "nits", text: "Nits", depth: 2, severity: "nit" },
+			{ id: "should-fix", text: "Should fix", depth: 2, severity: "should-fix" },
+			{ id: "blockers", text: "Blockers", depth: 2, severity: "blocker" },
+		]);
+		expect(data.review).toEqual([
+			{ id: "blockers", severity: "blocker", count: 0 },
+			{ id: "should-fix", severity: "should-fix", count: 1 },
+			{ id: "nits", severity: "nit", count: 1 },
+		]);
 	});
 });

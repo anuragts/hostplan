@@ -60,7 +60,10 @@ hierarchy. Do not fall back to ASCII connectors, boxes, or arrows.
 
 ## Required plan shape
 
-Use this structure unless the subject genuinely requires a different order:
+Use this structure unless the subject genuinely requires a different order.
+A code review is the one standing exception: use the review shape in
+[hostplan](../hostplan/SKILL.md#reviewing-a-pr-branch-or-diff), whose
+severity headings the viewer renders specially.
 
 ```markdown
 ## <Plan title with clear context>
